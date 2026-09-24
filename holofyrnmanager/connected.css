@@ -1,0 +1,100 @@
+/* Authentication and integration states; the design itself is in concept.css. */
+.login-screen{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login-card{width:min(460px,100%);padding:32px}
+.login-card h1{font-size:36px;letter-spacing:-.035em;margin-bottom:10px}
+.login-card form{display:grid;gap:20px;margin-top:28px}
+.login-card .field{display:grid;gap:8px;font-size:13px;color:var(--muted)}
+.login-card [role=alert]{color:#ff96ac;margin:0;font-size:13px}
+.sync-status{font-size:11px;color:var(--muted);white-space:nowrap}
+.sync-status[data-error=true]{color:#ff96ac}
+.search-results{display:grid;gap:10px}
+.search-results .btn{text-align:left}
+.modal-backdrop{z-index:10000}
+.toast-root{z-index:11000}
+.btn:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #ff96ac;outline-offset:3px}
+.user-option{min-height:42px}
+@media(max-width:900px){.app-shell,.app-shell.sidebar-hidden{grid-template-columns:1fr}.sidebar{left:0;z-index:2000;width:290px}.sidebar-hidden .sidebar{transform:translateX(-100%);visibility:hidden}.main::before{left:0}.topbar{z-index:1000}.sync-status{display:none}.sidebar:not(.mobile-open){box-shadow:12px 0 50px #0008}}
+/* Fully opaque navigation on desktop and mobile. */
+.sidebar{background:#06080b!important;backdrop-filter:none}
+
+/* HoloFyrn: flexible layouts and touch navigation. */
+.app-shell{grid-template-columns:290px minmax(0,1fr)}
+.app-shell.sidebar-hidden{grid-template-columns:0 minmax(0,1fr)}
+.grid>*,.form-grid>*,.content>*,.top-left,.team-switch-main>div{min-width:0}
+.team-name,.crumb,.player-details,.detail-lines,.page-title,.fixture-focus{overflow-wrap:anywhere}
+.brand img,.team-switch-thumb{flex-shrink:0;object-fit:contain;background:transparent;filter:drop-shadow(0 0 5px #ffffff35)}
+.brand-title{font-size:20px}.brand-sub{letter-spacing:.12em}
+.team-menu{max-height:55dvh;overflow-y:auto}.team-option{min-height:48px;cursor:pointer}
+.table-wrap,.calendar-shell{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.sidebar-backdrop,.sidebar-close{display:none}
+.modal{max-width:100%;max-height:calc(100dvh - 24px);overflow:auto}
+.card-actions,.toolbar,.week-head,.calendar-toolbar,.section-head,.round-header{flex-wrap:wrap}
+.input,.select,.textarea{min-width:0;max-width:100%}
+@media(max-width:1100px){.topbar{height:auto;min-height:70px;flex-wrap:wrap;padding:12px 16px}.top-actions{flex-wrap:wrap}.searchbar{width:160px}}
+@media(max-width:900px){
+ .app-shell,.app-shell.sidebar-hidden{grid-template-columns:minmax(0,1fr)}
+ .sidebar{width:min(320px,calc(100vw - 44px));height:100dvh;padding-top:54px;overscroll-behavior:contain}
+ .sidebar-close{display:block;position:absolute;right:12px;top:8px;min-width:40px;min-height:40px}
+ .sidebar-backdrop{display:block;position:fixed;inset:0;z-index:1999;border:0;background:#0009;backdrop-filter:blur(3px)}
+ .sidebar-hidden .sidebar-backdrop{display:none}
+ .app-shell:not(.sidebar-hidden) .main{pointer-events:none}
+ body:has(.app-shell:not(.sidebar-hidden)){overflow:hidden}
+ .top-left{flex:1}.crumb{line-height:1.5}.topbar{gap:10px}
+ .top-actions{margin-left:auto}.btn,.icon-circle,.profile-circle,.nav-btn,.seg-btn{min-height:44px}
+ .notification-panel{position:fixed;top:120px;left:12px;right:12px;width:auto;max-height:calc(100dvh - 140px)}
+ .invite-picker-grid,.standings-config,.predictor-layout{grid-template-columns:minmax(0,1fr)}
+ .modal-backdrop{padding:12px}.modal-body{padding:16px}.modal-head,.modal-foot{padding:14px;flex-wrap:wrap;gap:10px}
+ .input,.select,.textarea{font-size:16px}
+ .calendar-grid{min-width:680px}
+ .toast-root{left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));width:auto}.toast{max-width:100%}
+}
+@media(max-width:540px){
+ .content{padding:16px 12px}.login-screen{padding:16px}.login-card{padding:22px 18px}
+ .login-card h1{font-size:30px}.page-title{font-size:clamp(30px,8vw,42px)}.page-title.small{font-size:32px}
+ .topbar{padding:10px 12px}.top-left{flex-basis:100%}.top-actions{width:100%;justify-content:flex-end}
+ .searchbar{display:flex;flex:1;width:auto;min-width:0}.searchbar input{min-width:0}
+ .week-grid,.playoff-columns,.seed-grid,.predictor-main .seed-grid{grid-template-columns:minmax(0,1fr)}
+ .event-row{grid-template-columns:minmax(0,1fr) auto}.event-date{grid-column:1/-1}
+ .segmented,.league-tabs{display:flex;flex-wrap:wrap;gap:6px}.seg-btn{white-space:normal}
+ .person-profile-head{flex-wrap:wrap}.person-profile-head>div{min-width:0}
+ .predictor-fixture{flex-wrap:wrap}.form-strip{flex-wrap:wrap}.card-pad{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+.password-settings{margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+.password-settings summary{cursor:pointer;font-weight:700;min-height:44px;padding:10px 0}
+.password-settings form{display:grid;gap:14px;margin-top:12px;max-width:460px}
+.password-settings .field{display:grid;gap:8px}
+.password-settings p{margin:0;overflow-wrap:anywhere}
+.password-settings button:disabled{opacity:.65;cursor:wait}
+.social-label,.social-link{display:inline-flex;align-items:center;gap:8px}
+.social-icon{width:18px;height:18px;flex:0 0 18px;object-fit:contain;filter:brightness(0) invert(1)}
+.social-links{display:flex;flex-wrap:wrap;gap:8px}
+.coach-section{margin-top:28px}.coach-section h2{font-size:20px}
+.coach-list{align-items:start}.coach-row{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px;min-width:0}
+.coach-discord{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.field[hidden]{display:none!important}
+@media(max-width:600px){.coach-row{align-items:flex-start;flex-direction:column;gap:12px}}
+.roster-identity{display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-width:0}
+.roster-identity-text{min-width:0;overflow-wrap:anywhere}
+.roster-identity .roster-avatar{width:44px;height:44px;flex:0 0 44px}
+.roster-identity .player-name{text-align:left;overflow-wrap:anywhere;max-width:100%}
+
+/* Give calendar invite names full rows instead of truncating them. */
+.invite-picker-grid{grid-template-columns:minmax(0,1fr);gap:18px}
+.invite-picker-grid>.field,.invite-picker-grid .multi-picker{min-width:0}
+.invite-picker-grid .picker-list{height:280px;max-height:280px;gap:10px;overflow-x:hidden;grid-auto-rows:minmax(84px,auto)}
+.invite-picker-grid .picker-option{min-height:84px;margin-top:0;padding:18px 16px;align-items:center}
+.invite-picker-grid .picker-option input[type=checkbox]{flex:0 0 18px;width:18px;height:18px;margin:2px 0 0}
+.invite-picker-grid .picker-option b,.invite-picker-grid .picker-option small{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.45}
+.invite-picker-grid .picker-option b{font-size:14px}
+.invite-picker-grid .picker-option small{font-size:12px}
+/* Priority uses both text and colour so it remains readable without colour vision. */
+.priority-low{--priority-color:#62d6ad;--priority-bg:#102b26}
+.priority-normal{--priority-color:#81b8ff;--priority-bg:#13243d}
+.priority-high{--priority-color:#ffd06a;--priority-bg:#342914}
+.priority-urgent{--priority-color:#ff8496;--priority-bg:#391923}
+.calendar-event[class*=priority-]{border-left:4px solid var(--priority-color);background:var(--priority-bg)!important}
+.event-row[class*=priority-]{border-left:4px solid var(--priority-color)}
+.priority-badge{display:inline-block;color:var(--priority-color);background:var(--priority-bg);border:1px solid var(--priority-color);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;line-height:1.4}
+.avatar img,.profile-circle img,.avatar-editor-stage img{object-fit:cover;object-position:center;transform:translate(-50%,-50%)!important}
+.avatar-editor-stage{cursor:default}

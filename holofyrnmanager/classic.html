@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#07090f" />
+    <title>HoloFyrn Manager</title>
+    <link rel="icon" href="assets/holofyrn-logo.png" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="auth-screen">
+        <section class="auth-panel">
+          <div class="brand">
+            <img class="brand-logo" src="assets/holofyrn-logo.png" alt="HoloFyrn logo">
+            <div>
+              <strong>HoloFyrn Manager</strong>
+              <span>Az app JavaScript modulokkal indul.</span>
+            </div>
+          </div>
+          <p class="warning">
+            Ha ezt ZIP-bol duplakattal nyitottad meg, inditsd helyi szerverrol.
+            Pelda: a mappaban futtasd a <code>.\start-local-server.ps1</code> parancsot,
+            majd nyisd meg: <code>http://localhost:8000</code>.
+          </p>
+        </section>
+      </div>
+    </div>
+    <script type="module" src="script.js"></script>
+  </body>
+</html>

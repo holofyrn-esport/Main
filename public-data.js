@@ -207,7 +207,7 @@ document.addEventListener('holofyrn:route', render);
 render();
 try {
   const [{firebaseConfig}, appApi, authApi, fire] = await Promise.all([
-    import('../HoloFyrnManager/firebaseConfig.js'),
+    import('./holofyrnmanager/firebaseConfig.js'),
     import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),
     import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),
     import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),
