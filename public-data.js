@@ -10,7 +10,7 @@ const teamNames = {
   rls: 'RLS HoloFyrn Esport', 'rls-academy': 'RLS HoloFyrn Academy',
   'rls-eldr': 'RLS HoloFyrn Élet',
 };
-const portraits = {kenz: 'kenz.webp', eggy: 'eggy.webp', interz: 'interz.webp'};
+const portraits = {kenz: 'Kenz.png', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;
 let loadError = false;
 
@@ -103,10 +103,12 @@ function renderProfile(route, players) {
   if (photoFile) {
     photo.classList.add('has-portrait');
     photo.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('assets/${photoFile}')`;
-    const illustration = document.createElement('em');
-    illustration.className = 'concept-label';
-    illustration.append(translated('Illustrative portrait', 'Illusztráció'));
-    photo.append(illustration);
+    if (photoFile !== 'Kenz.png') {
+      const illustration = document.createElement('em');
+      illustration.className = 'concept-label';
+      illustration.append(translated('Illustrative portrait', 'Illusztráció'));
+      photo.append(illustration);
+    }
   }
   const photoLabel = document.createElement('span');
   photoLabel.textContent = 'HF / ' + team;
