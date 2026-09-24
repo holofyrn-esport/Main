@@ -23,7 +23,7 @@ function playerLink(player) {
 }
 
 function portrait(player) {
-  if (player.name.trim().toLowerCase() === 'zemsta') return 'zemsta.png';
+  if (player.name.trim().toLowerCase() === 'zemsta') return 'zemsta.png?v=2';
   return player.team === 'main' ? portraits[player.name.toLowerCase()] : null;
 }
 
@@ -104,7 +104,7 @@ function renderProfile(route, players) {
   if (photoFile) {
     photo.classList.add('has-portrait');
     photo.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('assets/${photoFile}')`;
-    if (!['Kenz.png', 'zemsta.png'].includes(photoFile)) {
+    if (photoFile !== 'Kenz.png' && !photoFile.startsWith('zemsta.png')) {
       const illustration = document.createElement('em');
       illustration.className = 'concept-label';
       illustration.append(translated('Illustrative portrait', 'Illusztráció'));
