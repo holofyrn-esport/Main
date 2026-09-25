@@ -2790,16 +2790,24 @@ document.addEventListener("click", async (event) => {
     const user = store.users.find((item) => item.id === button.dataset.userDelete);
     if (!user || isBuiltInUser(user)) return;
     if (user.id === currentAuthUser?.uid || user.authUid === currentAuthUser?.uid) return;
-    if (!(await showConfirm(`Permanently delete ${user.username} and their Firebase login?`, { title: "Delete account", confirmText: "Delete", tone: "danger" }))) return;
+    if (!(await showConfirm(`Remove ${user.username}'s access now and queue their Firebase login for deletion?`, { title: "Request account deletion", confirmText: "Request deletion", tone: "danger" }))) return;
     button.disabled = true;
     try {
-      const api = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js");
-      await api.httpsCallable(api.getFunctions(auth.app, "europe-west1"), "deleteManagerAccount")({ userId: user.id });
-      // The server updates both stores; do not save this stale browser copy.
+      if (!remoteApi || !db || !auth?.currentUser) throw new Error("Sign in to request account deletion.");
+      const targetRef = remoteApi.doc(db, "users", user.id);
+      const requestRef = remoteApi.doc(db, "accountDeletionRequests", user.id);
+      await remoteApi.runTransaction(db, async (transaction) => {
+        const target = await transaction.get(targetRef);
+        if (!target.exists()) throw new Error("This account no longer exists. Reload the page.");
+        if (target.data().authUid && target.data().authUid !== user.id) throw new Error("This legacy account needs its Firebase UID corrected before deletion.");
+        transaction.update(targetRef, { approved: false, deletionPending: true });
+        transaction.set(requestRef, { userId: user.id, requestedBy: auth.currentUser.uid, status: "pending", requestedAt: remoteApi.serverTimestamp() });
+      });
+      await showAlert("Access has been revoked. The scheduled worker will delete the Firebase login.", { title: "Deletion queued" });
     } catch (error) {
-      await showAlert(error.code === "functions/permission-denied"
-        ? "Account deletion permission must be enabled for this administrator in Firebase."
-        : "Account deletion did not finish. Check that deleteManagerAccount is deployed, then retry.", { title: "Delete failed", tone: "warning" });
+      await showAlert(error.code === "permission-denied"
+        ? "Administrator access or the account deletion Firestore rule is missing."
+        : error.message || "The deletion request did not finish. Please retry.", { title: "Delete failed", tone: "warning" });
     } finally {
       button.disabled = false;
     }

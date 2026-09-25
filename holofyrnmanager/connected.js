@@ -185,30 +185,34 @@ function playerNameModal(player){
   });
 }
 async function requestAccountDeletion(userId){
-  const api=await import('https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js');
-  const functions=api.getFunctions(services.auth.app,'europe-west1');
-  return api.httpsCallable(functions,'deleteManagerAccount')({userId});
+  const {fire,db}=services;
+  const targetRef=fire.doc(db,'users',userId);
+  const requestRef=fire.doc(db,'accountDeletionRequests',userId);
+  await fire.runTransaction(db,async transaction=>{
+    const target=await transaction.get(targetRef);
+    if(!target.exists())throw new Error('This account no longer exists. Reload the page.');
+    if(target.data().authUid && target.data().authUid!==userId)throw new Error('This legacy account needs its Firebase UID corrected before deletion.');
+    transaction.update(targetRef,{approved:false,deletionPending:true});
+    transaction.set(requestRef,{userId,requestedBy:authenticatedUser.uid,status:'pending',requestedAt:fire.serverTimestamp()});
+  });
 }
 function deleteAccountModal(user){
   if(!isAdmin()||!user||user.id===state.currentUserId)return;
-  openModal('Permanently delete account?',`<p>Delete <b>${esc(user.displayName)}</b> (@${esc(user.username)}) and their login permanently? This cannot be undone. Player records and competition history will remain.</p><label class="field" for="delete-account-confirm">Type the username to confirm<input class="input" id="delete-account-confirm" autocomplete="off" spellcheck="false"></label><p id="delete-account-error" role="alert"></p>`,async()=>{
+  openModal('Request account deletion?',`<p>Remove access for <b>${esc(user.displayName)}</b> (@${esc(user.username)}) now and queue their Firebase login for deletion. The scheduled deletion worker completes the removal; player records and competition history remain.</p><label class="field" for="delete-account-confirm">Type the username to confirm<input class="input" id="delete-account-confirm" autocomplete="off" spellcheck="false"></label><p id="delete-account-error" role="alert"></p>`,async()=>{
     const button=document.getElementById('modal-save'),message=document.getElementById('delete-account-error');
     if(button.disabled)return;
     if(value('delete-account-confirm')!==user.username){message.textContent='Enter the exact username to confirm.';return;}
     if(pendingWrites){message.textContent='Wait for current changes to finish saving, then try again.';return;}
     if(!isAdmin()||user.id===state.currentUserId)return;
-    button.disabled=true;button.textContent='Deleting…';message.textContent='';
+    button.disabled=true;button.textContent='Requesting…';message.textContent='';
     try{
       await requestAccountDeletion(user.id);
-      remoteProfiles=remoteProfiles.filter(p=>p.id!==user.id);
-      state.users=state.users.filter(p=>p.id!==user.id);
-      for(const player of state.players)if(player.accountId===user.id)player.accountId=null;
-      closeModal();render();toast('Account deleted',user.displayName);
+      closeModal();render();toast('Deletion queued',`${user.displayName} can no longer access the manager.`);
     }catch(error){
-      message.textContent=error.code==='functions/permission-denied'?'Account deletion permission must be enabled for your administrator account in Firebase.':error.code==='functions/not-found'||error.code==='functions/internal'?'The deletion service is unavailable. Check that the Firebase function has been deployed.':error.message||'Deletion failed. Please retry.';
-      button.disabled=false;button.textContent='Delete permanently';
+      message.textContent=error.code==='permission-denied'?'Administrator access or the account deletion Firestore rule is missing.':error.message||'Deletion request failed. Please retry.';
+      button.disabled=false;button.textContent='Request deletion';
     }
-  },'Delete permanently');
+  },'Request deletion');
   document.getElementById('modal-save').classList.add('danger');
 }
 function accountModal(user=null){

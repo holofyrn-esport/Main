@@ -1,0 +1,28 @@
+name: Delete queued manager accounts
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: delete-manager-accounts
+  cancel-in-progress: false
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: account-deletion/package-lock.json
+      - run: npm ci --prefix account-deletion --omit=dev
+      - run: node account-deletion/worker.cjs
+        env:
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.HOLOFYRN_FIREBASE_SERVICE_ACCOUNT }}
