@@ -23,8 +23,10 @@ function playerLink(player) {
 }
 
 function portrait(player) {
-  if (player.name.trim().toLowerCase() === 'zemsta') return 'zemsta.png?v=2';
-  return player.team === 'main' ? portraits[player.name.toLowerCase()] : null;
+  const name = player.name.trim().toLowerCase();
+  if (name === 'zemsta') return 'assets/zemsta.png?v=2';
+  if (name === 'qex') return 'Ppic/Qex.png';
+  return player.team === 'main' && portraits[name] ? `assets/${portraits[name]}` : null;
 }
 
 function translated(en, hu) {
@@ -50,7 +52,7 @@ function playerCard(player, index) {
   const photo = portrait(player);
   if (photo) {
     image.classList.add('has-portrait');
-    image.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('assets/${photo}')`;
+    image.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('${photo}')`;
   }
   const label = document.createElement('span');
   label.className = 'player-index';
@@ -103,8 +105,8 @@ function renderProfile(route, players) {
   const photoFile = portrait(player);
   if (photoFile) {
     photo.classList.add('has-portrait');
-    photo.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('assets/${photoFile}')`;
-    if (photoFile !== 'Kenz.png' && !photoFile.startsWith('zemsta.png')) {
+    photo.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('${photoFile}')`;
+    if (photoFile === 'assets/eggy.webp' || photoFile === 'assets/interz.webp') {
       const illustration = document.createElement('em');
       illustration.className = 'concept-label';
       illustration.append(translated('Illustrative portrait', 'Illusztráció'));
