@@ -17,11 +17,11 @@ const seed = emptyState();
 
 const NAV_SECTIONS = [
   { label:'', items:[['overview','Overview']] },
-  { label:'Team', items:[['roster','Roster','admin'],['availability','Availability']] },
+  { label:'Team', items:[['roster','Roster','admin'],['availability','Availability'],['coaching','Coaching']] },
   { label:'Competition', items:[['results','Results'],['league','Leagues'],['calendar','Calendar']] },
   { label:'Management', items:[['admin','Admin','admin']] }
 ];
-const ICONS = {overview:'⌂',roster:'👥',availability:'🗓',results:'⚔',league:'🏆',calendar:'▣',admin:'⚙'};
+const ICONS = {overview:'⌂',roster:'👥',availability:'🗓',coaching:'✎',results:'⚔',league:'🏆',calendar:'▣',admin:'⚙'};
 let state = loadState();
 
 function loadState(){ return emptyState(); }
@@ -89,6 +89,62 @@ function overview(){
 function nextLeagueFixture(){return state.leagueGames.filter(g=>!g.played&&(g.home===team().name||g.away===team().name)).sort((a,b)=>a.date.localeCompare(b.date))[0];}
 
 function isRosterCoach(p){return String(p?.role||'').toLowerCase()==='coach';}
+let coachingCache = {key:'',status:'idle',notes:[],error:''};
+function resetCoachingCache(){coachingCache={key:'',status:'idle',notes:[],error:''};}
+function coachingScope(){
+  const user=currentUser();
+  if(!user)return null;
+  const player=currentPlayer();
+  const teamId=isAdmin()?state.activeTeam:user.teamId;
+  if(!teamId || !state.teams.some(t=>t.id===teamId))return null;
+  if(isAdmin() || isCoach())return {teamId,canWrite:true,players:state.players.filter(p=>p.team===teamId&&!isRosterCoach(p))};
+  if(!player || player.team!==teamId)return null;
+  return {teamId,canWrite:false,players:[player]};
+}
+function coachingKey(scope){return `${state.currentUserId}:${scope.teamId}:${scope.players.map(p=>p.id).join(',')}`;}
+function loadCoachingPage(scope,force=false){
+  if(!liveReady || !services || !scope)return;
+  const key=coachingKey(scope);
+  if(!force && coachingCache.key===key)return;
+  coachingCache={key,status:'loading',notes:[],error:''};
+  import('./coaching-data.mjs').then(({loadCoachingNotes})=>loadCoachingNotes(services.fire,services.db,scope.teamId,scope.players.map(p=>p.id)))
+    .then(notes=>{if(coachingCache.key!==key)return;coachingCache={key,status:'ready',notes,error:''};if(state.view==='coaching')render();})
+    .catch(error=>{if(coachingCache.key!==key)return;console.error('Coaching notes failed',error);coachingCache={key,status:'error',notes:[],error:'The coaching notes could not be loaded. Check the team assignment and Firestore rules.'};if(state.view==='coaching')render();});
+}
+function coachingNoteMarkup(note,scope){
+  const author=userById(note.authorId)?.displayName || 'Coach';
+  const player=scope.players.find(p=>p.id===note.playerId);
+  const date=note.createdAt?.toDate?.();
+  return `<article class="coaching-note"><div class="coaching-note-meta"><strong>${esc(author)}</strong><span>${date?esc(date.toLocaleString()):'Just now'}</span></div>${scope.canWrite?`<small>${note.kind==='team'?'Team':`Player · ${esc(player?.name||'Player')}`}</small>`:''}<p>${esc(note.text)}</p></article>`;
+}
+function coaching(){
+  const scope=coachingScope();
+  if(!scope)return appShell('<div class="page-head"><div><div class="eyebrow">Team</div><h1 class="page-title small">Coaching</h1><p class="page-sub">Your account needs a team assignment and a linked player profile to see coaching notes.</p></div></div>');
+  loadCoachingPage(scope);
+  const notes=coachingCache.key===coachingKey(scope)?coachingCache.notes:[];
+  const teamNotes=notes.filter(n=>n.kind==='team'),playerNotes=notes.filter(n=>n.kind==='player');
+  const list=(items,empty)=>items.length?items.map(n=>coachingNoteMarkup(n,scope)).join(''):coachingCache.status==='loading'||coachingCache.status==='error'?'':`<p class="empty">${empty}</p>`;
+  const status=coachingCache.status==='loading'?'<p role="status" class="page-sub">Loading coaching notes…</p>':coachingCache.status==='error'?`<p role="alert" class="page-sub">${esc(coachingCache.error)}</p>`:'';
+  return appShell(`<div class="page-head"><div><div class="eyebrow">Team · ${esc(state.teams.find(t=>t.id===scope.teamId)?.name||scope.teamId)}</div><h1 class="page-title small">Coaching</h1><p class="page-sub">${scope.canWrite?'Write guidance for your team or an individual player.':'Read the notes addressed to your team and to you.'}</p></div><button class="btn" id="coaching-refresh">Refresh</button></div>${scope.canWrite?`<div class="card card-pad coaching-roster"><h3>Players in this team</h3><p>${scope.players.length?scope.players.map(p=>`<span class="tag">${esc(p.name)}</span>`).join(''):'No players linked to this team yet.'}</p></div><form class="card card-pad coaching-compose" id="coaching-form"><h3>New note</h3><label class="field">For<select class="select" name="target"><option value="team">Whole team</option>${scope.players.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select></label><label class="field">Message<textarea class="textarea" name="message" maxlength="4000" rows="5" required placeholder="Write a coaching note…"></textarea></label><p id="coaching-error" role="alert"></p><button class="btn primary" type="submit">Post note</button></form>`:''}${status}<div class="coaching-grid"><section class="card card-pad"><h3>Team notes</h3>${list(teamNotes,'No team notes yet.')}</section><section class="card card-pad"><h3>${scope.canWrite?'Player notes':'My notes'}</h3>${list(playerNotes,'No player notes yet.')}</section></div>`);
+}
+function bindCoaching(){
+  const scope=coachingScope();
+  document.getElementById('coaching-refresh')?.addEventListener('click',()=>{resetCoachingCache();loadCoachingPage(scope);render();});
+  document.getElementById('coaching-form')?.addEventListener('submit',async event=>{
+    event.preventDefault();
+    if(!scope?.canWrite || !liveReady)return;
+    const form=event.currentTarget,button=form.querySelector('button[type="submit"]'),message=form.elements.message.value.trim();
+    const target=form.elements.target.value,playerId=target==='team'?'':scope.players.find(p=>p.id===target)?.id;
+    const error=form.querySelector('#coaching-error');
+    if(!message || message.length>4000 || (target!=='team'&&!playerId)){error.textContent='Choose a recipient and enter a message of at most 4000 characters.';return;}
+    button.disabled=true;error.textContent='';
+    try{
+      const {addCoachingNote}=await import('./coaching-data.mjs');
+      await addCoachingNote(services.fire,services.db,scope.teamId,playerId,authenticatedUser.uid,message);
+      resetCoachingCache();loadCoachingPage(scope);render();toast('Coaching note posted');
+    }catch(e){console.error('Coaching note failed',e);error.textContent='The note could not be saved. Check the team assignment and Firestore rules.';button.disabled=false;}
+  });
+}
 function roster(){const members=playersForTeam(),list=members.filter(p=>!isRosterCoach(p)),coaches=members.filter(isRosterCoach);return appShell(`<div class="page-head"><div><div class="eyebrow">Team</div><h1 class="page-title small">Roster</h1><p class="page-sub">Manage players and link every player to a web account.</p></div><button class="btn primary" id="add-player">+ Add player</button></div><div class="kpis"><div class="card kpi"><div class="label">Players</div><div class="value">${list.length}</div></div><div class="card kpi"><div class="label">Avg 1s peak</div><div class="value">${avg(list.map(p=>p.m1))||'—'}</div></div><div class="card kpi"><div class="label">Avg 2s peak</div><div class="value">${avg(list.map(p=>p.m2))||'—'}</div></div><div class="card kpi"><div class="label">Avg 3s peak</div><div class="value">${avg(list.map(p=>p.m3))||'—'}</div></div></div><div class="roster-grid">${renderRosterCards(list)}</div>${coaches.length?`<section class="coach-section"><h2>Coaches</h2><div class="roster-grid coach-list">${coaches.map(renderCoachCard).join('')}</div></section>`:''}`);}
 function rosterAvatar(p){return avatarMarkup(linkedUserForPlayer(p.id)||{displayName:p.name,initials:initials(p.name)},'roster-avatar');}
 function renderCoachCard(p){return `<div class="card card-pad coach-row"><div class="roster-identity">${rosterAvatar(p)}<div class="roster-identity-text"><button class="player-name person-link" data-player-view="${esc(p.id)}">${esc(p.name)}</button><div class="player-meta">Coach</div></div></div><div class="coach-discord"><b>Discord:</b> ${esc(p.discord||'—')}</div><div class="card-actions"><button class="btn small" data-player-view="${esc(p.id)}">View profile</button><button class="btn small" data-player-edit="${esc(p.id)}">Edit</button><button class="btn small danger" data-player-delete="${esc(p.id)}">Delete</button></div></div>`;}
@@ -284,7 +340,7 @@ function bindCommon(){
   bindConnectedActions();
   document.addEventListener('click',e=>{if(teamMenu&&!teamMenu.contains(e.target)&&!teamBtn?.contains(e.target))teamMenu.classList.remove('open');if(userMenu&&!userMenu.contains(e.target)&&!switchBtn?.contains(e.target))userMenu.classList.remove('open');if(panel&&!panel.contains(e.target)&&!bell?.contains(e.target))panel.classList.remove('open');},{once:true});
 }
-function bindView(){if(state.view==='roster')bindRoster();if(state.view==='availability')bindAvailability();if(state.view==='results')bindResults();if(state.view==='league')bindLeague();if(state.view==='calendar')bindCalendar();if(state.view==='admin')bindAdmin();}
+function bindView(){if(state.view==='roster')bindRoster();if(state.view==='availability')bindAvailability();if(state.view==='coaching')bindCoaching();if(state.view==='results')bindResults();if(state.view==='league')bindLeague();if(state.view==='calendar')bindCalendar();if(state.view==='admin')bindAdmin();}
 function bindRoster(){document.getElementById('add-player')?.addEventListener('click',()=>playerModal());document.querySelectorAll('[data-player-edit]').forEach(b=>b.onclick=()=>playerModal(playerById(b.dataset.playerEdit)));document.querySelectorAll('[data-player-view]').forEach(b=>b.onclick=()=>viewPlayer(playerById(b.dataset.playerView)));document.querySelectorAll('[data-player-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete player?','The linked account will remain but the player link will be cleared.',()=>{const p=playerById(b.dataset.playerDelete);if(p?.accountId){const u=userById(p.accountId);if(u)u.linkedPlayerId=null;}state.players=state.players.filter(p=>p.id!=b.dataset.playerDelete);save();render();}));}
 function bindAvailability(){document.getElementById('save-availability')?.addEventListener('click',()=>{const playerId=value('a-player'),date=value('a-date'),from=value('a-from'),until=value('a-until');if(!playerId||!date||from>=until){toast('Invalid availability','Check player, date and time range.');return;}state.availability.push({id:crypto.randomUUID(),playerId,date,from,until});save();render();toast('Saving availability',`${from}–${until}`);});document.querySelectorAll('[data-avail-edit]').forEach(b=>b.onclick=()=>availabilityModal(state.availability.find(a=>a.id==b.dataset.availEdit)));document.querySelectorAll('[data-avail-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete availability?','Remove this time window only.',()=>{state.availability=state.availability.filter(a=>a.id!=b.dataset.availDelete);save();render();}));}
 function bindResults(){document.querySelectorAll('[data-result-tab]').forEach(b=>b.onclick=()=>{state.resultTab=b.dataset.resultTab;save();render();});document.getElementById('add-result')?.addEventListener('click',()=>resultModal());document.querySelectorAll('[data-result-edit]').forEach(b=>b.onclick=()=>resultModal(state.results.find(r=>r.id==b.dataset.resultEdit)));document.querySelectorAll('[data-result-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete result?','Remove this result from the database.',()=>{state.results=state.results.filter(r=>r.id!=b.dataset.resultDelete);save();render();}));}
@@ -462,6 +518,6 @@ function confirmModal(title,msg,yes){openModal(title,`<p class="page-sub">${esc(
 function toast(title,msg=''){const n=document.createElement('div');n.className='toast';n.innerHTML=`<strong>${esc(title)}</strong>${msg?`<span>${esc(msg)}</span>`:''}`;document.getElementById('toast-root').appendChild(n);setTimeout(()=>n.remove(),2600);}
 function value(id){return document.getElementById(id)?.value||'';}
 function numberOrNull(id){const v=value(id);return v===''?null:Number(v);}
-function render(){if(!currentUser())return;ensureAccess();const views={overview,roster,availability,results,league,calendar,admin};document.getElementById('app').innerHTML=(views[state.view]||overview)();bindCommon();bindView();updateSyncStatus();}
+function render(){if(!currentUser())return;ensureAccess();const views={overview,roster,availability,coaching,results,league,calendar,admin};document.getElementById('app').innerHTML=(views[state.view]||overview)();bindCommon();bindView();updateSyncStatus();}
 startManager();
 

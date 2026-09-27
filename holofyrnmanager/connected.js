@@ -2,7 +2,7 @@
 // Loaded before concept.js. The imported UI calls these production services.
 let services, model, publicModel, authenticatedUser, baseline, remoteData = {}, remoteProfiles = [];
 let subscriptions = [], pendingWrites = 0, writeQueue = Promise.resolve(), syncMessage = '';
-let availabilityOffset = 0, connectionEpoch = 0, liveReady = false, refreshDeferred = false, publicPublishStarted = false;
+let availabilityOffset = 0, connectionEpoch = 0, liveReady = false, refreshDeferred = false, publicPublishStarted = false, coachingProfilesSynced = false;
 function today(){return model ? model.localDate() : new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);}
 function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],events:[],availability:[],notifications:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
@@ -27,7 +27,7 @@ function queueSave(){
     await fire.runTransaction(db,async transaction=>{
       const main=await transaction.get(storeRef);
       const latest=main.exists()?main.data():{};
-      const profileIds=new Set([currentUser().id,...(changes.users || []).map(c=>c.id)]);
+      const profileIds=new Set([currentUser().id,...(changes.users || []).map(c=>c.id),...(changes.players || []).flatMap(c=>[c.before?.accountId,c.after?.accountId]).filter(Boolean)]);
       const freshProfiles=remoteProfiles.map(u=>({...u}));
       for(const id of profileIds){
         const snapshot=await transaction.get(fire.doc(db,'users',id));
@@ -67,10 +67,23 @@ function applyDatabase(){
   state=normalizeState({...state,...mapped});
   if(!state.teams.some(t=>t.id===state.activeTeam))state.activeTeam=state.teams[0].id;
   baseline=structuredClone(state);render();
+  if(!coachingProfilesSynced && me.role==='admin'){
+    coachingProfilesSynced=true;
+    syncCoachingProfiles(mapped).catch(error=>console.error('Coaching team assignment sync failed',error));
+  }
   if(!publicPublishStarted && ['admin','coach','manager','captain'].includes(me.role)){
     publicPublishStarted=true;
     publishPublicData().catch(error=>console.error('Public data publication failed',error));
   }
+}
+async function syncCoachingProfiles(mapped){
+  const {fire,db}=services;
+  const updates=mapped.players.map(player=>{
+    const profile=remoteProfiles.find(u=>u.id===player.accountId);
+    if(!profile || (profile.teamId===player.team && profile.playerId===player.id && profile.linkedPlayerId===player.id))return null;
+    return fire.setDoc(fire.doc(db,'users',profile.id),{teamId:player.team,playerId:player.id,linkedPlayerId:player.id},{merge:true});
+  }).filter(Boolean);
+  await Promise.all(updates);
 }
 async function publishPublicData(){
   const {fire,db,storeRef,publicRef}=services;
@@ -141,7 +154,7 @@ async function startManager(){
     services={appApi,fire,authApi,db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};
     authApi.onAuthStateChanged(auth,async user=>{
       const epoch=++connectionEpoch;subscriptions.forEach(fn=>fn());subscriptions=[];
-      liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];baseline=null;state=emptyState();publicPublishStarted=false;
+      liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];baseline=null;state=emptyState();publicPublishStarted=false;coachingProfilesSynced=false;resetCoachingCache();
       document.getElementById('modal-root').innerHTML='';
       if(!user){showLogin();return;}
       document.getElementById('app').innerHTML='<main class="login-screen"><section class="card login-card" role="status">Loading team data…</section></main>';
@@ -217,12 +230,13 @@ function deleteAccountModal(user){
 }
 function accountModal(user=null){
   if(!isAdmin())return;
-  openModal(user?'Edit account':'Create account',`<div class="form-grid"><label class="field">Username<input class="input" id="account-username" value="${esc(user?.username || '')}" ${user?'disabled':''}></label><label class="field">Display name<input class="input" id="account-name" value="${esc(user?.displayName || '')}"></label><label class="field">Role<select class="select" id="account-role">${['player','coach','manager','captain','admin'].map(r=>`<option value="${r}" ${user?.role===r?'selected':''}>${r[0].toUpperCase()+r.slice(1)}</option>`).join('')}</select></label>${user?'':'<label class="field">Initial password<input class="input" id="account-password" type="password" autocomplete="new-password" minlength="6"></label>'}<p id="account-error" role="alert"></p></div>`,async()=>{
-    const username=value('account-username').trim().toLowerCase(),name=value('account-name').trim(),role=value('account-role'),message=document.getElementById('account-error');
+  openModal(user?'Edit account':'Create account',`<div class="form-grid"><label class="field">Username<input class="input" id="account-username" value="${esc(user?.username || '')}" ${user?'disabled':''}></label><label class="field">Display name<input class="input" id="account-name" value="${esc(user?.displayName || '')}"></label><label class="field">Role<select class="select" id="account-role">${['player','coach','manager','captain','admin'].map(r=>`<option value="${r}" ${user?.role===r?'selected':''}>${r[0].toUpperCase()+r.slice(1)}</option>`).join('')}</select></label><label class="field">Coaching team<select class="select" id="account-team"><option value="">No team assigned</option>${state.teams.map(t=>`<option value="${esc(t.id)}" ${user?.teamId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label>${user?'':'<label class="field">Initial password<input class="input" id="account-password" type="password" autocomplete="new-password" minlength="6"></label>'}<p id="account-error" role="alert"></p></div>`,async()=>{
+    const username=value('account-username').trim().toLowerCase(),name=value('account-name').trim(),role=value('account-role'),teamId=value('account-team'),message=document.getElementById('account-error');
     if(!/^[a-z0-9._-]+$/.test(username)||!name){message.textContent='Enter a name and a username containing letters, numbers, dots, underscores or hyphens.';return;}
+    if(role==='coach'&&!teamId){message.textContent='Choose a coaching team for this coach.';return;}
     if(user){
       if(user.id===state.currentUserId && role!=='admin'){message.textContent='Ask another administrator to change your own role.';return;}
-      user.displayName=name;user.role=role;user.roleLabel=role[0].toUpperCase()+role.slice(1);save();closeModal();render();return;
+      user.displayName=name;user.role=role;user.roleLabel=role[0].toUpperCase()+role.slice(1);user.teamId=teamId;save();closeModal();render();return;
     }
     if(value('account-password').length<6){message.textContent='Use a password of at least 6 characters.';return;}
     const button=document.getElementById('modal-save');button.disabled=true;
@@ -233,7 +247,7 @@ function accountModal(user=null){
       const secondaryAuth=authApi.getAuth(secondary);
       await authApi.setPersistence(secondaryAuth,authApi.inMemoryPersistence);
       credential=await authApi.createUserWithEmailAndPassword(secondaryAuth,`${username}@noctiq.local`,value('account-password'));
-      await fire.setDoc(fire.doc(db,'users',credential.user.uid),{id:credential.user.uid,authUid:credential.user.uid,username,name,email:credential.user.email,role:role[0].toUpperCase()+role.slice(1),approved:true,canEdit:role==='admin',createdAt:new Date().toISOString()});
+      await fire.setDoc(fire.doc(db,'users',credential.user.uid),{id:credential.user.uid,authUid:credential.user.uid,username,name,email:credential.user.email,role:role[0].toUpperCase()+role.slice(1),teamId,approved:true,canEdit:role==='admin',createdAt:new Date().toISOString()});
       closeModal();toast('Account created',name);
     }catch(error){
       if(credential)try{await services.authApi.deleteUser(credential.user);}catch{console.error('Account profile failed; remove the orphan login in Firebase Authentication.');}

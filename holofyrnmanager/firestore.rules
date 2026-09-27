@@ -25,8 +25,54 @@ service cloud.firestore {
         && managerProfile().role in ['Admin', 'admin', 'Coach', 'coach', 'Manager', 'manager', 'Captain', 'captain'];
     }
 
+    function isAssignedTo(teamId) {
+      return isMember() && managerProfile().get('teamId', '') == teamId;
+    }
+
+    function isTeamCoach(teamId) {
+      return isAssignedTo(teamId) && managerProfile().role in ['Coach', 'coach'];
+    }
+
+    function isAssignedPlayer(teamId) {
+      return isAssignedTo(teamId)
+        && (managerProfile().get('playerId', '') != ''
+          || managerProfile().get('linkedPlayerId', '') != '');
+    }
+
+    function isOwnPlayer(playerId) {
+      return managerProfile().get('playerId', '') == playerId
+        || (managerProfile().get('playerId', '') == ''
+          && managerProfile().get('linkedPlayerId', '') == playerId);
+    }
+
+    function validCoachingNote() {
+      return request.resource.data.keys().hasOnly(['authorId', 'text', 'createdAt'])
+        && request.resource.data.keys().hasAll(['authorId', 'text', 'createdAt'])
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 4000
+        && request.resource.data.createdAt == request.time;
+    }
+
     match /noctiqManager/main {
-      allow read, write: if isMember();
+      allow read: if isMember();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (isMember()
+        && request.resource.data.get('players', []) == resource.data.get('players', []));
+    }
+
+    match /coachingTeams/{teamId}/notes/{noteId} {
+      allow read: if isAdmin() || isTeamCoach(teamId) || isAssignedPlayer(teamId);
+      allow create: if (isAdmin() || isTeamCoach(teamId)) && validCoachingNote();
+      allow update, delete: if false;
+    }
+
+    match /coachingPlayers/{teamId}/players/{playerId}/notes/{noteId} {
+      allow read: if isAdmin() || isTeamCoach(teamId)
+        || (isAssignedPlayer(teamId) && isOwnPlayer(playerId));
+      allow create: if (isAdmin() || isTeamCoach(teamId)) && validCoachingNote();
+      allow update, delete: if false;
     }
 
     match /holofyrnPublic/main {

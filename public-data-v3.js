@@ -102,10 +102,21 @@ function renderProfile(route, players) {
   grid.className = 'profile-grid';
   const photo = document.createElement('div');
   photo.className = 'profile-photo public-profile-photo';
-  const photoFile = portrait(player);
+  const isZemstaAcademy = player.team === 'academy' && player.name.trim().toLowerCase() === 'zemsta';
+  const isKenzMain = player.team === 'main' && player.name.trim().toLowerCase() === 'kenz';
+  const photoFile = isZemstaAcademy ? 'assets/zemsta-profile.png' : portrait(player);
   if (photoFile) {
     photo.classList.add('has-portrait');
     photo.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('${photoFile}')`;
+    if (isZemstaAcademy || isKenzMain) {
+      photo.classList.add('signed-profile-photo');
+      const signature = document.createElement('img');
+      signature.className = isKenzMain ? 'profile-signature kenz-signature' : 'profile-signature';
+      signature.src = isKenzMain ? 'assets/kenz-signature.png' : 'assets/zemsta-signature.png';
+      signature.alt = '';
+      signature.setAttribute('aria-hidden', 'true');
+      photo.append(signature);
+    }
     if (photoFile === 'assets/eggy.webp' || photoFile === 'assets/interz.webp') {
       const illustration = document.createElement('em');
       illustration.className = 'concept-label';

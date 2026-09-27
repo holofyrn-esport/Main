@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../Desktop/HoloFyrnManager"
+		},
+		{
+			"path": "../../../Desktop/HoloFyrn"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Main"
+	}
+}

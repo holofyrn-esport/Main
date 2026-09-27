@@ -841,16 +841,23 @@
 
     .staff-preview a {
       border: 1px solid #3e3232;
-      min-height: 150px;
+      min-height: 250px;
       padding: 24px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-end;
+      position: relative;
       background: linear-gradient(140deg, #232020, #121212)
     }
 
     .staff-preview a:first-child {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/Kenz.png') center 30%/cover
+      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/Kenz.png') center top/cover
+    }
+
+    .staff-preview a>span:first-child {
+      position: absolute;
+      top: 18px;
+      left: 24px
     }
 
     .staff-preview span {
@@ -947,6 +954,16 @@
       opacity: .6
     }
 
+    a.social-card:hover,
+    a.social-card:focus-visible {
+      border-color: var(--red);
+      background: rgba(217, 36, 47, .16)
+    }
+
+    .social-card-pending {
+      opacity: .65
+    }
+
     .ticker {
       overflow: hidden;
       white-space: nowrap;
@@ -955,13 +972,19 @@
       color: #c49295
     }
 
-    .ticker div {
-      display: inline-block;
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: tick var(--ticker-duration, 42s) linear infinite
+    }
+
+    .ticker-copy {
+      flex: none;
       padding: 18px 0;
+      padding-right: 2.5rem;
       font-size: 22px;
       font-weight: 800;
-      letter-spacing: .23em;
-      animation: tick 42s linear infinite
+      letter-spacing: .23em
     }
 
     @keyframes tick {
@@ -1294,6 +1317,29 @@
     .staff-profile-photo span {
       z-index: 1;
       text-shadow: 0 2px 8px #000
+    }
+
+    .signed-profile-photo {
+      overflow: visible
+    }
+
+    .signed-profile-photo .profile-signature {
+      position: absolute;
+      z-index: 2;
+      right: -8%;
+      bottom: 6%;
+      width: min(95%, 520px);
+      height: auto;
+      object-fit: contain;
+      transform: rotate(-7deg);
+      filter: brightness(0) invert(1) drop-shadow(0 3px 9px rgba(0, 0, 0, .85));
+      pointer-events: none;
+      user-select: none
+    }
+
+    .signed-profile-photo .kenz-signature {
+      filter: grayscale(1) brightness(.6) contrast(100) drop-shadow(0 3px 9px rgba(0, 0, 0, .85));
+      mix-blend-mode: screen
     }
 
     .about-story>div:first-child {
@@ -1672,7 +1718,7 @@
       }
 
       .staff-preview a {
-        min-height: 115px
+        min-height: 220px
       }
 
       .social-grid {
@@ -1872,11 +1918,11 @@
     }
 
     .staff-preview .staff-preview-zemsta {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/zemsta.png') center 30%/cover
+      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/zemsta-profile.png') center top/cover
     }
 
     .staff-preview .staff-preview-qex {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('Ppic/Qex.png') center 30%/cover
+      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('Ppic/Qex.png') center top/cover
     }
   </style>
 </head>
@@ -2156,22 +2202,20 @@
               CONNECTED</span></div>
           <h2><span data-en="Follow the Fyrn." data-hu="Kövesd a Fyrnt.">Follow the Fyrn.</span></h2>
         </div>
-        <p><span data-en="Community channels will be linked here when they launch."
-            data-hu="A közösségi csatornák indulás után itt lesznek elérhetők.">Community channels will be linked here
-            when they launch.</span></p>
+        <p><span data-en="Join our community and follow HoloFyrn online."
+            data-hu="Csatlakozz a közösségünkhöz, és kövesd a HoloFyrnt online.">Join our community and follow HoloFyrn online.</span></p>
         <div class="social-grid">
-          <div class="social-card"><strong>Discord</strong><span>↗</span></div>
-          <div class="social-card"><strong>X / Twitter</strong><span>↗</span></div>
-          <div class="social-card"><strong>Instagram</strong><span>↗</span></div>
-          <div class="social-card"><strong>TikTok</strong><span>↗</span></div>
-          <div class="social-card"><strong>Twitch</strong><span>↗</span></div>
-          <div class="social-card"><strong>YouTube</strong><span>↗</span></div>
+          <a class="social-card" href="https://discord.gg/ZywGbjGWb" target="_blank" rel="noopener noreferrer"><strong>Discord</strong><span aria-hidden="true">↗</span></a>
+          <a class="social-card" href="https://x.com/HoloFyrnEsports" target="_blank" rel="noopener noreferrer"><strong>X / Twitter</strong><span aria-hidden="true">↗</span></a>
+          <a class="social-card" href="https://www.instagram.com/holofyrnesports/" target="_blank" rel="noopener noreferrer"><strong>Instagram</strong><span aria-hidden="true">↗</span></a>
+          <a class="social-card" href="https://www.tiktok.com/@holofyrn.esports" target="_blank" rel="noopener noreferrer"><strong>TikTok</strong><span aria-hidden="true">↗</span></a>
+          <div class="social-card social-card-pending"><strong>Twitch</strong><span data-en="Soon" data-hu="Hamarosan">Soon</span></div>
+          <div class="social-card social-card-pending"><strong>YouTube</strong><span data-en="Soon" data-hu="Hamarosan">Soon</span></div>
         </div>
       </div>
     </section>
     <div class="ticker" aria-hidden="true">
-      <div>HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆ TOGETHER ◆ HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆
-        TOGETHER ◆</div>
+      <div class="ticker-track"><span class="ticker-copy">HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆ TOGETHER ◆</span></div>
     </div>
   </main>
   <footer class="footer">
@@ -2499,22 +2543,20 @@
               CONNECTED</span></div>
           <h2><span data-en="Follow the Fyrn." data-hu="Kövesd a Fyrnt.">Follow the Fyrn.</span></h2>
         </div>
-        <p><span data-en="Community channels will be linked here when they launch."
-            data-hu="A közösségi csatornák indulás után itt lesznek elérhetők.">Community channels will be linked here
-            when they launch.</span></p>
+        <p><span data-en="Join our community and follow HoloFyrn online."
+            data-hu="Csatlakozz a közösségünkhöz, és kövesd a HoloFyrnt online.">Join our community and follow HoloFyrn online.</span></p>
         <div class="social-grid">
-          <div class="social-card"><strong>Discord</strong><span>↗</span></div>
-          <div class="social-card"><strong>X / Twitter</strong><span>↗</span></div>
-          <div class="social-card"><strong>Instagram</strong><span>↗</span></div>
-          <div class="social-card"><strong>TikTok</strong><span>↗</span></div>
-          <div class="social-card"><strong>Twitch</strong><span>↗</span></div>
-          <div class="social-card"><strong>YouTube</strong><span>↗</span></div>
+          <a class="social-card" href="https://discord.gg/ZywGbjGWb" target="_blank" rel="noopener noreferrer"><strong>Discord</strong><span aria-hidden="true">↗</span></a>
+          <a class="social-card" href="https://x.com/HoloFyrnEsports" target="_blank" rel="noopener noreferrer"><strong>X / Twitter</strong><span aria-hidden="true">↗</span></a>
+          <a class="social-card" href="https://www.instagram.com/holofyrnesports/" target="_blank" rel="noopener noreferrer"><strong>Instagram</strong><span aria-hidden="true">↗</span></a>
+          <a class="social-card" href="https://www.tiktok.com/@holofyrn.esports" target="_blank" rel="noopener noreferrer"><strong>TikTok</strong><span aria-hidden="true">↗</span></a>
+          <div class="social-card social-card-pending"><strong>Twitch</strong><span data-en="Soon" data-hu="Hamarosan">Soon</span></div>
+          <div class="social-card social-card-pending"><strong>YouTube</strong><span data-en="Soon" data-hu="Hamarosan">Soon</span></div>
         </div>
       </div>
     </section>
     <div class="ticker" aria-hidden="true">
-      <div>HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆ TOGETHER ◆ HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆
-        TOGETHER ◆</div>
+      <div class="ticker-track"><span class="ticker-copy">HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆ TOGETHER ◆</span></div>
     </div>
   </template>
   <template data-route="/join/" data-title="Join HoloFyrn | HoloFyrn Esport">
@@ -2646,7 +2688,7 @@
     <section class="player-profile container">
       <div class="breadcrumbs"><a href="#/teams/holofyrn-esport/">HoloFyrn Esport</a><span>/</span>Kenz</div>
       <div class="profile-grid">
-        <div class="profile-photo portrait-01"><span>HF / 01</span></div>
+        <div class="profile-photo portrait-01 signed-profile-photo"><img class="profile-signature kenz-signature" src="assets/kenz-signature.png" alt="" aria-hidden="true"><span>HF / 01</span></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="PLAYER PROFILE" data-hu="JÁTÉKOSPROFIL">PLAYER PROFILE</span></div>
           <h1>KENZ</h1>
@@ -2720,7 +2762,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Kenz</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="assets/Kenz.png" alt="Kenz"><span>HF / STAFF</span>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/Kenz.png" alt="Kenz"><img class="profile-signature kenz-signature" src="assets/kenz-signature.png" alt="" aria-hidden="true"><span>HF / STAFF</span>
         </div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
@@ -2746,7 +2788,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Zemsta</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="assets/zemsta.png" alt="Zemsta"><span>HF / STAFF</span>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/zemsta-profile.png" alt="Zemsta"><img class="profile-signature" src="assets/zemsta-signature.png" alt="" aria-hidden="true"><span>HF / STAFF</span>
         </div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
@@ -3675,6 +3717,12 @@
         object-position: center
       }
 
+      .signed-profile-photo .profile-signature {
+        right: -2%;
+        bottom: 4%;
+        width: 88%
+      }
+
       .profile-copy {
         padding-top: 0
       }
@@ -3857,6 +3905,21 @@
         try { localStorage.setItem('holofyrn-lang', lang); } catch { }
       }
 
+      function setupTicker() {
+        main.querySelectorAll('.ticker').forEach(ticker => {
+          const track = ticker.querySelector('.ticker-track');
+          const copy = track.firstElementChild;
+          const phrase = copy.dataset.phrase || copy.textContent.trim();
+          copy.dataset.phrase = phrase;
+          copy.textContent = phrase;
+          while (copy.getBoundingClientRect().width < ticker.clientWidth + 80) {
+            copy.textContent += ' ' + phrase;
+          }
+          track.replaceChildren(copy, copy.cloneNode(true));
+          track.style.setProperty('--ticker-duration', `${copy.getBoundingClientRect().width / 55}s`);
+        });
+      }
+
       function route() {
         const hash = decodeURIComponent(location.hash.slice(1));
         if (hash === 'main') {
@@ -3868,6 +3931,7 @@
         const requested = socials ? '/' : hash || '/';
         const page = pages.get(requested) || (requested.startsWith('/players/') ? pages.get('/players/') : pages.get('/'));
         main.replaceChildren(page.content.cloneNode(true));
+        setupTicker();
         document.title = page.dataset.title;
         const activeRoute = page.dataset.route.startsWith('/teams/') || page.dataset.route.startsWith('/players/') ? '/teams/' : page.dataset.route.startsWith('/staff/') ? '/staff/' : page.dataset.route;
         document.querySelectorAll('.main-nav a').forEach(link => {
@@ -3898,6 +3962,12 @@
         menuButton.setAttribute('aria-expanded', 'false');
       }));
       addEventListener('hashchange', route);
+      document.fonts?.ready.then(setupTicker);
+      let tickerResizeFrame;
+      addEventListener('resize', () => {
+        cancelAnimationFrame(tickerResizeFrame);
+        tickerResizeFrame = requestAnimationFrame(setupTicker);
+      });
       route();
     })();
   </script>

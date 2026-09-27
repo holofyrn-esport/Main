@@ -140,11 +140,14 @@ export function toDatabase(data, profiles, uid, changes) {
   if (changes.events) patch.events = preserve('events',next.events.filter(e=>!e.source),e=>({id:e.id,title:e.title,dateTime:`${e.date}T${e.time}`,startsAtUtc:new Date(`${e.date}T${e.time}`).toISOString(),durationMinutes:e.duration,type:e.type,priority:e.priority || 'normal',creatorUserId:e.creatorUserId,invitedTeamIds:e.invitedTeamIds,invitedUserIds:e.invitedUserIds,directInvitedUserIds:e.directInvitedUserIds || [],hiddenFromAdmins:e.hiddenFromAdmins,teamId:e.invitedTeamIds[0] || '',targetType:e.invitedTeamIds.length?'team':'player'}));
   if (['leagues','leagueGames','notifications'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, version:1, ...Object.fromEntries(['leagues','leagueGames','notifications'].map(k=>[k,next[k]]))};
   const userWrites = [];
-  for (const c of changes.users || []) {
-    const u = next.users.find(u=>u.id===c.id);
-    const original = profiles.find(p=>str(p.id)===c.id) || list(data.users).find(p=>str(p.id)===c.id) || {};
+  const affectedUserIds = new Set([...(changes.users || []).map(c=>c.id), ...(changes.players || []).flatMap(c=>[c.before?.accountId,c.after?.accountId]).filter(Boolean)]);
+  for (const id of affectedUserIds) {
+    const u = next.users.find(u=>u.id===id);
+    if (!u) continue;
+    const original = profiles.find(p=>str(p.id)===id) || list(data.users).find(p=>str(p.id)===id) || {};
     const {password, ...profile} = original;
-    userWrites.push({...profile,id:u.id,authUid:profile.authUid || u.id,name:u.displayName,username:u.username || '',role:u.role[0].toUpperCase()+u.role.slice(1),playerId:u.linkedPlayerId || '',linkedPlayerId:u.linkedPlayerId || null,approved:u.approved!==false,discord:u.discord || '',discordUrl:u.discordUrl || '',instagramUrl:u.instagramUrl || '',xUrl:u.xUrl || '',tiktokUrl:u.tiktokUrl || '',bio:u.bio || '',avatarData:u.avatarData || '',avatarScale:Number(u.avatarScale || 1),avatarX:Number(u.avatarX || 0),avatarY:Number(u.avatarY || 0)});
+    const linkedPlayer=next.players.find(p=>p.id===u.linkedPlayerId);
+    userWrites.push({...profile,id:u.id,authUid:profile.authUid || u.id,name:u.displayName,username:u.username || '',role:u.role[0].toUpperCase()+u.role.slice(1),teamId:linkedPlayer?.team || (u.role==='player'?'':u.teamId || ''),playerId:linkedPlayer?.id || '',linkedPlayerId:linkedPlayer?.id || null,approved:u.approved!==false,discord:u.discord || '',discordUrl:u.discordUrl || '',instagramUrl:u.instagramUrl || '',xUrl:u.xUrl || '',tiktokUrl:u.tiktokUrl || '',bio:u.bio || '',avatarData:u.avatarData || '',avatarScale:Number(u.avatarScale || 1),avatarX:Number(u.avatarX || 0),avatarY:Number(u.avatarY || 0)});
   }
   // Users live in users/{uid}; do not copy avatars into the shared 1 MiB document.
   return {patch,userWrites};

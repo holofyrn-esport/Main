@@ -17,6 +17,22 @@
 /* Fully opaque navigation on desktop and mobile. */
 .sidebar{background:#06080b!important;backdrop-filter:none}
 
+.coaching-compose{display:grid;gap:16px;max-width:780px;margin-bottom:18px}
+.coaching-roster{margin-bottom:18px}
+.coaching-roster p{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.coaching-compose h3,.coaching-grid h3{margin:0}
+.coaching-compose .field{display:grid;gap:7px}
+.coaching-compose .textarea{width:100%;resize:vertical}
+.coaching-compose [role=alert]{color:#ff96ac;min-height:1em;margin:0}
+.coaching-compose .btn{justify-self:start}
+.coaching-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.coaching-note{padding:16px 0;border-top:1px solid rgba(255,255,255,.09)}
+.coaching-note:first-of-type{margin-top:14px}
+.coaching-note-meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.coaching-note-meta span,.coaching-note small{color:var(--muted);font-size:12px}
+.coaching-note p{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0}
+@media(max-width:760px){.coaching-grid{grid-template-columns:1fr}}
+
 /* HoloFyrn: flexible layouts and touch navigation. */
 .app-shell{grid-template-columns:290px minmax(0,1fr)}
 .app-shell.sidebar-hidden{grid-template-columns:0 minmax(0,1fr)}
