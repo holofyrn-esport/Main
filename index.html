@@ -3952,8 +3952,11 @@
       transform: translateX(-50%);
       z-index: -1;
       pointer-events: none;
+    }
+    #main > :is(.section.container, .player-profile.container)::before {
       background: linear-gradient(rgba(3, 3, 3, .7), rgba(3, 3, 3, .7)), url('assets/site-background.png') center / cover no-repeat;
     }
+    #main > .page-intro.container::before { background: rgba(0, 0, 0, .8); }
     @media (max-width: 700px) {
       .team-card { min-height: 315px; }
       .team-card-center, .team-card-center img { height: 205px; }
