@@ -10,6 +10,7 @@ export function publicHoloFyrnData(data = {}) {
     {id:'rls',name:'HoloFyrn Esports RLS'},
     {id:'rls-academy',name:'Rls HoloFyrn Academy'},
     {id:'rls-eldr',name:'Rls HoloFyrn Eldr'},
+    {id:'shadows',name:'HoloFyrn Shadows'},
     ...teams,
   ];
   const players = rows(data.players).filter(player => str(player.name || player.rlName)).map(player => ({

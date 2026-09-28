@@ -5,6 +5,7 @@ export const defaultTeams = [
   { id: 'rls', name: 'HoloFyrn Esports RLS', code: 'RLS' },
   { id: 'rls-academy', name: 'Rls HoloFyrn Academy', code: 'RLS Academy' },
   { id: 'rls-eldr', name: 'Rls HoloFyrn Eldr', code: 'RLS Eldr' },
+  { id: 'shadows', name: 'HoloFyrn Shadows', code: 'Shadows' },
 ];
 // League team names also occur as seed-map keys and in playoff fixtures.
 function rebrand(value) {

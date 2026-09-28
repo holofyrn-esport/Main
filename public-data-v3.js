@@ -7,11 +7,13 @@ const teamRoutes = {
   '/teams/rls-holofyrn-esport/': 'rls',
   '/teams/rls-holofyrn-academy/': 'rls-academy',
   '/teams/rls-holofyrn-elet/': 'rls-eldr',
+  '/teams/holofyrn-shadows/': 'shadows',
 };
 const teamNames = {
   main: 'HoloFyrn Esport', academy: 'HoloFyrn Academy',
   rls: 'RLS HoloFyrn Esport', 'rls-academy': 'RLS HoloFyrn Academy',
   'rls-eldr': 'RLS HoloFyrn Élet',
+  shadows: 'HoloFyrn Shadows',
 };
 const portraits = {kenz: 'Kenz.png', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;

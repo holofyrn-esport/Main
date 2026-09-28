@@ -39,6 +39,7 @@ const teams = [
   { id: "main", name: "HoloFyrn Esports", label: "Main Team" },
   { id: "academy", name: "HoloFyrn Academy", label: "Academy" },
   { id: "rls", name: "HoloFyrn Esports RLS", label: "HoloFyrn Esports RLS" },
+  { id: "shadows", name: "HoloFyrn Shadows", label: "Shadows" },
 ];
 
 const eventColors = {
