@@ -34,12 +34,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background-color: var(--black);
-      background-image: url('assets/site-background.png');
-      background-position: center;
-      background-size: cover;
-      background-attachment: fixed;
-      background-repeat: no-repeat;
+      background: var(--black);
       color: var(--ink);
       font: 500 16px/1.65 Manrope, Arial, sans-serif
     }
@@ -3925,6 +3920,23 @@
       filter: drop-shadow(0 0 2px rgba(255,255,255,.9)) drop-shadow(0 0 8px rgba(255,255,255,.55));
     }
     .team-card h3 { margin: 0; font-size: clamp(1.65rem, 2.3vw, 2.15rem); }
+    /* Give uncovered content its own subtle backdrop instead of fixing one image to the viewport. */
+    #main { overflow-x: clip; }
+    #main > :is(.section.container, .page-intro.container, .player-profile.container) {
+      position: relative;
+      isolation: isolate;
+    }
+    #main > :is(.section.container, .page-intro.container, .player-profile.container)::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      left: 50%;
+      width: 100vw;
+      transform: translateX(-50%);
+      z-index: -1;
+      pointer-events: none;
+      background: linear-gradient(rgba(3, 3, 3, .7), rgba(3, 3, 3, .7)), url('assets/site-background.png') center / cover no-repeat;
+    }
     @media (max-width: 700px) {
       .team-card { min-height: 315px; }
       .team-card-center, .team-card-center img { height: 205px; }
