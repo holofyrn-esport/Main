@@ -26,7 +26,8 @@ service cloud.firestore {
     }
 
     function isAssignedTo(teamId) {
-      return isMember() && managerProfile().get('teamId', '') == teamId;
+      return isMember() && (managerProfile().get('teamId', '') == teamId
+        || teamId in managerProfile().get('teamIds', []));
     }
 
     function isTeamCoach(teamId) {
@@ -78,9 +79,10 @@ service cloud.firestore {
     match /holofyrnPublic/main {
       allow read: if request.auth != null;
       allow create, update: if isPublisher()
-        && request.resource.data.keys().hasOnly(['players', 'results', 'publishedAt'])
+        && request.resource.data.keys().hasOnly(['players', 'results', 'upcomingMatches', 'publishedAt'])
         && request.resource.data.players is list
-        && request.resource.data.results is list;
+        && request.resource.data.results is list
+        && request.resource.data.upcomingMatches is list;
       allow delete: if false;
     }
 

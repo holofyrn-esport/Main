@@ -2,6 +2,7 @@
 export function publicHoloFyrnData(data = {}) {
   const rows = value => Array.isArray(value) ? value : [];
   const str = value => typeof value === 'string' ? value.trim() : '';
+  const publicTeamName = value => str(value).replace(/Noctiq\s+eSports\s+Academy/gi, 'HoloFyrn Academy').replace(/Noctiq\s+Esports/gi, 'HoloFyrn Esports').replace(/Noctiq/gi, 'HoloFyrn');
   const teams = rows(data.managerV8?.teams);
   const knownTeams = [
     {id:'main',name:'HoloFyrn Esports'},
@@ -14,6 +15,7 @@ export function publicHoloFyrnData(data = {}) {
   const players = rows(data.players).filter(player => str(player.name || player.rlName)).map(player => ({
     name: str(player.name || player.rlName).slice(0, 100),
     team: str(player.teamId || player.team || 'main').slice(0, 80),
+    teamIds: [...new Set((rows(player.teamIds).length ? player.teamIds : [player.teamId || player.team || 'main']).map(id => str(id).slice(0, 80)).filter(Boolean))],
     role: str(player.position || player.role).slice(0, 80),
     bio: str(player.publicBio || player.bio).slice(0, 1000),
   }));
@@ -33,5 +35,21 @@ export function publicHoloFyrnData(data = {}) {
       results.push({team:team.id,type:'league',date:str(game.date).slice(0,10),event:`${game.home} vs ${game.away}`.slice(0,150),stage:'',placement:`${home}–${away}`});
     }
   }
-  return {players,results};
+  const teamName = id => publicTeamName(knownTeams.find(team => team.id === id)?.name);
+  const knownNames = new Set(knownTeams.map(team => publicTeamName(team.name)));
+  const upcomingMatches = [];
+  for (const game of rows(data.managerV8?.leagueGames)) {
+    const home = publicTeamName(game.home), away = publicTeamName(game.away), date = str(game.date).slice(0, 10);
+    if (game.played || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !home || !away || (!knownNames.has(home) && !knownNames.has(away))) continue;
+    upcomingMatches.push({date, time:'', home:home.slice(0, 100), away:away.slice(0, 100)});
+  }
+  for (const scrim of rows(data.scrims)) {
+    const home = teamName(str(scrim.teamId));
+    const away = str(scrim.opponent);
+    const dateTime = str(scrim.dateTime);
+    const date = dateTime.slice(0, 10);
+    if (!home || !away || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    upcomingMatches.push({date, time:/^\d{2}:\d{2}$/.test(dateTime.slice(11, 16)) ? dateTime.slice(11, 16) : '', home:home.slice(0, 100), away:away.slice(0, 100)});
+  }
+  return {players,results,upcomingMatches};
 }

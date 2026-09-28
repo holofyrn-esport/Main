@@ -1,3 +1,6 @@
+import {matchesForNextDay, todayInBudapest} from './public-matches.mjs';
+import {rosterRole, sortedRoster} from './public-roster.mjs';
+
 const teamRoutes = {
   '/teams/holofyrn-esport/': 'main',
   '/teams/holofyrn-academy/': 'academy',
@@ -14,12 +17,22 @@ const portraits = {kenz: 'Kenz.png', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;
 let loadError = false;
 
+function playerTeams(player) {
+  return Array.isArray(player.teamIds) && player.teamIds.length ? player.teamIds : [player.team];
+}
+
+function onTeam(player, team) {
+  return playerTeams(player).includes(team);
+}
+
 function teamLink(team) {
   return Object.entries(teamRoutes).find(([, id]) => id === team)?.[0] || '/teams/';
 }
 
 function playerLink(player) {
-  return `#/players/${encodeURIComponent(player.team)}/${encodeURIComponent(player.name)}/`;
+  const currentTeam = teamRoutes[decodeURIComponent(location.hash.slice(1))];
+  const team = currentTeam && onTeam(player, currentTeam) ? currentTeam : player.team;
+  return `#/players/${encodeURIComponent(team)}/${encodeURIComponent(player.name)}/`;
 }
 
 function portrait(player) {
@@ -63,7 +76,9 @@ function playerCard(player, index) {
   const copy = document.createElement('div');
   const small = document.createElement('span');
   small.className = 'small-label';
-  small.append(translated('ROCKET LEAGUE PLAYER', 'ROCKET LEAGUE JÁTÉKOS'));
+  const role = rosterRole(player.role);
+  const labels = {player:['ROCKET LEAGUE PLAYER','ROCKET LEAGUE JÁTÉKOS'],sub:['SUBSTITUTE','CSEREJÁTÉKOS'],coach:['COACH','EDZŐ'],manager:['MANAGER','MENEDZSER']};
+  small.append(translated(...labels[role]));
   const name = document.createElement('h3');
   name.textContent = player.name;
   copy.append(small, name);
@@ -77,9 +92,9 @@ function playerCard(player, index) {
 
 function profilePlayer(route, players) {
   const match = route.match(/^\/players\/([^/]+)\/(.+)\/$/);
-  if (match) return players.find(player => player.team === match[1] && player.name === match[2]);
+  if (match) return players.find(player => onTeam(player, match[1]) && player.name === match[2]);
   const legacy = route.match(/^\/players\/(kenz|eggy|interz)\/$/i);
-  return legacy && players.find(player => player.team === 'main' && player.name.toLowerCase() === legacy[1].toLowerCase());
+  return legacy && players.find(player => onTeam(player, 'main') && player.name.toLowerCase() === legacy[1].toLowerCase());
 }
 
 function renderProfile(route, players) {
@@ -90,13 +105,15 @@ function renderProfile(route, players) {
     if (target.id === 'public-player-profile') target.replaceChildren(emptyMessage(loadError ? 'Player data is temporarily unavailable.' : 'Player not found.', loadError ? 'A játékosadatok átmenetileg nem érhetők el.' : 'A játékos nem található.'));
     return;
   }
-  const team = teamNames[player.team] || player.team;
-  const back = `#${teamLink(player.team)}`;
+  const team = playerTeams(player).map(id => teamNames[id] || id).join(', ');
+  const routeTeam = route.match(/^\/players\/([^/]+)\//)?.[1];
+  const selectedTeam = routeTeam && onTeam(player, routeTeam) ? routeTeam : player.team;
+  const back = `#${teamLink(selectedTeam)}`;
   const breadcrumbs = document.createElement('div');
   breadcrumbs.className = 'breadcrumbs';
   const teamAnchor = document.createElement('a');
   teamAnchor.href = back;
-  teamAnchor.textContent = team;
+  teamAnchor.textContent = teamNames[selectedTeam] || selectedTeam;
   breadcrumbs.append(teamAnchor, document.createTextNode(' / ' + player.name));
   const grid = document.createElement('div');
   grid.className = 'profile-grid';
@@ -136,7 +153,8 @@ function renderProfile(route, players) {
   title.textContent = player.name;
   const role = document.createElement('p');
   role.className = 'profile-role';
-  role.append(translated('Rocket League player', 'Rocket League játékos'), document.createTextNode(' · ' + team));
+  const roleLabels = {player:['Rocket League player','Rocket League játékos'],sub:['Substitute','Cserejátékos'],coach:['Coach','Edző'],manager:['Manager','Menedzser']};
+  role.append(translated(...roleLabels[rosterRole(player.role)]), document.createTextNode(' · ' + team));
   const divider = document.createElement('div');
   divider.className = 'profile-divider';
   const facts = document.createElement('div');
@@ -173,7 +191,48 @@ function renderPlayers(grid, players) {
     grid.replaceChildren(emptyMessage(loadError ? 'Player data is temporarily unavailable.' : 'No players listed yet.', loadError ? 'A játékosadatok átmenetileg nem érhetők el.' : 'Még nincsenek játékosok feltüntetve.'));
     return;
   }
-  grid.replaceChildren(...players.map(playerCard));
+  grid.replaceChildren(...sortedRoster(players).map(playerCard));
+}
+
+function renderUpcomingMatches(matches) {
+  const layout = document.querySelector('#main .match-layout');
+  if (!layout) return;
+  const block = layout.firstElementChild;
+  const selected = matchesForNextDay(matches);
+  const label = document.createElement('span');
+  label.className = 'small-label';
+  label.append(translated('UPCOMING MATCHES', 'KÖVETKEZŐ MÉRKŐZÉSEK'));
+  const heading = document.createElement('strong');
+  if (selected.length) {
+    const date = new Date(`${selected[0].date}T12:00:00Z`);
+    const locale = document.documentElement.lang === 'hu' ? 'hu-HU' : 'en-GB';
+    heading.textContent = selected[0].date === todayInBudapest()
+      ? (locale === 'hu-HU' ? 'Ma' : 'Today')
+      : new Intl.DateTimeFormat(locale, {timeZone:'UTC', year:'numeric', month:'short', day:'numeric'}).format(date);
+    const list = document.createElement('div');
+    list.className = 'upcoming-match-list';
+    for (const match of selected) {
+      const row = document.createElement('div');
+      row.className = 'upcoming-match-row';
+      const sides = document.createElement('span');
+      sides.textContent = `${match.home} vs ${match.away}`;
+      row.append(sides);
+      if (match.time) {
+        const time = document.createElement('time');
+        time.dateTime = `${match.date}T${match.time}`;
+        time.textContent = match.time;
+        row.append(time);
+      }
+      list.append(row);
+    }
+    block.replaceChildren(label, heading, list);
+  } else {
+    heading.append(translated(loadError ? 'Matches temporarily unavailable' : !publicData ? 'Loading matches…' : 'Schedule to be announced',
+      loadError ? 'A mérkőzések átmenetileg nem érhetők el' : !publicData ? 'Mérkőzések betöltése…' : 'Időpont hamarosan'));
+    block.replaceChildren(label, heading);
+  }
+  block.classList.add('upcoming-match-block');
+  layout.querySelector('.match-symbols')?.remove();
 }
 
 function resultList(rows, emptyEn, emptyHu) {
@@ -195,6 +254,7 @@ function resultList(rows, emptyEn, emptyHu) {
 function render() {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
   const team = teamRoutes[route];
+  if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
   if (!publicData && !loadError) {
     const grid = document.querySelector('#main .players-grid');
     if ((team || route === '/') && grid) grid.replaceChildren(emptyMessage('Loading players…', 'Játékosok betöltése…'));
@@ -208,18 +268,21 @@ function render() {
     return;
   }
   if (team) {
-    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => player.team === team));
+    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, team)));
     const panels = document.querySelectorAll('#main .two-column .info-panel');
     if (panels.length >= 2) {
       panels[0].querySelector('p')?.replaceWith(resultList(results.filter(row => row.team === team), 'No results yet.', 'Még nincs eredmény.'));
       panels[1].querySelector('p')?.replaceWith(resultList(results.filter(row => row.team === team && row.type !== 'league'), 'No tournament results yet.', 'Még nincs versenyeredmény.'));
     }
   } else if (route === '/') {
-    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => player.team === 'main'));
+    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, 'main')));
   }
 }
 
 document.addEventListener('holofyrn:route', render);
+document.querySelector('.language-toggle')?.addEventListener('click', () => {
+  if ((decodeURIComponent(location.hash.slice(1)) || '/') === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
+});
 render();
 try {
   const [{firebaseConfig}, appApi, authApi, fire] = await Promise.all([

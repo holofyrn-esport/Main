@@ -114,3 +114,132 @@
 .priority-badge{display:inline-block;color:var(--priority-color);background:var(--priority-bg);border:1px solid var(--priority-color);border-radius:6px;padding:2px 7px;font-size:11px;font-weight:700;line-height:1.4}
 .avatar img,.profile-circle img,.avatar-editor-stage img{object-fit:cover;object-position:center;transform:translate(-50%,-50%)!important}
 .avatar-editor-stage{cursor:default}
+fieldset.field{border:0;padding:0;min-width:0}
+.player-team-options{display:grid;gap:8px;margin-top:8px;max-height:180px;overflow:auto}
+.player-team-options label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.player-team-options input{accent-color:#e84b54}
+
+/* Roomier manager pages and legible secondary information. */
+.content{padding:32px clamp(20px,2.5vw,42px) 48px}
+.page-head{gap:22px;margin-bottom:26px}
+.page-sub{max-width:72ch;line-height:1.55}
+.grid,.roster-grid,.fixture-grid,.kpis,.coaching-grid{gap:18px}
+.grid-bottom,.stats-grid,.kpis{margin-bottom:20px}
+.card-pad,.player-card,.fixture-card,.kpi{padding:22px}
+.metric{padding:20px 22px;min-height:148px}
+.section-head{gap:16px;padding:22px 22px 4px}
+.list-panel,.table-wrap{padding:16px 22px 22px}
+.table th{font-size:12px;color:#c0c9d8;letter-spacing:.08em}
+.table td{padding:15px 12px;font-size:14px;line-height:1.5;vertical-align:top}
+.table td,.table th,.player-meta,.player-details,.fixture-vs,.league-name{overflow-wrap:anywhere}
+.table td .btn{margin:2px 4px 2px 0}
+.table-cell-value{min-width:0}
+.field label,fieldset.field legend{font-size:13px;color:#dce3ee;line-height:1.4}
+.form-grid{gap:18px}
+.input,.select,.textarea{min-height:44px;line-height:1.45}
+.textarea{min-height:112px}
+.profile-note,.player-details,.metric-secondary,.event-meta,.subtle,.league-meta,.muted-date{font-size:13px;line-height:1.5;color:#b6c1d0}
+.player-meta,.team-code,.user-role{font-size:12px;line-height:1.45;color:#b6c1d0}
+.metric-head,.kpi .label,.tag,.priority-badge{font-size:12px}
+.mmr span{font-size:12px;color:#b6c1d0}
+.mmr strong{font-size:19px}
+.mmr-grid{gap:10px;margin:17px 0}
+.mmr{padding:13px}
+.player-details{gap:9px;margin-bottom:18px}
+.card-actions{gap:9px}
+.btn.small,.seg-btn,.mini-action{font-size:13px}
+.btn.small,.mini-action{min-height:40px}
+.mini-action{padding:6px 8px}
+.fixture-focus{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.3}
+.fixture-vs{flex-wrap:wrap;justify-content:flex-start;line-height:1.4}
+.event-row,.result-row{gap:16px;padding:16px 0;line-height:1.45}
+.calendar-event{font-size:12px;line-height:1.4}
+.calendar-event-sub,.calendar-weekday,.calendar-number{font-size:12px}
+.modal-head,.modal-foot{padding:20px 24px}
+.modal-body{padding:24px}
+.modal-body .form-grid + .form-grid{margin-top:20px!important}
+.modal-body p{line-height:1.55}
+.team-option b,.team-option small{white-space:normal;overflow:visible;text-overflow:clip}
+.calendar-agenda{display:none}
+
+@media(max-width:1200px){
+ .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stats-grid .fixture-metric{grid-column:1/-1}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:641px) and (max-width:900px){
+ .roster-grid,.fixture-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .form-grid,.form-grid.three,.form-grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:640px){
+ .content{padding:22px 16px 36px}
+ .page-head{gap:16px;margin-bottom:20px}
+ .page-title.small{font-size:clamp(30px,8vw,38px);line-height:1.1}
+ .page-head>.btn{width:100%}
+ .grid,.roster-grid,.fixture-grid,.kpis,.coaching-grid{gap:14px}
+ .stats-grid,.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stats-grid .fixture-metric,.stats-grid .metric:nth-child(2){grid-column:1/-1}
+ .metric,.card-pad,.player-card,.fixture-card,.kpi{padding:18px}
+ .kpi .value{font-size:23px;overflow-wrap:anywhere}
+ .section-head{padding:18px 18px 2px}
+ .list-panel{padding:12px 18px 18px}
+ .topbar{gap:12px;padding:12px 16px}
+ .top-actions{justify-content:flex-start;gap:8px}
+ .top-actions .searchbar{flex-basis:100%;order:2}
+ .top-actions #logout{margin-left:auto}
+ .crumb{font-size:12px;overflow-wrap:anywhere}
+ .toolbar{gap:12px}
+ .toolbar>*{flex-basis:100%}
+ .toolbar .btn,.toolbar .segmented{flex-basis:auto}
+ .form-grid,.form-grid.three,.form-grid.four{gap:16px}
+ .modal-backdrop{padding:8px;align-items:end}
+ .modal{width:100%;max-height:calc(100dvh - 16px);border-radius:18px 18px 0 0}
+ .modal-head,.modal-foot{padding:16px 18px}
+ .modal-body{padding:18px}
+ .modal-foot .btn{flex:1}
+ .notification-panel{top:auto;bottom:12px;max-height:calc(100dvh - 24px)}
+ .league-card{align-items:flex-start;gap:12px;flex-wrap:wrap}
+ .league-card-right{width:100%;justify-content:space-between}
+ .fixture-vs{gap:8px}
+ .week-grid{grid-template-columns:minmax(0,1fr);overflow:visible}
+ .day-card{min-height:0}
+ .availability-block{font-size:13px;gap:10px}
+ .calendar-shell{display:none}
+ .calendar-agenda{display:grid;gap:10px;margin-top:16px}
+ .agenda-event{display:grid;gap:7px;width:100%;text-align:left;padding:14px 16px;border:1px solid var(--line2);border-left:4px solid var(--priority-color);border-radius:12px;background:var(--priority-bg);color:var(--text);overflow-wrap:anywhere}
+ .agenda-date{font-size:12px;color:#cad3df}
+ .agenda-event strong{font-size:15px;line-height:1.4}
+ .agenda-event .priority-badge{justify-self:start}
+ .table-wrap{padding:12px;overflow:visible}
+ .table{display:block;min-width:0}
+ .table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .table tbody{display:grid;gap:12px}
+ .table tr{display:grid;padding:12px 16px;border:1px solid var(--line2);border-radius:13px;background:#101720}
+ .table td{display:grid;grid-template-columns:minmax(88px,35%) minmax(0,1fr);align-items:start;gap:12px;padding:10px 0;font-size:14px;border-bottom:1px solid var(--line);min-width:0}
+ .table td::before{content:attr(data-label);color:#c0c9d8;font-size:12px;font-weight:800;line-height:1.5;text-transform:uppercase;letter-spacing:.04em}
+ .table td:not([data-label]){grid-template-columns:minmax(0,1fr)}
+ .table td:not([data-label])::before{display:none}
+ .table td:last-child{border-bottom:0}
+ .table td .card-actions{justify-content:flex-start}
+ .table-cell-value{overflow-wrap:anywhere}
+ .event-row,.result-row{grid-template-columns:minmax(0,1fr) auto;gap:8px 12px}
+ .event-date{grid-column:1/-1}
+}
+@media(max-width:380px){
+ .content{padding-inline:12px}
+ .topbar{padding-inline:12px}
+ .table td{grid-template-columns:minmax(74px,34%) minmax(0,1fr);gap:8px}
+ .notification-panel{left:8px;right:8px}
+}
+@media(min-width:641px) and (max-width:900px){
+ .table-wrap{padding:16px;overflow:visible}
+ .table{display:block;min-width:0}
+ .table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .table tbody{display:grid;gap:12px}
+ .table tr{display:grid;padding:14px 18px;border:1px solid var(--line2);border-radius:13px;background:#101720}
+ .table td{display:grid;grid-template-columns:minmax(120px,28%) minmax(0,1fr);align-items:start;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);min-width:0}
+ .table td::before{content:attr(data-label);color:#c0c9d8;font-size:12px;font-weight:800;line-height:1.5;text-transform:uppercase;letter-spacing:.04em}
+ .table td:not([data-label]){grid-template-columns:minmax(0,1fr)}
+ .table td:not([data-label])::before{display:none}
+ .table td:last-child{border-bottom:0}
+}

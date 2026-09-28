@@ -80,8 +80,9 @@ async function syncCoachingProfiles(mapped){
   const {fire,db}=services;
   const updates=mapped.players.map(player=>{
     const profile=remoteProfiles.find(u=>u.id===player.accountId);
-    if(!profile || (profile.teamId===player.team && profile.playerId===player.id && profile.linkedPlayerId===player.id))return null;
-    return fire.setDoc(fire.doc(db,'users',profile.id),{teamId:player.team,playerId:player.id,linkedPlayerId:player.id},{merge:true});
+    const teamIds=player.teamIds?.length?player.teamIds:[player.team];
+    if(!profile || (profile.teamId===player.team && JSON.stringify(profile.teamIds||[])===JSON.stringify(teamIds) && profile.playerId===player.id && profile.linkedPlayerId===player.id))return null;
+    return fire.setDoc(fire.doc(db,'users',profile.id),{teamId:player.team,teamIds,playerId:player.id,linkedPlayerId:player.id},{merge:true});
   }).filter(Boolean);
   await Promise.all(updates);
 }
@@ -148,7 +149,7 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi]=await Promise.all([import('./manager-data.mjs'),import('./public-data.mjs'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi]=await Promise.all([import('./manager-data.mjs'),import('./public-data.mjs?v=20260928-matches'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     services={appApi,fire,authApi,db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};

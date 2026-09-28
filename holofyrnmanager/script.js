@@ -286,7 +286,7 @@ async function setupFirebase() {
   try {
     const [{ firebaseConfig }, publicData, firebaseAppModule, firebaseFirestoreModule, firebaseAuthModule] = await Promise.all([
       import("./firebaseConfig.js"),
-      import("./public-data.mjs"),
+      import("./public-data.mjs?v=20260928-matches"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),
@@ -3074,6 +3074,7 @@ document.addEventListener("submit", async (event) => {
 
   if (key === "tryouts" || key === "players") {
     const existing = existingEntry;
+    if (key === "players") entry.teamIds = [entry.teamId, ...(existing?.teamIds || []).filter((id) => id !== entry.teamId)];
     if (existing?.stats) entry.stats = existing.stats;
     if (!canManagePlayerStats(activeUser) && existing?.opinion && key === "tryouts") entry.opinion = existing.opinion;
     if (!canManagePlayerStats(activeUser) && existing?.notes && key === "players") entry.notes = existing.notes;
