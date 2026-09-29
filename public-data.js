@@ -113,9 +113,6 @@ function renderProfile(route, players) {
       photo.append(illustration);
     }
   }
-  const photoLabel = document.createElement('span');
-  photoLabel.textContent = 'HF / ' + team;
-  photo.append(photoLabel);
   const copy = document.createElement('div');
   copy.className = 'profile-copy';
   const eyebrow = document.createElement('div');

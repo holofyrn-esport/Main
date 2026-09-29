@@ -560,6 +560,10 @@
       height: 235px
     }
 
+    .news-visual-beginnings {
+      background: #000 url('assets/Rllogo.png') center / contain no-repeat
+    }
+
     .news-visual-arena {
       background: url('assets/hero.webp') center / cover
     }
@@ -1344,6 +1348,18 @@
       font-size: 0
     }
 
+    .staff-avatar-bigv {
+      overflow: hidden
+    }
+
+    .staff-avatar-bigv img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(2);
+      transform-origin: 42% 26%
+    }
+
     .staff-profile-photo {
       overflow: hidden;
       background: #0a0707
@@ -1369,9 +1385,9 @@
     .signed-profile-photo .profile-signature {
       position: absolute;
       z-index: 2;
-      right: -8%;
-      bottom: 6%;
-      width: min(95%, 520px);
+      right: -6%;
+      bottom: -20px;
+      width: min(80%, 440px);
       height: auto;
       object-fit: contain;
       transform: rotate(-7deg);
@@ -1961,7 +1977,7 @@
     }
 
     .staff-preview .staff-preview-zemsta {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/zemsta-profile.png') center top/cover
+      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/zemsta-profile.png') center top / auto 150% no-repeat, #000
     }
 
     .staff-preview .staff-preview-qex {
@@ -1997,11 +2013,8 @@
       <div class="hero-grid"></div>
       <div class="container hero-content">
         <div class="hero-copy">
-          <div class="eyebrow"><i></i><span data-en="THE FUTURE IS OURS" data-hu="A JÖVŐ A MIÉNK">THE FUTURE IS
-              OURS</span></div>
+          <div class="eyebrow"><i></i><span data-en="Limits are only a matter of perspective" data-hu="„A határokat a nézőpont teremti.”">Limits are only a matter of perspective</span></div>
           <h1>HOLO<span>FYRN</span><small>ESPORTS</small></h1>
-          <p class="hero-tag"><span data-en="Built to compete. Built to evolve."
-              data-hu="Versenyre építve. Fejlődésre építve.">Built to compete. Built to evolve.</span></p>
           <div class="hero-buttons"><a class="button" href="#/teams/"><span data-en="Explore teams"
                 data-hu="Csapatok">Explore teams</span> <span>↗</span></a><a class="button button-outline"
               href="#/join/"><span data-en="Join HoloFyrn" data-hu="Csatlakozz">Join HoloFyrn</span> <span>↗</span></a>
@@ -2026,15 +2039,14 @@
         <div>
           <div class="eyebrow"><i></i><span data-en="01 / THE LATEST" data-hu="01 / LEGFRISSEBB">01 / THE LATEST</span>
           </div>
-          <h2><span data-en="From the Fyrn" data-hu="Hírek a Fyrnről">From the Fyrn</span></h2>
+          <h2><span data-en="News" data-hu="Hírek">News</span></h2>
         </div><a class="text-link" href="#/news/"><span data-en="All news" data-hu="Összes hír">All news</span> <span
             aria-hidden="true">↗</span></a>
       </div>
       <div class="news-grid"><a class="news-card news-card-feature" href="#/news/">
-          <div class="news-visual news-visual-arena"></div>
+          <div class="news-visual news-visual-beginnings"></div>
           <div class="news-body"><span class="pill">ROCKET LEAGUE</span>
-            <h3><span data-en="The next chapter starts here" data-hu="Itt kezdődik a következő fejezet">The next chapter
-                starts here</span></h3>
+            <h3><span data-en="Beginnings" data-hu="Kezdetek">Beginnings</span></h3>
             <p><span data-en="Explore the teams representing HoloFyrn across Rocket League."
                 data-hu="Ismerd meg a HoloFyrn Rocket League csapatait.">Explore the teams representing HoloFyrn across
                 Rocket League.</span></p><span class="card-action"><span data-en="Read more" data-hu="Tovább">Read
@@ -2043,10 +2055,8 @@
         </a><a class="news-card" href="#/teams/">
           <div class="news-visual news-visual-brand"></div>
           <div class="news-body"><span class="pill">TEAMS</span>
-            <h3><span data-en="Meet the HoloFyrn lineups" data-hu="Ismerd meg a HoloFyrn csapatait">Meet the HoloFyrn
-                lineups</span></h3>
-            <p><span data-en="Six teams. One shared identity." data-hu="Hat csapat. Egy közös identitás.">Six teams.
-                One shared identity.</span></p><span class="card-action"><span data-en="Explore teams"
+            <h3><span data-en="Norway, here we come!" data-hu="Norvégia itt jövünk!">Norway, here we come!</span></h3>
+            <p><span data-en="HoloFyrn is taking part in the Norwegian RLS league. Check out who will be representing the org!" data-hu="A HoloFyrn részt vesz a norvég RLS ligában, csekkold le kik képviselik az org-ot!">HoloFyrn is taking part in the Norwegian RLS league. Check out who will be representing the org!</span></p><span class="card-action"><span data-en="Explore teams"
                 data-hu="Csapatok">Explore teams</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/about/">
@@ -2070,17 +2080,14 @@
           </div><a class="text-link" href="#/divisions/"><span data-en="View divisions" data-hu="Szakosztályok">View
               divisions</span> <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="division-grid"><a href="#/divisions/" class="division-card division-live">
-            <div class="division-bg"></div><span class="status"><i></i><span data-en="ACTIVE DIVISION"
-                data-hu="AKTÍV SZAKOSZTÁLY">ACTIVE DIVISION</span></span>
-            <div><span class="division-number">01 / 02</span>
-              <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore division"
-                  data-hu="Megtekintés">Explore division</span> ↗</span>
+        <div class="division-grid"><a href="#/teams/" class="division-card division-live">
+            <div class="division-bg"></div>
+            <div>
+              <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore teams" data-hu="Csapatok">Explore teams</span> ↗</span>
             </div>
           </a>
-          <div class="division-card division-soon"><span class="status">◈ <span data-en="CLASSIFIED"
-                data-hu="TITKOSÍTOTT">CLASSIFIED</span></span>
-            <div><span class="division-number">02 / 02</span>
+          <div class="division-card division-soon">
+            <div>
               <h3>WHAT'S<br>NEXT?</h3>
               <p><span data-en="A new division is on the horizon." data-hu="Új szakosztály van a láthatáron.">A new
                   division is on the horizon.</span></p><span class="division-link"><span data-en="Coming soon"
@@ -2095,7 +2102,7 @@
         <div>
           <div class="eyebrow"><i></i><span data-en="03 / THE LINEUPS" data-hu="03 / CSAPATOK">03 / THE LINEUPS</span>
           </div>
-          <h2><span data-en="Six teams. One Fyrn." data-hu="Hat csapat. Egy Fyrn.">Six teams. One Fyrn.</span></h2>
+          <h2><span data-en="Those who make us proud" data-hu="Akikre büszkék vagyunk">Those who make us proud</span></h2>
         </div><a class="text-link" href="#/teams/"><span data-en="All teams" data-hu="Összes csapat">All teams</span>
           <span aria-hidden="true">↗</span></a>
       </div>
@@ -2165,12 +2172,8 @@
         <div>
           <div class="eyebrow"><i></i><span data-en="05 / THE ORGANISATION" data-hu="05 / AZ EGYESÜLET">05 / THE
               ORGANISATION</span></div>
-          <h2><span data-en="We play for more." data-hu="Többért játszunk.">We play for more.</span></h2>
-          <p><span
-              data-en="HoloFyrn Esports is a Rocket League organisation bringing players and teams together under one identity. From competition to development, we are building space for every stage of the journey."
-              data-hu="A HoloFyrn Esports Rocket League csapatokat és játékosokat fog össze közös identitás alatt. A versenyzéstől a fejlődésig minden szinten teret adunk a játékosoknak.">HoloFyrn
-              Esports is a Rocket League organisation bringing players and teams together under one identity. From
-              competition to development, we are building space for every stage of the journey.</span></p><a
+          <h2><span data-en="As an international organisation" data-hu="Nemzetközi egyesületként">As an international organisation</span></h2>
+          <p><span data-en="HoloFyrn Esports aims to create value in the Hungarian and international esports community. We provide our players with opportunities to compete, develop and connect, from their first steps to high-level competition." data-hu="A HoloFyrn Esports célja, hogy értéket teremtsen a hazai és nemzetközi esport közösségben. Versenyzési, fejlődési és közösségi lehetőségeket biztosítunk játékosaink számára, a kezdeti lépésektől egészen a magas szintű versenyzésig.">HoloFyrn Esports aims to create value in the Hungarian and international esports community. We provide our players with opportunities to compete, develop and connect, from their first steps to high-level competition.</span></p><a
             class="button button-outline" href="#/about/"><span data-en="About HoloFyrn" data-hu="Rólunk">About
               HoloFyrn</span> <span aria-hidden="true">↗</span></a>
         </div>
@@ -2217,8 +2220,7 @@
     <section class="section community-section" id="socials">
       <div class="container">
         <div>
-          <div class="eyebrow"><i></i><span data-en="08 / STAY CONNECTED" data-hu="08 / KAPCSOLÓDJ">08 / STAY
-              CONNECTED</span></div>
+          <div class="eyebrow"><i></i><span data-en="08 / OUR CHANNELS" data-hu="08 / OLDALAINK">08 / OUR CHANNELS</span></div>
           <h2><span data-en="Follow the Fyrn." data-hu="Kövesd a Fyrnt.">Follow the Fyrn.</span></h2>
         </div>
         <p><span data-en="Join our community and follow HoloFyrn online."
@@ -2234,14 +2236,13 @@
       </div>
     </section>
     <div class="ticker" aria-hidden="true">
-      <div class="ticker-track"><span class="ticker-copy">HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆ TOGETHER ◆</span></div>
+      <div class="ticker-track"><span class="ticker-copy">HoloFyrn - Limits are only a matter of perspective - Esports - For the players </span></div>
     </div>
   </main>
   <footer class="footer">
     <div class="container footer-top"><a class="brand" href="#/"><img src="assets/brand-logo.png" alt=""><span
           class="brand-type">HOLOFYRN<small>ESPORTS</small></span></a>
-      <p><span data-en="Built to compete. Built to evolve." data-hu="Versenyre építve. Fejlődésre építve.">Built to
-          compete. Built to evolve.</span></p>
+      <p><span data-en="Limits are only a matter of perspective" data-hu="A határokat a nézőpont teremti">Limits are only a matter of perspective</span></p>
     </div>
     <div class="container footer-bottom">
       <nav aria-label="Footer navigation"><a href="#/teams/"><span data-en="Teams" data-hu="Csapatok">Teams</span></a><a
@@ -2290,16 +2291,14 @@
     </div>
     <section class="section container page-section">
       <div class="division-grid"><a href="#/teams/" class="division-card division-live">
-          <div class="division-bg"></div><span class="status"><i></i><span data-en="ACTIVE"
-              data-hu="AKTÍV">ACTIVE</span></span>
-          <div><span class="division-number">01 / 02</span>
+          <div class="division-bg"></div>
+          <div>
             <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore teams"
                 data-hu="Csapatok">Explore teams</span> ↗</span>
           </div>
         </a>
-        <div class="division-card division-soon"><span class="status">◈ <span data-en="COMING SOON"
-              data-hu="HAMAROSAN">COMING SOON</span></span>
-          <div><span class="division-number">02 / 02</span>
+        <div class="division-card division-soon">
+          <div>
             <h3>WHAT'S<br>NEXT?</h3>
             <p><span data-en="More esports in the future."
                 data-hu="A jövőben további esport szakosztályok érkeznek.">More esports in the future.</span></p>
@@ -2314,11 +2313,8 @@
       <div class="hero-grid"></div>
       <div class="container hero-content">
         <div class="hero-copy">
-          <div class="eyebrow"><i></i><span data-en="THE FUTURE IS OURS" data-hu="A JÖVŐ A MIÉNK">THE FUTURE IS
-              OURS</span></div>
+          <div class="eyebrow"><i></i><span data-en="Limits are only a matter of perspective" data-hu="„A határokat a nézőpont teremti.”">Limits are only a matter of perspective</span></div>
           <h1>HOLO<span>FYRN</span><small>ESPORTS</small></h1>
-          <p class="hero-tag"><span data-en="Built to compete. Built to evolve."
-              data-hu="Versenyre építve. Fejlődésre építve.">Built to compete. Built to evolve.</span></p>
           <div class="hero-buttons"><a class="button" href="#/teams/"><span data-en="Explore teams"
                 data-hu="Csapatok">Explore teams</span> <span>↗</span></a><a class="button button-outline"
               href="#/join/"><span data-en="Join HoloFyrn" data-hu="Csatlakozz">Join HoloFyrn</span> <span>↗</span></a>
@@ -2343,15 +2339,14 @@
         <div>
           <div class="eyebrow"><i></i><span data-en="01 / THE LATEST" data-hu="01 / LEGFRISSEBB">01 / THE LATEST</span>
           </div>
-          <h2><span data-en="From the Fyrn" data-hu="Hírek a Fyrnről">From the Fyrn</span></h2>
+          <h2><span data-en="News" data-hu="Hírek">News</span></h2>
         </div><a class="text-link" href="#/news/"><span data-en="All news" data-hu="Összes hír">All news</span> <span
             aria-hidden="true">↗</span></a>
       </div>
       <div class="news-grid"><a class="news-card news-card-feature" href="#/news/">
-          <div class="news-visual news-visual-arena"></div>
+          <div class="news-visual news-visual-beginnings"></div>
           <div class="news-body"><span class="pill">ROCKET LEAGUE</span>
-            <h3><span data-en="The next chapter starts here" data-hu="Itt kezdődik a következő fejezet">The next chapter
-                starts here</span></h3>
+            <h3><span data-en="Beginnings" data-hu="Kezdetek">Beginnings</span></h3>
             <p><span data-en="Explore the teams representing HoloFyrn across Rocket League."
                 data-hu="Ismerd meg a HoloFyrn Rocket League csapatait.">Explore the teams representing HoloFyrn across
                 Rocket League.</span></p><span class="card-action"><span data-en="Read more" data-hu="Tovább">Read
@@ -2360,10 +2355,8 @@
         </a><a class="news-card" href="#/teams/">
           <div class="news-visual news-visual-brand"></div>
           <div class="news-body"><span class="pill">TEAMS</span>
-            <h3><span data-en="Meet the HoloFyrn lineups" data-hu="Ismerd meg a HoloFyrn csapatait">Meet the HoloFyrn
-                lineups</span></h3>
-            <p><span data-en="Six teams. One shared identity." data-hu="Hat csapat. Egy közös identitás.">Six teams.
-                One shared identity.</span></p><span class="card-action"><span data-en="Explore teams"
+            <h3><span data-en="Norway, here we come!" data-hu="Norvégia itt jövünk!">Norway, here we come!</span></h3>
+            <p><span data-en="HoloFyrn is taking part in the Norwegian RLS league. Check out who will be representing the org!" data-hu="A HoloFyrn részt vesz a norvég RLS ligában, csekkold le kik képviselik az org-ot!">HoloFyrn is taking part in the Norwegian RLS league. Check out who will be representing the org!</span></p><span class="card-action"><span data-en="Explore teams"
                 data-hu="Csapatok">Explore teams</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/about/">
@@ -2387,17 +2380,14 @@
           </div><a class="text-link" href="#/divisions/"><span data-en="View divisions" data-hu="Szakosztályok">View
               divisions</span> <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="division-grid"><a href="#/divisions/" class="division-card division-live">
-            <div class="division-bg"></div><span class="status"><i></i><span data-en="ACTIVE DIVISION"
-                data-hu="AKTÍV SZAKOSZTÁLY">ACTIVE DIVISION</span></span>
-            <div><span class="division-number">01 / 02</span>
-              <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore division"
-                  data-hu="Megtekintés">Explore division</span> ↗</span>
+        <div class="division-grid"><a href="#/teams/" class="division-card division-live">
+            <div class="division-bg"></div>
+            <div>
+              <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore teams" data-hu="Csapatok">Explore teams</span> ↗</span>
             </div>
           </a>
-          <div class="division-card division-soon"><span class="status">◈ <span data-en="CLASSIFIED"
-                data-hu="TITKOSÍTOTT">CLASSIFIED</span></span>
-            <div><span class="division-number">02 / 02</span>
+          <div class="division-card division-soon">
+            <div>
               <h3>WHAT'S<br>NEXT?</h3>
               <p><span data-en="A new division is on the horizon." data-hu="Új szakosztály van a láthatáron.">A new
                   division is on the horizon.</span></p><span class="division-link"><span data-en="Coming soon"
@@ -2412,7 +2402,7 @@
         <div>
           <div class="eyebrow"><i></i><span data-en="03 / THE LINEUPS" data-hu="03 / CSAPATOK">03 / THE LINEUPS</span>
           </div>
-          <h2><span data-en="Six teams. One Fyrn." data-hu="Hat csapat. Egy Fyrn.">Six teams. One Fyrn.</span></h2>
+          <h2><span data-en="Those who make us proud" data-hu="Akikre büszkék vagyunk">Those who make us proud</span></h2>
         </div><a class="text-link" href="#/teams/"><span data-en="All teams" data-hu="Összes csapat">All teams</span>
           <span aria-hidden="true">↗</span></a>
       </div>
@@ -2482,12 +2472,8 @@
         <div>
           <div class="eyebrow"><i></i><span data-en="05 / THE ORGANISATION" data-hu="05 / AZ EGYESÜLET">05 / THE
               ORGANISATION</span></div>
-          <h2><span data-en="We play for more." data-hu="Többért játszunk.">We play for more.</span></h2>
-          <p><span
-              data-en="HoloFyrn Esports is a Rocket League organisation bringing players and teams together under one identity. From competition to development, we are building space for every stage of the journey."
-              data-hu="A HoloFyrn Esports Rocket League csapatokat és játékosokat fog össze közös identitás alatt. A versenyzéstől a fejlődésig minden szinten teret adunk a játékosoknak.">HoloFyrn
-              Esports is a Rocket League organisation bringing players and teams together under one identity. From
-              competition to development, we are building space for every stage of the journey.</span></p><a
+          <h2><span data-en="As an international organisation" data-hu="Nemzetközi egyesületként">As an international organisation</span></h2>
+          <p><span data-en="HoloFyrn Esports aims to create value in the Hungarian and international esports community. We provide our players with opportunities to compete, develop and connect, from their first steps to high-level competition." data-hu="A HoloFyrn Esports célja, hogy értéket teremtsen a hazai és nemzetközi esport közösségben. Versenyzési, fejlődési és közösségi lehetőségeket biztosítunk játékosaink számára, a kezdeti lépésektől egészen a magas szintű versenyzésig.">HoloFyrn Esports aims to create value in the Hungarian and international esports community. We provide our players with opportunities to compete, develop and connect, from their first steps to high-level competition.</span></p><a
             class="button button-outline" href="#/about/"><span data-en="About HoloFyrn" data-hu="Rólunk">About
               HoloFyrn</span> <span aria-hidden="true">↗</span></a>
         </div>
@@ -2534,8 +2520,7 @@
     <section class="section community-section" id="socials">
       <div class="container">
         <div>
-          <div class="eyebrow"><i></i><span data-en="08 / STAY CONNECTED" data-hu="08 / KAPCSOLÓDJ">08 / STAY
-              CONNECTED</span></div>
+          <div class="eyebrow"><i></i><span data-en="08 / OUR CHANNELS" data-hu="08 / OLDALAINK">08 / OUR CHANNELS</span></div>
           <h2><span data-en="Follow the Fyrn." data-hu="Kövesd a Fyrnt.">Follow the Fyrn.</span></h2>
         </div>
         <p><span data-en="Join our community and follow HoloFyrn online."
@@ -2551,7 +2536,7 @@
       </div>
     </section>
     <div class="ticker" aria-hidden="true">
-      <div class="ticker-track"><span class="ticker-copy">HOLOFYRN ◆ ROCKET LEAGUE ◆ COMPETE ◆ DEVELOP ◆ TOGETHER ◆</span></div>
+      <div class="ticker-track"><span class="ticker-copy">HoloFyrn - Limits are only a matter of perspective - Esports - For the players </span></div>
     </div>
   </template>
   <template data-route="/join/" data-title="Join HoloFyrn | HoloFyrn Esport">
@@ -2587,7 +2572,7 @@
     </div>
     <section class="section container page-section">
       <div class="news-grid"><a class="news-card news-card-feature" href="#/teams/">
-          <div class="news-visual news-visual-arena"></div>
+          <div class="news-visual news-visual-beginnings"></div>
           <div class="news-body"><span class="pill">ROCKET LEAGUE</span>
             <h3><span data-en="Discover our Rocket League teams"
                 data-hu="Ismerd meg Rocket League csapatainkat">Discover our Rocket League teams</span></h3>
@@ -2619,7 +2604,7 @@
     <section class="player-profile container">
       <div class="breadcrumbs"><a href="#/teams/holofyrn-esport/">HoloFyrn Esports</a><span>/</span>Eggy</div>
       <div class="profile-grid">
-        <div class="profile-photo portrait-02"><span>HF / 02</span><em class="concept-label"><span
+        <div class="profile-photo portrait-02"><em class="concept-label"><span
               data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative portrait</span></em></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="PLAYER PROFILE" data-hu="JÁTÉKOSPROFIL">PLAYER PROFILE</span></div>
@@ -2651,7 +2636,7 @@
     <section class="player-profile container">
       <div class="breadcrumbs"><a href="#/teams/holofyrn-esport/">HoloFyrn Esports</a><span>/</span>Interz</div>
       <div class="profile-grid">
-        <div class="profile-photo portrait-03"><span>HF / 03</span><em class="concept-label"><span
+        <div class="profile-photo portrait-03"><em class="concept-label"><span
               data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative portrait</span></em></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="PLAYER PROFILE" data-hu="JÁTÉKOSPROFIL">PLAYER PROFILE</span></div>
@@ -2683,7 +2668,7 @@
     <section class="player-profile container">
       <div class="breadcrumbs"><a href="#/teams/holofyrn-esport/">HoloFyrn Esport</a><span>/</span>Kenz</div>
       <div class="profile-grid">
-        <div class="profile-photo portrait-01 signed-profile-photo"><img class="profile-signature kenz-signature" src="assets/kenz-signature.png" alt="" aria-hidden="true"><span>HF / 01</span></div>
+        <div class="profile-photo portrait-01 signed-profile-photo"><img class="profile-signature kenz-signature" src="assets/kenz-signature.png" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="PLAYER PROFILE" data-hu="JÁTÉKOSPROFIL">PLAYER PROFILE</span></div>
           <h1>KENZ</h1>
@@ -2757,7 +2742,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Kenz</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/Kenz.png" alt="Kenz"><img class="profile-signature kenz-signature" src="assets/kenz-signature.png" alt="" aria-hidden="true"><span>HF / STAFF</span>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/Kenz.png" alt="Kenz"><img class="profile-signature kenz-signature" src="assets/kenz-signature.png" alt="" aria-hidden="true">
         </div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
@@ -2783,7 +2768,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Zemsta</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/zemsta-profile.png" alt="Zemsta"><img class="profile-signature" src="assets/zemsta-signature.png" alt="" aria-hidden="true"><span>HF / STAFF</span>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/zemsta-profile.png" alt="Zemsta"><img class="profile-signature" src="assets/zemsta-signature.png" alt="" aria-hidden="true">
         </div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
@@ -2810,7 +2795,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff" data-hu="Stáb">Staff</span></a><span>/</span>Qex
       </div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="Ppic/Qex.png" alt="Qex"><span>HF / STAFF</span></div>
+        <div class="profile-photo staff-profile-photo"><img src="Ppic/Qex.png" alt="Qex"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Qex</h1>
@@ -2836,8 +2821,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Metalhub</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">M</strong><span>HF /
-            STAFF</span></div>
+        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">M</strong></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Metalhub</h1>
@@ -2863,8 +2847,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Bensai</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">B</strong><span>HF /
-            STAFF</span></div>
+        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">B</strong></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Bensai</h1>
@@ -2890,8 +2873,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Tobba</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">T</strong><span>HF /
-            STAFF</span></div>
+        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">T</strong></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Tobba</h1>
@@ -2917,8 +2899,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>BigV</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">B</strong><span>HF /
-            STAFF</span></div>
+        <div class="profile-photo staff-profile-photo"><img src="assets/bigv.png" alt="BigV"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>BigV</h1>
@@ -2977,7 +2958,7 @@
           <p><span data-en="Social Media Manager" data-hu="Közösségimédia-menedzser">Social Media Manager</span> <span
               aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/bigv/"><span class="staff-number">07</span>
-          <div class="staff-avatar">B</div>
+          <span class="staff-avatar staff-avatar-bigv"><img src="assets/bigv.png" alt="BigV" loading="lazy"></span>
           <h2>BigV</h2>
           <p><span data-en="Secretary" data-hu="Titkár">Secretary</span> <span aria-hidden="true">↗</span></p>
         </a></div>
@@ -3741,8 +3722,8 @@
 
       .signed-profile-photo .profile-signature {
         right: -2%;
-        bottom: 4%;
-        width: 88%
+        bottom: -14px;
+        width: 74%
       }
 
       .profile-copy {

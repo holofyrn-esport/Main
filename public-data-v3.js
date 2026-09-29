@@ -143,9 +143,6 @@ function renderProfile(route, players) {
       photo.append(illustration);
     }
   }
-  const photoLabel = document.createElement('span');
-  photoLabel.textContent = 'HF / ' + team;
-  photo.append(photoLabel);
   const copy = document.createElement('div');
   copy.className = 'profile-copy';
   const eyebrow = document.createElement('div');
@@ -173,9 +170,31 @@ function renderProfile(route, players) {
   }
   const aboutTitle = document.createElement('h2');
   aboutTitle.append(translated('About the player', 'A játékosról'));
-  const about = document.createElement('p');
+  const hasZemstaBio = selectedTeam === 'academy' && player.name.trim().toLowerCase() === 'zemsta';
+  const about = document.createElement(hasZemstaBio ? 'div' : 'p');
   about.className = 'profile-bio';
-  if (player.bio) about.textContent = player.bio;
+  if (hasZemstaBio) {
+    const paragraphs = [
+      [
+        "I'm Zemsta, captain of the HoloFyrn Esport Academy team. My main goal right now is to bring out the best in the club's players and help them keep developing both mentally and as esports competitors.",
+        'Zemsta vagyok, a HoloFyrn Esport Academy csapatkapitánya. Jelenlegi fő célom, hogy az egyesület játékosaiból a lehető legtöbbet hozzam ki, és segítsem őket abban, hogy folyamatosan fejlődjenek mind mentálisan, mind esportolóként.'
+      ],
+      [
+        'The Academy is made up of talented and motivated players who have the potential to compete at a higher level in the future. Creating an environment where everyone has the opportunity to improve, gain experience and reach their full potential is important to me.',
+        'Az Academy olyan tehetséges és motivált játékosokból áll, akikben megvan a potenciál arra, hogy a jövőben magasabb szinten is megállják a helyüket. Fontos számomra, hogy egy olyan környezetet alakítsunk ki, ahol mindenki lehetőséget kap a fejlődésre, tapasztalatszerzésre és arra, hogy kihozza magából a maximumot.'
+      ],
+      [
+        'My long-term goal is to help as many Academy players as possible reach the level needed to join the HoloFyrn main team and prove themselves there as well.',
+        'Hosszú távú célom, hogy minél több Academy játékos eljusson arra a szintre, hogy bekerülhessen a HoloFyrn főcsapatába, és ott is bizonyítani tudjon.'
+      ]
+    ];
+    for (const [en, hu] of paragraphs) {
+      const paragraph = document.createElement('p');
+      paragraph.append(translated(en, hu));
+      about.append(paragraph);
+    }
+  }
+  else if (player.bio) about.textContent = player.bio;
   else about.append(translated('A personal introduction is coming soon.', 'A személyes bemutatkozás hamarosan érkezik.'));
   const backLink = document.createElement('a');
   backLink.className = 'text-link';
