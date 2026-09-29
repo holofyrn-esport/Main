@@ -173,7 +173,8 @@ function renderProfile(route, players) {
   const aboutTitle = document.createElement('h2');
   aboutTitle.append(translated('About the player', 'A játékosról'));
   const hasZemstaBio = selectedTeam === 'academy' && player.name.trim().toLowerCase() === 'zemsta';
-  const about = document.createElement(hasZemstaBio ? 'div' : 'p');
+  const hasKenzBio = player.name.trim().toLowerCase() === 'kenz';
+  const about = document.createElement(hasZemstaBio || hasKenzBio ? 'div' : 'p');
   about.className = 'profile-bio';
   if (hasZemstaBio) {
     const paragraphs = [
@@ -190,6 +191,27 @@ function renderProfile(route, players) {
         'Hosszú távú célom, hogy minél több Academy játékos eljusson arra a szintre, hogy bekerülhessen a HoloFyrn főcsapatába, és ott is bizonyítani tudjon.'
       ]
     ];
+    for (const [en, hu] of paragraphs) {
+      const paragraph = document.createElement('p');
+      paragraph.append(translated(en, hu));
+      about.append(paragraph);
+    }
+  }
+  else if (hasKenzBio) {
+    const paragraphs = [
+  [
+    "I'm Kenz, a Rocket League player and manager for HoloFyrn Esports. As a player, I believe in thoughtful, team-focused play, where communication, decision-making and coordination are just as important as individual performance.",
+    "Kenz vagyok, a HoloFyrn Esports Rocket League j?t?kosa ?s managere. J?t?kosk?nt els?sorban a tudatos, csapatk?zpont? j?t?kban hiszek, ahol az egy?ni teljes?tm?ny mellett a kommunik?ci?, a d?nt?shozatal ?s az ?sszhang is meghat?roz? szerepet kap."
+  ],
+  [
+    "My goal is to keep taking my own game to a higher level while contributing to the development of the team around me. As a manager, I value creating an environment where every player has the opportunity to reach their full potential.",
+    "C?lom, hogy folyamatosan magasabb szintre emeljem a saj?t j?t?komat, mik?zben a k?r?l?ttem l?v? csapat fejl?d?s?hez is hozz?j?rulok. Managerk?nt fontosnak tartom, hogy egy olyan k?rnyezetet alak?tsak ki, ahol minden j?t?kosnak megvan a lehet?s?ge arra, hogy kihozza mag?b?l a maximumot."
+  ],
+  [
+    "HoloFyrn is more than a team to me. It is a long-term project we are building to compete both domestically and internationally.",
+    "A HoloFyrn sz?momra t?bb mint egy csapat. Egy hossz? t?v? projekt, amelyet az?rt ?p?t?nk, hogy versenyk?pesek legy?nk nemcsak hazai, hanem nemzetk?zi szinten is."
+  ]
+];
     for (const [en, hu] of paragraphs) {
       const paragraph = document.createElement('p');
       paragraph.append(translated(en, hu));
