@@ -25,3 +25,34 @@ test('does not invent a manager for teams without a manager roster record', () =
   });
   assert.deepEqual(publicData.players.map(player => player.name), ['Player']);
 });
+
+ test('custom positions override roles and remain independent for each team', () => {
+  const players=[
+    {name:'A',role:'Player',rosterOrder:{main:1,academy:0}},
+    {name:'B',role:'Sub',rosterOrder:{main:0,academy:1}},
+    {name:'Coach',role:'Coach',rosterOrder:{main:2}},
+    {name:'New',role:'Player'},
+  ];
+  assert.deepEqual(sortedRoster(players,'main').map(p=>p.name),['B','A','New','Coach']);
+  assert.deepEqual(sortedRoster(players.slice(0,2),'academy').map(p=>p.name),['A','B']);
+  assert.equal(players[0].name,'A');
+ });
+
+ test('roster order survives database save, reload and public publication', async () => {
+  const {fromDatabase,changesBetween,toDatabase}=await import('./holofyrnmanager/manager-data.mjs');
+  const profiles=[{id:'admin',role:'Admin',approved:true}];
+  const data={players:[{id:'a',name:'A',teamId:'main',teamIds:['main','academy'],rosterOrder:{academy:4}},{id:'b',name:'B',teamId:'main'}]};
+  const before=fromDatabase(data,profiles,'admin');
+  const after=structuredClone(before);
+  after.players[0].rosterOrder.main=1;
+  after.players[1].rosterOrder.main=0;
+  const changes=changesBetween(before,after);
+  const {patch}=toDatabase(data,profiles,'admin',changes);
+  const saved={...data,...patch};
+  assert.equal(fromDatabase(saved,profiles,'admin').players[0].rosterOrder.academy,4);
+  const published=publicHoloFyrnData(saved);
+  assert.deepEqual(sortedRoster(published.players,'main').map(p=>p.name),['B','A']);
+  assert.throws(()=>toDatabase(data,[{id:'admin',role:'Player'}],'admin',changes),/Administrator access required/);
+  const concurrent=structuredClone(data);concurrent.players[0].rosterOrder.main=3;
+  assert.throws(()=>toDatabase(concurrent,profiles,'admin',changes),/changed by another user/);
+ });

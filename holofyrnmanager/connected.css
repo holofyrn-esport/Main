@@ -243,3 +243,5 @@ fieldset.field{border:0;padding:0;min-width:0}
  .table td:not([data-label])::before{display:none}
  .table td:last-child{border-bottom:0}
 }
+
+.roster-order-list{display:grid;gap:8px}.roster-order-list .btn{justify-content:flex-start;text-align:left}.roster-order-list .btn[aria-pressed="true"]{outline:2px solid var(--accent,#df3556);background:rgba(223,53,86,.18)}

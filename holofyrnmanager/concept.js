@@ -146,7 +146,7 @@ function bindCoaching(){
     }catch(e){console.error('Coaching note failed',e);error.textContent='The note could not be saved. Check the team assignment and Firestore rules.';button.disabled=false;}
   });
 }
-function roster(){const members=playersForTeam(),list=members.filter(p=>!isRosterCoach(p)),coaches=members.filter(isRosterCoach);return appShell(`<div class="page-head"><div><div class="eyebrow">Team</div><h1 class="page-title small">Roster</h1><p class="page-sub">Manage players and link every player to a web account.</p></div><button class="btn primary" id="add-player">+ Add player</button></div><div class="kpis"><div class="card kpi"><div class="label">Players</div><div class="value">${list.length}</div></div><div class="card kpi"><div class="label">Avg 1s peak</div><div class="value">${avg(list.map(p=>p.m1))||'—'}</div></div><div class="card kpi"><div class="label">Avg 2s peak</div><div class="value">${avg(list.map(p=>p.m2))||'—'}</div></div><div class="card kpi"><div class="label">Avg 3s peak</div><div class="value">${avg(list.map(p=>p.m3))||'—'}</div></div></div><div class="roster-grid">${renderRosterCards(list)}</div>${coaches.length?`<section class="coach-section"><h2>Coaches</h2><div class="roster-grid coach-list">${coaches.map(renderCoachCard).join('')}</div></section>`:''}`);}
+function roster(){const members=model.sortedRoster(playersForTeam(),state.activeTeam),list=members.filter(p=>!isRosterCoach(p)),coaches=members.filter(isRosterCoach);return appShell(`<div class="page-head"><div><div class="eyebrow">Team</div><h1 class="page-title small">Roster</h1><p class="page-sub">Manage players and link every player to a web account.</p></div><div class="card-actions">${isAdmin()?`<button class="btn" id="reorder-roster" ${list.length<2?'disabled':''}>Reorder players</button>`:''}<button class="btn primary" id="add-player">+ Add player</button></div></div><div class="kpis"><div class="card kpi"><div class="label">Players</div><div class="value">${list.length}</div></div><div class="card kpi"><div class="label">Avg 1s peak</div><div class="value">${avg(list.map(p=>p.m1))||'—'}</div></div><div class="card kpi"><div class="label">Avg 2s peak</div><div class="value">${avg(list.map(p=>p.m2))||'—'}</div></div><div class="card kpi"><div class="label">Avg 3s peak</div><div class="value">${avg(list.map(p=>p.m3))||'—'}</div></div></div><div class="roster-grid">${renderRosterCards(list)}</div>${coaches.length?`<section class="coach-section"><h2>Coaches</h2><div class="roster-grid coach-list">${coaches.map(renderCoachCard).join('')}</div></section>`:''}`);}
 function rosterAvatar(p){return avatarMarkup(linkedUserForPlayer(p.id)||{displayName:p.name,initials:initials(p.name)},'roster-avatar');}
 function renderCoachCard(p){return `<div class="card card-pad coach-row"><div class="roster-identity">${rosterAvatar(p)}<div class="roster-identity-text"><button class="player-name person-link" data-player-view="${esc(p.id)}">${esc(p.name)}</button><div class="player-meta">Coach</div></div></div><div class="coach-discord"><b>Discord:</b> ${esc(p.discord||'—')}</div><div class="card-actions"><button class="btn small" data-player-view="${esc(p.id)}">View profile</button><button class="btn small" data-player-edit="${esc(p.id)}">Edit</button><button class="btn small danger" data-player-delete="${esc(p.id)}">Delete</button></div></div>`;}
 function renderRosterCards(list){
@@ -342,7 +342,7 @@ function bindCommon(){
   document.addEventListener('click',e=>{if(teamMenu&&!teamMenu.contains(e.target)&&!teamBtn?.contains(e.target))teamMenu.classList.remove('open');if(userMenu&&!userMenu.contains(e.target)&&!switchBtn?.contains(e.target))userMenu.classList.remove('open');if(panel&&!panel.contains(e.target)&&!bell?.contains(e.target))panel.classList.remove('open');},{once:true});
 }
 function bindView(){if(state.view==='roster')bindRoster();if(state.view==='availability')bindAvailability();if(state.view==='coaching')bindCoaching();if(state.view==='results')bindResults();if(state.view==='league')bindLeague();if(state.view==='calendar')bindCalendar();if(state.view==='admin')bindAdmin();}
-function bindRoster(){document.getElementById('add-player')?.addEventListener('click',()=>playerModal());document.querySelectorAll('[data-player-edit]').forEach(b=>b.onclick=()=>playerModal(playerById(b.dataset.playerEdit)));document.querySelectorAll('[data-player-view]').forEach(b=>b.onclick=()=>viewPlayer(playerById(b.dataset.playerView)));document.querySelectorAll('[data-player-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete player?','The linked account will remain but the player link will be cleared.',()=>{const p=playerById(b.dataset.playerDelete);if(p?.accountId){const u=userById(p.accountId);if(u)u.linkedPlayerId=null;}state.players=state.players.filter(p=>p.id!=b.dataset.playerDelete);save();render();}));}
+function bindRoster(){document.getElementById('reorder-roster')?.addEventListener('click',reorderRosterModal);document.getElementById('add-player')?.addEventListener('click',()=>playerModal());document.querySelectorAll('[data-player-edit]').forEach(b=>b.onclick=()=>playerModal(playerById(b.dataset.playerEdit)));document.querySelectorAll('[data-player-view]').forEach(b=>b.onclick=()=>viewPlayer(playerById(b.dataset.playerView)));document.querySelectorAll('[data-player-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete player?','The linked account will remain but the player link will be cleared.',()=>{const p=playerById(b.dataset.playerDelete);if(p?.accountId){const u=userById(p.accountId);if(u)u.linkedPlayerId=null;}state.players=state.players.filter(p=>p.id!=b.dataset.playerDelete);save();render();}));}
 function bindAvailability(){document.getElementById('save-availability')?.addEventListener('click',()=>{const playerId=value('a-player'),date=value('a-date'),from=value('a-from'),until=value('a-until');if(!playerId||!date||from>=until){toast('Invalid availability','Check player, date and time range.');return;}state.availability.push({id:crypto.randomUUID(),playerId,date,from,until});save();render();toast('Saving availability',`${from}–${until}`);});document.querySelectorAll('[data-avail-edit]').forEach(b=>b.onclick=()=>availabilityModal(state.availability.find(a=>a.id==b.dataset.availEdit)));document.querySelectorAll('[data-avail-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete availability?','Remove this time window only.',()=>{state.availability=state.availability.filter(a=>a.id!=b.dataset.availDelete);save();render();}));}
 function bindResults(){document.querySelectorAll('[data-result-tab]').forEach(b=>b.onclick=()=>{state.resultTab=b.dataset.resultTab;save();render();});document.getElementById('add-result')?.addEventListener('click',()=>resultModal());document.querySelectorAll('[data-result-edit]').forEach(b=>b.onclick=()=>resultModal(state.results.find(r=>r.id==b.dataset.resultEdit)));document.querySelectorAll('[data-result-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete result?','Remove this result from the database.',()=>{state.results=state.results.filter(r=>r.id!=b.dataset.resultDelete);save();render();}));}
 
@@ -544,3 +544,29 @@ function prepareMobileAgenda(){
 function render(){if(!currentUser())return;ensureAccess();const views={overview,roster,availability,coaching,results,league,calendar,admin};document.getElementById('app').innerHTML=(views[state.view]||overview)();prepareResponsiveTables();prepareMobileAgenda();bindCommon();bindView();updateSyncStatus();}
 startManager();
 
+
+function reorderRosterModal(){
+  if(!isAdmin())return;
+  const team=state.activeTeam;
+  const members=model.sortedRoster(playersForTeam(team),team);
+  const draft=members.filter(p=>!isRosterCoach(p));
+  const coaches=members.filter(isRosterCoach);
+  let selected=null;
+  openModal('Reorder players', '<p>Select two players to swap their positions. Save to update this team on the main site.</p><div id="roster-order-list" class="roster-order-list"></div><p id="roster-order-status" role="status" aria-live="polite"></p>',()=>{
+    if(!isAdmin())return;
+    [...draft,...coaches].forEach((p,index)=>{const current=playerById(p.id);if(current)current.rosterOrder={...current.rosterOrder,[team]:index};});
+    const saving=save();
+    if(saving===false)return;
+    closeModal();render();
+  },'Save order');
+  function draw(){
+    document.getElementById('roster-order-list').innerHTML=draft.map((p,index)=>`<button type="button" class="btn" data-order-index="${index}" aria-pressed="${selected===index}"><span>${index+1}.</span> ${esc(p.name)}</button>`).join('');
+    document.querySelectorAll('[data-order-index]').forEach(button=>button.onclick=()=>{
+      const index=Number(button.dataset.orderIndex);
+      if(selected===null){selected=index;draw();return;}
+      if(selected!==index){[draft[selected],draft[index]]=[draft[index],draft[selected]];document.getElementById('roster-order-status').textContent='Positions swapped. Save order to apply.';}
+      selected=null;draw();
+    });
+  }
+  draw();
+}

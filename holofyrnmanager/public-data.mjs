@@ -11,12 +11,14 @@ export function publicHoloFyrnData(data = {}) {
     {id:'rls-academy',name:'Rls HoloFyrn Academy'},
     {id:'rls-eldr',name:'Rls HoloFyrn Eldr'},
     {id:'shadows',name:'HoloFyrn Shadows'},
+    {id:'vanguards',name:'Holofyrn Vanguards'},
     ...teams,
   ];
   const players = rows(data.players).filter(player => str(player.name || player.rlName)).map(player => ({
     name: str(player.name || player.rlName).slice(0, 100),
     team: str(player.teamId || player.team || 'main').slice(0, 80),
     teamIds: [...new Set((rows(player.teamIds).length ? player.teamIds : [player.teamId || player.team || 'main']).map(id => str(id).slice(0, 80)).filter(Boolean))],
+    rosterOrder: Object.fromEntries(Object.entries(player.rosterOrder || {}).filter(([team, position]) => team.length <= 80 && Number.isInteger(position) && position >= 0)),
     role: str(player.position || player.role).slice(0, 80),
     bio: str(player.publicBio || player.bio).slice(0, 1000),
   }));

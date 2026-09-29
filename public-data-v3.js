@@ -1,5 +1,5 @@
 import {matchesForNextDay, todayInBudapest} from './public-matches.mjs';
-import {rosterRole, sortedRoster} from './public-roster.mjs';
+import {rosterRole, sortedRoster} from './public-roster.mjs?v=20260930-order';
 
 const teamRoutes = {
   '/teams/holofyrn-esport/': 'main',
@@ -8,12 +8,14 @@ const teamRoutes = {
   '/teams/rls-holofyrn-academy/': 'rls-academy',
   '/teams/rls-holofyrn-elet/': 'rls-eldr',
   '/teams/holofyrn-shadows/': 'shadows',
+  '/teams/holofyrn-vanguards/': 'vanguards',
 };
 const teamNames = {
   main: 'HoloFyrn Esport', academy: 'HoloFyrn Academy',
   rls: 'RLS HoloFyrn Esport', 'rls-academy': 'RLS HoloFyrn Academy',
   'rls-eldr': 'RLS HoloFyrn Élet',
   shadows: 'HoloFyrn Shadows',
+  vanguards: 'Holofyrn Vanguards',
 };
 const portraits = {kenz: 'Kenz.png', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;
@@ -206,13 +208,13 @@ function renderProfile(route, players) {
   document.title = `${player.name} | HoloFyrn Esport`;
 }
 
-function renderPlayers(grid, players) {
+function renderPlayers(grid, players, team) {
   if (!grid) return;
   if (!players.length) {
     grid.replaceChildren(emptyMessage(loadError ? 'Player data is temporarily unavailable.' : 'No players listed yet.', loadError ? 'A játékosadatok átmenetileg nem érhetők el.' : 'Még nincsenek játékosok feltüntetve.'));
     return;
   }
-  grid.replaceChildren(...sortedRoster(players).map(playerCard));
+  grid.replaceChildren(...sortedRoster(players, team).map(playerCard));
 }
 
 function renderUpcomingMatches(matches) {
@@ -289,14 +291,14 @@ function render() {
     return;
   }
   if (team) {
-    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, team)));
+    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, team)), team);
     const panels = document.querySelectorAll('#main .two-column .info-panel');
     if (panels.length >= 2) {
       panels[0].querySelector('p')?.replaceWith(resultList(results.filter(row => row.team === team), 'No results yet.', 'Még nincs eredmény.'));
       panels[1].querySelector('p')?.replaceWith(resultList(results.filter(row => row.team === team && row.type !== 'league'), 'No tournament results yet.', 'Még nincs versenyeredmény.'));
     }
   } else if (route === '/') {
-    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, 'main')));
+    renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, 'main')), 'main');
   }
 }
 
