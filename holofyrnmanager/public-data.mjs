@@ -19,6 +19,7 @@ export function publicHoloFyrnData(data = {}) {
     team: str(player.teamId || player.team || 'main').slice(0, 80),
     teamIds: [...new Set((rows(player.teamIds).length ? player.teamIds : [player.teamId || player.team || 'main']).map(id => str(id).slice(0, 80)).filter(Boolean))],
     rosterOrder: Object.fromEntries(Object.entries(player.rosterOrder || {}).filter(([team, position]) => team.length <= 80 && Number.isInteger(position) && position >= 0)),
+    teamRoles: Object.fromEntries(Object.entries(player.teamRoles || {}).filter(([team, role]) => team.length <= 80 && typeof role === 'string').map(([team, role]) => [team, str(role).slice(0, 80)])),
     role: str(player.position || player.role).slice(0, 80),
     bio: str(player.publicBio || player.bio).slice(0, 1000),
   }));

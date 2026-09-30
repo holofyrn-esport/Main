@@ -1,3 +1,7 @@
+export function teamRole(player, team) {
+  return player?.teamRoles?.[team] || player?.role || player?.position || 'Player';
+}
+
 export function rosterRole(role) {
   const value = String(role || '').trim().toLowerCase();
   if (value === 'manager' || value === 'team manager') return 'manager';
@@ -13,8 +17,8 @@ export function sortedRoster(players, team) {
   return players.map((player, index) => ({player, index}))
     .sort((a, b) => {
       const rank = p => Number.isInteger(p.rosterOrder?.[team]) && p.rosterOrder[team] >= 0 ? p.rosterOrder[team] : Number.MAX_SAFE_INTEGER;
-      const coachGroup = p => String(p.role || '').toLowerCase() === 'coach' ? 1 : 0;
-      return (hasCustomOrder ? coachGroup(a.player) - coachGroup(b.player) : 0) || rank(a.player) - rank(b.player) || order[rosterRole(a.player.role)] - order[rosterRole(b.player.role)] || a.index - b.index;
+      const coachGroup = p => String(teamRole(p, team)).toLowerCase() === 'coach' ? 1 : 0;
+      return (hasCustomOrder ? coachGroup(a.player) - coachGroup(b.player) : 0) || rank(a.player) - rank(b.player) || order[rosterRole(teamRole(a.player, team))] - order[rosterRole(teamRole(b.player, team))] || a.index - b.index;
     })
     .map(item => item.player);
 }

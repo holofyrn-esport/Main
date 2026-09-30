@@ -1,5 +1,5 @@
 import {matchesForNextDay, todayInBudapest} from './public-matches.mjs';
-import {rosterRole, sortedRoster} from './public-roster.mjs?v=20260930-order';
+import {rosterRole, sortedRoster, teamRole} from './public-roster.mjs?v=20260930-team-roles';
 
 const teamRoutes = {
   '/teams/holofyrn-esport/': 'main',
@@ -236,7 +236,7 @@ function renderPlayers(grid, players, team) {
     grid.replaceChildren(emptyMessage(loadError ? 'Player data is temporarily unavailable.' : 'No players listed yet.', loadError ? 'A játékosadatok átmenetileg nem érhetők el.' : 'Még nincsenek játékosok feltüntetve.'));
     return;
   }
-  grid.replaceChildren(...sortedRoster(players, team).map(playerCard));
+  grid.replaceChildren(...sortedRoster(players, team).map((player,index)=>playerCard({...player,role:teamRole(player,team)},index)));
 }
 
 function renderUpcomingMatches(matches) {

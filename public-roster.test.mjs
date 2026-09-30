@@ -56,3 +56,30 @@ test('does not invent a manager for teams without a manager roster record', () =
   const concurrent=structuredClone(data);concurrent.players[0].rosterOrder.main=3;
   assert.throws(()=>toDatabase(concurrent,profiles,'admin',changes),/changed by another user/);
  });
+
+test('team roles survive saving and publication without changing other memberships', async () => {
+  const {fromDatabase, changesBetween, toDatabase, teamRole}=await import('./holofyrnmanager/manager-data.mjs');
+  const profiles=[{id:'admin',role:'Admin',approved:true},{id:'user',role:'Player',playerId:'p'}];
+  const data={players:[{id:'p',name:'Shared player',userId:'user',teamId:'main',teamIds:['main','academy'],position:'Starter'}]};
+  const before=fromDatabase(data,profiles,'admin');
+  assert.equal(teamRole(before.players[0],'academy'),'Starter');
+  const after=structuredClone(before);
+  after.players[0].teamRoles={main:'Starter',academy:'Coach'};
+  const {patch,userWrites}=toDatabase(data,profiles,'admin',changesBetween(before,after));
+  const saved={...data,...patch};
+  const reloaded=fromDatabase(saved,profiles,'admin');
+  assert.equal(teamRole(reloaded.players[0],'main'),'Starter');
+  assert.equal(teamRole(reloaded.players[0],'academy'),'Coach');
+  assert.deepEqual(userWrites.find(u=>u.id==='user').teamIds,['main','academy']);
+  assert.equal(reloaded.players.length,1);
+  const published=publicHoloFyrnData(saved).players[0];
+  assert.equal(teamRole(published,'academy'),'Coach');
+  const other={name:'Other',role:'Sub'};
+  assert.deepEqual(sortedRoster([published,other],'main').map(p=>p.name),['Shared player','Other']);
+  assert.deepEqual(sortedRoster([published,other],'academy').map(p=>p.name),['Other','Shared player']);
+  const next=structuredClone(reloaded);
+  next.players[0].teamRoles.academy='Reserve';
+  const second=toDatabase(saved,profiles,'admin',changesBetween(reloaded,next));
+  assert.equal(second.patch.players[0].teamRoles.main,'Starter');
+  assert.equal(second.patch.players[0].teamRoles.academy,'Reserve');
+});

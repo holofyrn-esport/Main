@@ -149,7 +149,7 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi]=await Promise.all([import('./manager-data.mjs?v=20260930-order'),import('./public-data.mjs?v=20260930-order'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi]=await Promise.all([import('./manager-data.mjs?v=20260930-team-roles'),import('./public-data.mjs?v=20260930-team-roles'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     services={appApi,fire,authApi,db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};

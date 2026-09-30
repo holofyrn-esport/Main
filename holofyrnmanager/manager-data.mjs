@@ -1,4 +1,4 @@
-export {sortedRoster} from '../public-roster.mjs?v=20260930-order';
+export {sortedRoster, teamRole} from '../public-roster.mjs?v=20260930-team-roles';
 // Compatibility boundary: existing Noctiq records remain the source of truth.
 export const defaultTeams = [
   { id: 'main', name: 'HoloFyrn Esports', code: 'Main roster' },
@@ -40,7 +40,7 @@ export function fromDatabase(data = {}, profiles = [], uid = '') {
   const players = list(data.players).map(p => {
     const account = users.find(u => u.linkedPlayerId === str(p.id) || (p.authUid && (u.authUid === p.authUid || u.id === p.authUid)) || (p.userId && u.id === p.userId));
     if (account) account.linkedPlayerId = str(p.id);
-    return { id: str(p.id), accountId: account?.id || p.accountId || null, team: playerTeams(p)[0] || 'main', teamIds: playerTeams(p), rosterOrder: p.rosterOrder || {}, name: p.name || p.rlName || '', rl: p.rlName || p.rl || '', discord: p.discord || '', role: p.position || p.role || 'Player', m1: num(p.peak1s), m2: num(p.peak2s || p.mmr), m3: num(p.peak3s), tracker: p.profileLink || '', bio: p.publicBio || p.about || '', private: p.notes || '' };
+    return { id: str(p.id), accountId: account?.id || p.accountId || null, team: playerTeams(p)[0] || 'main', teamIds: playerTeams(p), rosterOrder: p.rosterOrder || {}, teamRoles: p.teamRoles || {}, name: p.name || p.rlName || '', rl: p.rlName || p.rl || '', discord: p.discord || '', role: p.position || p.role || 'Player', m1: num(p.peak1s), m2: num(p.peak2s || p.mmr), m3: num(p.peak3s), tracker: p.profileLink || '', bio: p.publicBio || p.about || '', private: p.notes || '' };
   });
   const events = list(data.events).map(e => ({
     id: str(e.id), title: e.title || '', ...dateParts(e), duration: Number(e.durationMinutes || 60), type: e.type || 'Meeting', priority: ['low','normal','high','urgent'].includes(e.priority)?e.priority:'normal',
@@ -138,7 +138,7 @@ export function toDatabase(data, profiles, uid, changes) {
     const original=list(data[key]).find(r=>str(r.id)===str(row.id));
     return original && !changes[key]?.some(c=>c.id===str(row.id)) ? original : {...original,...convert(row)};
   });
-  if (changes.players) patch.players = preserve('players',next.players,p=>({id:p.id,name:p.name,rlName:p.rl,discord:p.discord,teamId:playerTeams(p)[0] || 'main',teamIds:playerTeams(p),rosterOrder:p.rosterOrder || {},position:p.role,peak1s:p.m1??'',peak2s:p.m2??'',peak3s:p.m3??'',profileLink:p.tracker,publicBio:p.bio,notes:p.private,userId:p.accountId || '',authUid:next.users.find(u=>u.id===p.accountId)?.authUid || p.accountId || ''}));
+  if (changes.players) patch.players = preserve('players',next.players,p=>({id:p.id,name:p.name,rlName:p.rl,discord:p.discord,teamId:playerTeams(p)[0] || 'main',teamIds:playerTeams(p),rosterOrder:p.rosterOrder || {},teamRoles:p.teamRoles || {},position:p.teamRoles?.[playerTeams(p)[0]] || p.role,peak1s:p.m1??'',peak2s:p.m2??'',peak3s:p.m3??'',profileLink:p.tracker,publicBio:p.bio,notes:p.private,userId:p.accountId || '',authUid:next.users.find(u=>u.id===p.accountId)?.authUid || p.accountId || ''}));
   if (changes.results || deletedLeagues.size) patch.results = preserve('results',next.results,r=>({id:r.id,teamId:r.team,managerType:r.type,type:list(data.results).find(x=>str(x.id)===r.id)?.type || (r.type==='league'?'Match':'Tournament'),dateTime:r.date+'T12:00',title:r.event,stage:r.stage,placement:r.placement,prizeEur:r.prizeMoney,result:r.result,...(r.leagueId!=null?{leagueId:r.leagueId}:{})}));
   if (changes.availability) patch.availability = preserve('availability',next.availability,a=>({id:a.id,playerId:a.playerId,teamId:next.players.find(p=>p.id===a.playerId)?.team || 'main',date:a.date,startTime:a.from,endTime:a.until,status:a.status || 'Available'}));
   if (changes.events) patch.events = preserve('events',next.events.filter(e=>!e.source),e=>({id:e.id,title:e.title,dateTime:`${e.date}T${e.time}`,startsAtUtc:new Date(`${e.date}T${e.time}`).toISOString(),durationMinutes:e.duration,type:e.type,priority:e.priority || 'normal',creatorUserId:e.creatorUserId,invitedTeamIds:e.invitedTeamIds,invitedUserIds:e.invitedUserIds,directInvitedUserIds:e.directInvitedUserIds || [],hiddenFromAdmins:e.hiddenFromAdmins,teamId:e.invitedTeamIds[0] || '',targetType:e.invitedTeamIds.length?'team':'player'}));
