@@ -221,6 +221,11 @@ function deleteAccountModal(user){
     button.disabled=true;button.textContent='Requesting…';message.textContent='';
     try{
       await requestAccountDeletion(user.id);
+      // Reflect the confirmed write even if the profile listener has not arrived yet.
+      for(const profiles of [state.users,remoteProfiles,baseline?.users]){
+        const profile=profiles?.find(item=>item.id===user.id);
+        if(profile)Object.assign(profile,{approved:false,deletionPending:true});
+      }
       closeModal();render();toast('Deletion queued',`${user.displayName} can no longer access the manager.`);
     }catch(error){
       message.textContent=error.code==='permission-denied'?'Administrator access or the account deletion Firestore rule is missing.':error.message||'Deletion request failed. Please retry.';
