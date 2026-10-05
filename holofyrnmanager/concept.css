@@ -330,3 +330,5 @@ body::before,body::after{display:none!important}
 .hero-banner{grid-template-columns:minmax(0,1fr)!important}
 .hero-copy{padding-right:0!important}
 .banner-art{display:none!important}
+.progress-track{height:7px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;max-width:360px}
+.progress-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#df3556,#ff8a63)}

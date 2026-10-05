@@ -25,6 +25,11 @@ service cloud.firestore {
         && managerProfile().role in ['Admin', 'admin', 'Coach', 'coach', 'Manager', 'manager', 'Captain', 'captain'];
     }
 
+    function canManageGoals() {
+      return isMember()
+        && managerProfile().role in ['Admin', 'admin', 'Coach', 'coach', 'Manager', 'manager'];
+    }
+
     function isAssignedTo(teamId) {
       return isMember() && (managerProfile().get('teamId', '') == teamId
         || teamId in managerProfile().get('teamIds', []));
@@ -60,7 +65,10 @@ service cloud.firestore {
       allow read: if isMember();
       allow create, delete: if isAdmin();
       allow update: if isAdmin() || (isMember()
-        && request.resource.data.get('players', []) == resource.data.get('players', []));
+        && request.resource.data.get('players', []) == resource.data.get('players', [])
+        && (canManageGoals()
+          || request.resource.data.get('managerV8', {}).get('goals', [])
+            == resource.data.get('managerV8', {}).get('goals', [])));
     }
 
     match /coachingTeams/{teamId}/notes/{noteId} {

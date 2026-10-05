@@ -16,7 +16,7 @@ function rebrand(value) {
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [rebrand(key), rebrand(item)]));
   return value;
 }
-export const sharedKeys = ['players', 'results', 'events', 'availability', 'leagues', 'leagueGames', 'notifications', 'users'];
+export const sharedKeys = ['players', 'results', 'events', 'availability', 'leagues', 'leagueGames', 'goals', 'notifications', 'users'];
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
@@ -59,7 +59,7 @@ export function fromDatabase(data = {}, profiles = [], uid = '') {
     teams: [...defaultTeams.map(t=>({...list(extension.teams).find(saved=>saved.id===t.id),...t})), ...list(extension.teams).filter(t=>t.id!=='synq'&&!defaultTeams.some(known=>known.id===t.id)).map(rebrand)], users, players, events,
     results: list(data.results).map(r=>({id:str(r.id), team:r.teamId || 'main', type:r.managerType || (r.type === 'League match' ? 'league' : 'tournament'), date:dateParts(r).date, event:r.title || r.event || '', stage:r.stage || '', placement:r.placement || r.score || '', prizeMoney:Number(r.prizeEur || r.prizeMoney || 0), result:r.result || 'pending', ...(r.leagueId != null ? {leagueId:r.leagueId} : {})})),
     availability: list(data.availability).map(a=>({id:str(a.id), playerId:str(a.playerId), date:a.date || '', from:a.startTime || a.from || '', until:a.endTime || a.until || '', status:a.status || 'Available'})),
-    leagues: rebrand(list(extension.leagues)), leagueGames: rebrand(list(extension.leagueGames)), notifications: list(extension.notifications),
+    leagues: rebrand(list(extension.leagues)), leagueGames: rebrand(list(extension.leagueGames)), goals: list(extension.goals), notifications: list(extension.notifications),
   };
 }
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
@@ -112,6 +112,10 @@ export function validateChanges(changes, user, players) {
       }
     } else if (key === 'players' && !admin) throw new Error('Administrator access required.');
     else if (['results','leagues','leagueGames'].includes(key) && !staff) throw new Error('Staff access required.');
+    else if (key === 'goals') {
+      if (!(admin || ['coach','manager'].includes(user.role) || user.coachAccess || user.managerAccess)) throw new Error('Admin, coach or manager access required.');
+      if (c.after && (!c.after.title?.trim() || !c.after.teamId || !c.after.dueDate)) throw new Error('A goal needs a title, team and target date.');
+    }
     else if (key === 'availability') {
       if (!staff && [c.before,c.after].filter(Boolean).some(a=>players.find(p=>str(p.id)===str(a.playerId))?.accountId !== user.id)) throw new Error('You may only edit your own availability.');
       if (c.after && (!row.playerId || !row.date || !row.from || row.from>=row.until)) throw new Error('Check the availability date and time range.');
@@ -142,7 +146,7 @@ export function toDatabase(data, profiles, uid, changes) {
   if (changes.results || deletedLeagues.size) patch.results = preserve('results',next.results,r=>({id:r.id,teamId:r.team,managerType:r.type,type:list(data.results).find(x=>str(x.id)===r.id)?.type || (r.type==='league'?'Match':'Tournament'),dateTime:r.date+'T12:00',title:r.event,stage:r.stage,placement:r.placement,prizeEur:r.prizeMoney,result:r.result,...(r.leagueId!=null?{leagueId:r.leagueId}:{})}));
   if (changes.availability) patch.availability = preserve('availability',next.availability,a=>({id:a.id,playerId:a.playerId,teamId:next.players.find(p=>p.id===a.playerId)?.team || 'main',date:a.date,startTime:a.from,endTime:a.until,status:a.status || 'Available'}));
   if (changes.events) patch.events = preserve('events',next.events.filter(e=>!e.source),e=>({id:e.id,title:e.title,dateTime:`${e.date}T${e.time}`,startsAtUtc:new Date(`${e.date}T${e.time}`).toISOString(),durationMinutes:e.duration,type:e.type,priority:e.priority || 'normal',creatorUserId:e.creatorUserId,invitedTeamIds:e.invitedTeamIds,invitedUserIds:e.invitedUserIds,directInvitedUserIds:e.directInvitedUserIds || [],hiddenFromAdmins:e.hiddenFromAdmins,teamId:e.invitedTeamIds[0] || '',targetType:e.invitedTeamIds.length?'team':'player'}));
-  if (['leagues','leagueGames','notifications'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, version:1, ...Object.fromEntries(['leagues','leagueGames','notifications'].map(k=>[k,next[k]]))};
+  if (['leagues','leagueGames','goals','notifications'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, version:1, ...Object.fromEntries(['leagues','leagueGames','goals','notifications'].map(k=>[k,next[k]]))};
   const userWrites = [];
   const affectedUserIds = new Set([...(changes.users || []).map(c=>c.id), ...(changes.players || []).flatMap(c=>[c.before?.accountId,c.after?.accountId]).filter(Boolean)]);
   for (const id of affectedUserIds) {

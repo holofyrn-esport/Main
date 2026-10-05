@@ -19,7 +19,7 @@ const NAV_SECTIONS = [
   { label:'', items:[['overview','Overview']] },
   { label:'Team', items:[['roster','Roster','admin'],['availability','Availability'],['coaching','Coaching']] },
   { label:'Competition', items:[['results','Results'],['league','Leagues'],['calendar','Calendar']] },
-  { label:'Management', items:[['admin','Admin','admin']] }
+  { label:'Management', items:[['goals','Goals','staff'],['admin','Admin','admin']] }
 ];
 const ICONS = {overview:'⌂',roster:'👥',availability:'🗓',coaching:'✎',results:'⚔',league:'🏆',calendar:'▣',admin:'⚙'};
 let state = loadState();
@@ -30,6 +30,7 @@ function save(){ return queueSave(); }
 function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function isAdmin(){return currentUser().role==='admin';}
 function isCoach(){return currentUser().role==='coach';}
+function canManageGoals(){return ['admin','coach','manager'].includes(currentUser()?.role);}
 function team(){return state.teams.find(t=>t.id===state.activeTeam)||state.teams[0];}
 function playerTeamIds(p){return p?.teamIds?.length?p.teamIds:[p?.team].filter(Boolean);}
 function playersForTeam(id=state.activeTeam){return state.players.filter(p=>playerTeamIds(p).includes(id));}
@@ -40,15 +41,16 @@ function dateFmt(d){return new Date(d+'T12:00:00').toLocaleDateString('en-GB',{d
 function avg(vals){const a=vals.filter(Number.isFinite);return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;}
 function initials(name=''){return name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?';}
 function ordinal(n){const v=n%100;return n+(v>=11&&v<=13?'th':n%10===1?'st':n%10===2?'nd':n%10===3?'rd':'th');}
-function canAccess(view){return !['roster','admin'].includes(view)||isAdmin();}
+function canAccess(view){if(view==='goals')return canManageGoals();return !['roster','admin'].includes(view)||isAdmin();}
 function ensureAccess(){if(!canAccess(state.view))state.view='overview';}
-function visibleNavSections(){return NAV_SECTIONS.map(s=>({label:s.label,items:s.items.filter(i=>i[2]!=='admin'||isAdmin())})).filter(s=>s.items.length);}
+function visibleNavSections(){return NAV_SECTIONS.map(s=>({label:s.label,items:s.items.filter(i=>i[2]==='admin'?isAdmin():i[2]==='staff'?canManageGoals():true)})).filter(s=>s.items.length);}
 function pageLabel(){for(const s of visibleNavSections())for(const [id,label]of s.items)if(id===state.view)return label;return'Overview';}
 function teamLogo(){return 'assets/holofyrn-logo.png';}
 function defaultPlayoffState(){return{rounds:[]};}
 function normalizeState(s){
   s.results=(s.results||[]).map(r=>({...r,prizeMoney:Number(r.prizeMoney??0)||0}));
   s.leagues=(s.leagues||[]).map(l=>({...l,playoffs:l.playoffs||defaultPlayoffState()}));
+  s.goals=(s.goals||[]).map(g=>({...g,progress:Math.max(0,Math.min(100,Number(g.progress)||0)),status:g.status||'active'}));
   return s;
 }
 function avatarMarkup(u,cls=''){
@@ -81,6 +83,15 @@ function appShell(content){
 }
 function notificationPanel(){const ns=currentNotifications(),preview=ns.slice(0,6);return`<div class="notification-panel" id="notification-panel"><div class="notification-head"><div><b>Notifications</b><small>${ns.length} total</small></div><button class="link-btn" id="mark-all-read">Mark all read</button></div><div class="notification-preview-list">${preview.length?preview.map(n=>`<button class="notification-item ${n.read?'':'unread'}" data-notification="${n.id}"><span class="notification-dot"></span><span><b>${esc(n.title)}</b><small>${esc(n.text)}</small></span></button>`).join(''):'<div class="empty small-empty">No notifications.</div>'}</div><button class="notification-inbox-btn" id="open-notification-center">Open notification inbox →</button></div>`;}
 
+function goals(){
+  if(!canManageGoals())return overview();
+  return appShell(`<div class="page-head"><div><div class="eyebrow">Team management</div><h1 class="page-title small">Goals</h1><p class="page-sub">Set and track goals across every team.</p></div><button class="btn primary" id="add-goal">+ Add goal</button></div>${state.teams.map(t=>{const rows=state.goals.filter(g=>g.teamId===t.id).sort((a,b)=>String(a.dueDate).localeCompare(String(b.dueDate)));return`<section class="card card-pad" style="margin-bottom:16px"><div class="section-head"><h3>${esc(t.name)}</h3><span class="tag">${rows.length} ${rows.length===1?'goal':'goals'}</span></div>${rows.length?`<div class="list-panel">${rows.map(g=>`<article class="event-row"><div class="event-date">${g.dueDate?dateFmt(g.dueDate):'No date'}</div><div style="min-width:0;flex:1"><strong>${esc(g.title)}</strong><div class="event-meta">${esc(g.description||'No description')}</div><div class="progress-track" style="margin-top:10px"><span style="width:${g.progress}%"></span></div><small class="subtle">${g.progress}% complete · ${g.status==='complete'?'Complete':'In progress'}</small></div><div class="row-actions"><button class="btn small" data-goal-edit="${esc(g.id)}">Edit</button><button class="btn small danger" data-goal-delete="${esc(g.id)}">Delete</button></div></article>`).join('')}</div>`:'<div class="empty">No goals for this team yet.</div>'}</section>`}).join('')}`);
+}
+function goalModal(goal={}){
+  if(!canManageGoals())return;
+  openModal(goal.id?'Edit goal':'Create team goal',`<div class="form-grid"><div class="field"><label for="goal-title">Goal</label><input id="goal-title" class="input" maxlength="120" value="${esc(goal.title||'')}" required></div><div class="field"><label for="goal-team">Team</label><select id="goal-team" class="select">${state.teams.map(t=>`<option value="${esc(t.id)}" ${t.id===(goal.teamId||state.activeTeam)?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div><div class="field"><label for="goal-description">Description</label><textarea id="goal-description" class="input" rows="3" maxlength="1000">${esc(goal.description||'')}</textarea></div><div class="form-grid two"><div class="field"><label for="goal-date">Target date</label><input id="goal-date" class="input" type="date" value="${esc(goal.dueDate||'')}" required></div><div class="field"><label for="goal-progress">Progress (%)</label><input id="goal-progress" class="input" type="number" min="0" max="100" value="${Number(goal.progress)||0}"></div></div></div>`,()=>{const title=document.getElementById('goal-title').value.trim(),dueDate=document.getElementById('goal-date').value;if(!title||!dueDate){toast('Goal needs a title and target date');return;}const progress=Math.max(0,Math.min(100,Number(document.getElementById('goal-progress').value)||0));const item={id:goal.id||crypto.randomUUID(),title,teamId:document.getElementById('goal-team').value,description:document.getElementById('goal-description').value.trim(),dueDate,progress,status:progress>=100?'complete':'active',createdBy:goal.createdBy||state.currentUserId,createdAt:goal.createdAt||new Date().toISOString()};const index=state.goals.findIndex(g=>g.id===item.id);if(index<0)state.goals.push(item);else state.goals[index]=item;save();closeModal();render();});
+}
+function bindGoals(){document.getElementById('add-goal')?.addEventListener('click',()=>goalModal());document.querySelectorAll('[data-goal-edit]').forEach(b=>b.onclick=()=>{const goal=state.goals.find(g=>g.id===b.dataset.goalEdit);if(goal)goalModal(goal);});document.querySelectorAll('[data-goal-delete]').forEach(b=>b.onclick=()=>{if(!canManageGoals())return;confirmModal('Delete goal?','Remove this team goal?',()=>{state.goals=state.goals.filter(g=>g.id!==b.dataset.goalDelete);save();render();});});}
 function overview(){
   const me=currentPlayer(),recent=state.results.filter(r=>r.team===state.activeTeam).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5),leagueFixture=nextLeagueFixture(),events=visibleEventsForCurrentUser().filter(e=>e.date>=today()).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,4),form=leagueFormForTeam(team().name,10),wins=form.filter(r=>r.result==='win').length;
   return appShell(`<section class="hero-banner"><div class="hero-copy"><div class="eyebrow">HoloFyrn Esports</div><h1 class="page-title">Good evening, ${esc(me?.name||currentUser().displayName)}.</h1><p class="page-sub">Here's what's happening with your roster.</p></div></section>
@@ -341,7 +352,7 @@ function bindCommon(){
   bindConnectedActions();
   document.addEventListener('click',e=>{if(teamMenu&&!teamMenu.contains(e.target)&&!teamBtn?.contains(e.target))teamMenu.classList.remove('open');if(userMenu&&!userMenu.contains(e.target)&&!switchBtn?.contains(e.target))userMenu.classList.remove('open');if(panel&&!panel.contains(e.target)&&!bell?.contains(e.target))panel.classList.remove('open');},{once:true});
 }
-function bindView(){if(state.view==='roster')bindRoster();if(state.view==='availability')bindAvailability();if(state.view==='coaching')bindCoaching();if(state.view==='results')bindResults();if(state.view==='league')bindLeague();if(state.view==='calendar')bindCalendar();if(state.view==='admin')bindAdmin();}
+function bindView(){if(state.view==='roster')bindRoster();if(state.view==='availability')bindAvailability();if(state.view==='coaching')bindCoaching();if(state.view==='results')bindResults();if(state.view==='league')bindLeague();if(state.view==='calendar')bindCalendar();if(state.view==='goals')bindGoals();if(state.view==='admin')bindAdmin();}
 function bindRoster(){document.getElementById('reorder-roster')?.addEventListener('click',reorderRosterModal);document.getElementById('add-player')?.addEventListener('click',()=>playerModal());document.querySelectorAll('[data-player-edit]').forEach(b=>b.onclick=()=>playerModal(playerById(b.dataset.playerEdit)));document.querySelectorAll('[data-player-view]').forEach(b=>b.onclick=()=>viewPlayer(playerById(b.dataset.playerView)));document.querySelectorAll('[data-player-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete player?','The linked account will remain but the player link will be cleared.',()=>{const p=playerById(b.dataset.playerDelete);if(p?.accountId){const u=userById(p.accountId);if(u)u.linkedPlayerId=null;}state.players=state.players.filter(p=>p.id!=b.dataset.playerDelete);save();render();}));}
 function bindAvailability(){document.getElementById('save-availability')?.addEventListener('click',()=>{const playerId=value('a-player'),date=value('a-date'),from=value('a-from'),until=value('a-until');if(!playerId||!date||from>=until){toast('Invalid availability','Check player, date and time range.');return;}state.availability.push({id:crypto.randomUUID(),playerId,date,from,until});save();render();toast('Saving availability',`${from}–${until}`);});document.querySelectorAll('[data-avail-edit]').forEach(b=>b.onclick=()=>availabilityModal(state.availability.find(a=>a.id==b.dataset.availEdit)));document.querySelectorAll('[data-avail-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete availability?','Remove this time window only.',()=>{state.availability=state.availability.filter(a=>a.id!=b.dataset.availDelete);save();render();}));}
 function bindResults(){document.querySelectorAll('[data-result-tab]').forEach(b=>b.onclick=()=>{state.resultTab=b.dataset.resultTab;save();render();});document.getElementById('add-result')?.addEventListener('click',()=>resultModal());document.querySelectorAll('[data-result-edit]').forEach(b=>b.onclick=()=>resultModal(state.results.find(r=>r.id==b.dataset.resultEdit)));document.querySelectorAll('[data-result-delete]').forEach(b=>b.onclick=()=>confirmModal('Delete result?','Remove this result from the database.',()=>{state.results=state.results.filter(r=>r.id!=b.dataset.resultDelete);save();render();}));}
@@ -541,7 +552,7 @@ function prepareMobileAgenda(){
   agenda.innerHTML=events.length?events.map(e=>`<button class="agenda-event priority-${eventPriority(e)}" data-event-open="${esc(e.id)}"><span class="agenda-date">${esc(dateFmt(e.date))} · ${esc(e.time)}</span><strong>${esc(e.title)}</strong>${priorityBadge(e)}</button>`).join(''):'<p class="empty">No events this month.</p>';
   shell.after(agenda);
 }
-function render(){if(!currentUser())return;ensureAccess();const views={overview,roster,availability,coaching,results,league,calendar,admin};document.getElementById('app').innerHTML=(views[state.view]||overview)();prepareResponsiveTables();prepareMobileAgenda();bindCommon();bindView();updateSyncStatus();}
+function render(){if(!currentUser())return;ensureAccess();const views={overview,roster,availability,coaching,results,league,calendar,goals,admin};document.getElementById('app').innerHTML=(views[state.view]||overview)();prepareResponsiveTables();prepareMobileAgenda();bindCommon();bindView();updateSyncStatus();}
 startManager();
 
 
