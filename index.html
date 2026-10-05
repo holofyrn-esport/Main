@@ -1422,8 +1422,19 @@
       min-height: 440px;
       display: grid;
       place-items: center;
+      position: relative;
+      overflow: hidden;
       background: radial-gradient(circle, #371015, #0d0d0d 67%);
       border: 1px solid #4b2b30
+    }
+
+    .about-story-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 35%
     }
 
     .about-story .button {
@@ -2316,7 +2327,7 @@
           improve.</span></p>
     </div>
     <section class="section container page-section about-story">
-      <div><span class="giant-mark">H/F</span></div>
+      <div><img class="about-story-photo" src="assets/Elnokseg.png?v=20261006" alt="HoloFyrn leadership team"></div>
       <div>
         <div class="eyebrow"><i></i><span data-en="OUR PURPOSE" data-hu="A CÉLUNK">OUR PURPOSE</span></div>
         <h2><span data-en="Built around the game and the people who play it."
