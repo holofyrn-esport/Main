@@ -42,7 +42,11 @@ function queueSave(){
       if(Object.keys(patch).length){
         if(new TextEncoder().encode(JSON.stringify({...latest,...patch})).length>900000)throw new Error('The shared database document is nearly full. Export/archive old records before adding more.');
         transaction.set(storeRef,{...patch,updatedAt:fire.serverTimestamp()},{merge:true});
-        if(['players','results','managerV8'].some(key=>key in patch)) transaction.set(services.publicRef,{...publicModel.publicHoloFyrnData({...latest,...patch}),publishedAt:fire.serverTimestamp()});
+        // Keep private manager changes (goals, notifications, standings setup) on
+        // the manager document. A public document write is needed only when its
+        // actual source data changes; otherwise an outdated public rule can
+        // reject an unrelated goal or settings save.
+        if(changes.players || changes.results || changes.leagueGames || changes.news) transaction.set(services.publicRef,{...publicModel.publicHoloFyrnData({...latest,...patch}),publishedAt:fire.serverTimestamp()});
       }
       for(const profile of userWrites)transaction.set(fire.doc(db,'users',profile.id),profile,{merge:true});
       committedSnapshot={...latest,...patch};committedUserWrites=userWrites;
