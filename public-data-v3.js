@@ -43,7 +43,7 @@ function portrait(player) {
   const name = player.name.trim().toLowerCase();
   if (name === 'zemsta') return 'assets/zemsta.png?v=2';
   if (name === 'qex') return 'Ppic/Qex.png';
-  return player.team === 'main' && portraits[name] ? `assets/${portraits[name]}` : null;
+  return player.team === 'main' && portraits[name] ? `assets/${portraits[name]}` : 'assets/NoPicPlayer.png';
 }
 
 function translated(en, hu) {
