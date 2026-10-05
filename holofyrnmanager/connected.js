@@ -4,7 +4,7 @@ let services, model, publicModel, authenticatedUser, baseline, remoteData = {}, 
 let subscriptions = [], pendingWrites = 0, writeQueue = Promise.resolve(), syncMessage = '';
 let availabilityOffset = 0, connectionEpoch = 0, liveReady = false, refreshDeferred = false, publicPublishStarted = false, coachingProfilesSynced = false;
 function today(){return model ? model.localDate() : new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);}
-function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],goals:[],events:[],availability:[],notifications:[]};}
+function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],goals:[],news:[],events:[],availability:[],notifications:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
 function safeUrl(input, image=false){
   if(image && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(input))return input;
@@ -20,6 +20,8 @@ function queueSave(){
   if(!Object.keys(changes).length)return true;
   try{model.validateChanges(changes,currentUser(),baseline.players);}catch(error){state={...state,...structuredClone(baseline)};render();toast('Change rejected',error.message);return false;}
   const previous=structuredClone(baseline), epoch=connectionEpoch;
+  let latestSnapshot=null, latestProfiles=null;
+  let committedSnapshot=null, committedUserWrites=[];
   baseline=structuredClone(state);pendingWrites++;syncMessage='';updateSyncStatus();
   writeQueue=writeQueue.then(async()=>{
     if(epoch!==connectionEpoch || !liveReady)throw new Error('The session or database connection has changed. Reload before trying again.');
@@ -35,6 +37,7 @@ function queueSave(){
         const profile={...snapshot.data(),id:snapshot.id},index=freshProfiles.findIndex(u=>u.id===id);
         if(index<0)freshProfiles.push(profile);else freshProfiles[index]=profile;
       }
+      latestSnapshot=latest;latestProfiles=freshProfiles;
       const {patch,userWrites}=model.toDatabase(latest,freshProfiles,authenticatedUser.uid,changes);
       if(Object.keys(patch).length){
         if(new TextEncoder().encode(JSON.stringify({...latest,...patch})).length>900000)throw new Error('The shared database document is nearly full. Export/archive old records before adding more.');
@@ -42,18 +45,27 @@ function queueSave(){
         if(['players','results','managerV8'].some(key=>key in patch)) transaction.set(services.publicRef,{...publicModel.publicHoloFyrnData({...latest,...patch}),publishedAt:fire.serverTimestamp()});
       }
       for(const profile of userWrites)transaction.set(fire.doc(db,'users',profile.id),profile,{merge:true});
+      committedSnapshot={...latest,...patch};committedUserWrites=userWrites;
     });
+    if(committedSnapshot){remoteData=committedSnapshot;for(const profile of committedUserWrites){const index=remoteProfiles.findIndex(row=>row.id===profile.id);if(index<0)remoteProfiles.push(profile);else remoteProfiles[index]=profile;}}
   }).catch(error=>{
     console.error('Manager save failed',error);
     if(epoch!==connectionEpoch)return;
     syncMessage='Not saved';
-    // Do not report success or silently fall back to a browser-only database.
-    liveReady=false;
-    state={...state,...previous};baseline=structuredClone(previous);
+    // Keep the manager usable after a rejected save, starting from the current database snapshot.
+    if(latestSnapshot){remoteData=latestSnapshot;remoteProfiles=latestProfiles||remoteProfiles;}
+    const view=previous.view,activeTeam=previous.activeTeam;
+    if(latestSnapshot){
+      const mapped=model.fromDatabase(remoteData,remoteProfiles,authenticatedUser.uid);
+      state=normalizeState({...state,...mapped});
+      if(state.teams.some(t=>t.id===activeTeam))state.activeTeam=activeTeam;
+      if(view)state.view=view;
+      baseline=structuredClone(state);
+    }else{state={...state,...previous};baseline=structuredClone(previous);}
+    liveReady=true;
     document.getElementById('modal-root').innerHTML='';
     render();
-    openModal('Save failed',`<p>${esc(error.message)}</p><p>Your change was not confirmed by the database. Reload to fetch the latest data before trying again.</p><button class="btn primary" id="reload-data">Reload data</button>`,null);
-    document.getElementById('reload-data').onclick=()=>location.reload();
+    openModal('Save failed',`<p>${esc(error.message)}</p><p>${latestSnapshot?'The latest database data is loaded. Your edit was not saved; reapply it and try again.':'Your change was not confirmed. Check your connection, then try again.'}</p>`,null);
   }).finally(()=>{pendingWrites--;if(epoch===connectionEpoch && !pendingWrites && liveReady)applyDatabase();updateSyncStatus();});
   return writeQueue;
 }
@@ -71,7 +83,7 @@ function applyDatabase(){
     coachingProfilesSynced=true;
     syncCoachingProfiles(mapped).catch(error=>console.error('Coaching team assignment sync failed',error));
   }
-  if(!publicPublishStarted && ['admin','coach','manager','captain'].includes(me.role)){
+  if(!publicPublishStarted && ['admin','coach','manager','captain','socials'].includes(me.role)){
     publicPublishStarted=true;
     publishPublicData().catch(error=>console.error('Public data publication failed',error));
   }
@@ -149,7 +161,7 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi]=await Promise.all([import('./manager-data.mjs?v=20261005-goals'),import('./public-data.mjs?v=20260930-team-roles'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi]=await Promise.all([import('./manager-data.mjs?v=20261006-news-teams'),import('./public-data.mjs?v=20261006-public-news'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     services={appApi,fire,authApi,db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};
@@ -236,13 +248,13 @@ function deleteAccountModal(user){
 }
 function accountModal(user=null){
   if(!isAdmin())return;
-  openModal(user?'Edit account':'Create account',`<div class="form-grid"><label class="field">Username<input class="input" id="account-username" value="${esc(user?.username || '')}" ${user?'disabled':''}></label><label class="field">Display name<input class="input" id="account-name" value="${esc(user?.displayName || '')}"></label><label class="field">Role<select class="select" id="account-role">${['player','coach','manager','captain','admin'].map(r=>`<option value="${r}" ${user?.role===r?'selected':''}>${r[0].toUpperCase()+r.slice(1)}</option>`).join('')}</select></label><label class="field">Coaching team<select class="select" id="account-team"><option value="">No team assigned</option>${state.teams.map(t=>`<option value="${esc(t.id)}" ${user?.teamId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label>${user?'':'<label class="field">Initial password<input class="input" id="account-password" type="password" autocomplete="new-password" minlength="6"></label>'}<p id="account-error" role="alert"></p></div>`,async()=>{
-    const username=value('account-username').trim().toLowerCase(),name=value('account-name').trim(),role=value('account-role'),teamId=value('account-team'),message=document.getElementById('account-error');
+  openModal(user?'Edit account':'Create account',`<div class="form-grid"><label class="field">Username<input class="input" id="account-username" value="${esc(user?.username || '')}" ${user?'disabled':''}></label><label class="field">Display name<input class="input" id="account-name" value="${esc(user?.displayName || '')}"></label><label class="field">Role<select class="select" id="account-role">${['player','coach','manager','captain','socials','admin'].map(r=>`<option value="${r}" ${user?.role===r?'selected':''}>${r[0].toUpperCase()+r.slice(1)}</option>`).join('')}</select></label><label class="field">Primary team<select class="select" id="account-team"><option value="">No team assigned</option>${state.teams.map(t=>`<option value="${esc(t.id)}" ${user?.teamId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label><fieldset class="field"><legend>Additional team access</legend><div class="player-team-options">${state.teams.map(t=>`<label><input type="checkbox" name="account-team-extra" value="${esc(t.id)}" ${((user?.teamIds||[]).includes(t.id)&&t.id!==user?.teamId)?'checked':''}> ${esc(t.name)}</label>`).join('')}</div></fieldset>${user?'':'<label class="field">Initial password<input class="input" id="account-password" type="password" autocomplete="new-password" minlength="6"></label>'}<p id="account-error" role="alert"></p></div>`,async()=>{
+    const username=value('account-username').trim().toLowerCase(),name=value('account-name').trim(),role=value('account-role'),teamId=value('account-team'),teamIds=[...new Set([teamId,...[...document.querySelectorAll('[name="account-team-extra"]:checked')].map(x=>x.value)].filter(Boolean))],message=document.getElementById('account-error');
     if(!/^[a-z0-9._-]+$/.test(username)||!name){message.textContent='Enter a name and a username containing letters, numbers, dots, underscores or hyphens.';return;}
     if(role==='coach'&&!teamId){message.textContent='Choose a coaching team for this coach.';return;}
     if(user){
       if(user.id===state.currentUserId && role!=='admin'){message.textContent='Ask another administrator to change your own role.';return;}
-      user.displayName=name;user.role=role;user.roleLabel=role[0].toUpperCase()+role.slice(1);user.teamId=teamId;save();closeModal();render();return;
+      user.displayName=name;user.role=role;user.roleLabel=role[0].toUpperCase()+role.slice(1);user.teamId=teamId;user.teamIds=teamIds;save();closeModal();render();return;
     }
     if(value('account-password').length<6){message.textContent='Use a password of at least 6 characters.';return;}
     const button=document.getElementById('modal-save');button.disabled=true;
@@ -253,7 +265,7 @@ function accountModal(user=null){
       const secondaryAuth=authApi.getAuth(secondary);
       await authApi.setPersistence(secondaryAuth,authApi.inMemoryPersistence);
       credential=await authApi.createUserWithEmailAndPassword(secondaryAuth,`${username}@noctiq.local`,value('account-password'));
-      await fire.setDoc(fire.doc(db,'users',credential.user.uid),{id:credential.user.uid,authUid:credential.user.uid,username,name,email:credential.user.email,role:role[0].toUpperCase()+role.slice(1),teamId,approved:true,canEdit:role==='admin',createdAt:new Date().toISOString()});
+      await fire.setDoc(fire.doc(db,'users',credential.user.uid),{id:credential.user.uid,authUid:credential.user.uid,username,name,email:credential.user.email,role:role[0].toUpperCase()+role.slice(1),teamId,teamIds,approved:true,canEdit:role==='admin',createdAt:new Date().toISOString()});
       closeModal();toast('Account created',name);
     }catch(error){
       if(credential)try{await services.authApi.deleteUser(credential.user);}catch{console.error('Account profile failed; remove the orphan login in Firebase Authentication.');}

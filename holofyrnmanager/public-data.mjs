@@ -55,5 +55,9 @@ export function publicHoloFyrnData(data = {}) {
     if (!home || !away || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
     upcomingMatches.push({date, time:/^\d{2}:\d{2}$/.test(dateTime.slice(11, 16)) ? dateTime.slice(11, 16) : '', home:home.slice(0, 100), away:away.slice(0, 100)});
   }
-  return {players,results,upcomingMatches};
+  const news = rows(data.managerV8?.news).filter(item => item.status === 'published' && str(item.title) && str(item.summary)).map(item => ({
+    id:str(item.id).slice(0,100), title:str(item.title).slice(0,140), category:str(item.category || 'NEWS').slice(0,40),
+    summary:str(item.summary).slice(0,280), body:str(item.body).slice(0,8000), publishedAt:str(item.publishedAt).slice(0,32),
+  }));
+  return {players,results,upcomingMatches,news};
 }

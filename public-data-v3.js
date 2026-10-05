@@ -308,6 +308,7 @@ function render() {
   }
   const players = publicData?.players || [];
   const results = publicData?.results || [];
+  renderPublishedNews(route);
   if (route.startsWith('/players/')) {
     renderProfile(route, players);
     return;
@@ -322,6 +323,42 @@ function render() {
   } else if (route === '/') {
     renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, 'main')), 'main');
   }
+}
+
+function renderPublishedNews(route) {
+  const grids = [...document.querySelectorAll(route === '/news/' ? '#main .news-grid' : '#news .news-grid')];
+  const articles = publicData?.news || [];
+  if (!articles.length) return;
+  grids.forEach(grid => {
+    const visible = route === '/news/' ? articles : articles.slice(0, 3);
+    grid.replaceChildren(...visible.map(article => {
+      const card = document.createElement('button');
+      card.type = 'button'; card.className = 'news-card public-news-card';
+      const visual = document.createElement('span'); visual.className = 'news-visual news-visual-lines';
+      const body = document.createElement('span'); body.className = 'news-body';
+      const category = document.createElement('span'); category.className = 'pill'; category.textContent = article.category;
+      const title = document.createElement('strong'); title.textContent = article.title;
+      const summary = document.createElement('span'); summary.className = 'public-news-summary'; summary.textContent = article.summary;
+      const action = document.createElement('span'); action.className = 'card-action'; action.textContent = document.documentElement.lang === 'hu' ? 'Olvasd el ↗' : 'Read article ↗';
+      body.append(category, title, summary, action); card.append(visual, body);
+      card.addEventListener('click', () => showPublicArticle(article));
+      return card;
+    }));
+  });
+}
+
+function showPublicArticle(article) {
+  let dialog = document.getElementById('public-news-dialog');
+  if (!dialog) {
+    dialog = document.createElement('dialog'); dialog.id = 'public-news-dialog'; dialog.className = 'public-news-dialog';
+    dialog.innerHTML = '<form method="dialog"><button class="btn small" aria-label="Close article">Close ×</button></form><div class="eyebrow"></div><h2></h2><p class="page-sub"></p><div class="public-news-body"></div>';
+    document.body.append(dialog);
+  }
+  dialog.querySelector('.eyebrow').textContent = article.category;
+  dialog.querySelector('h2').textContent = article.title;
+  dialog.querySelector('.page-sub').textContent = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : '';
+  dialog.querySelector('.public-news-body').textContent = article.body;
+  if (!dialog.open) dialog.showModal();
 }
 
 document.addEventListener('holofyrn:route', render);

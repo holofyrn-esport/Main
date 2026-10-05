@@ -332,3 +332,18 @@ body::before,body::after{display:none!important}
 .banner-art{display:none!important}
 .progress-track{height:7px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;max-width:360px}
 .progress-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#df3556,#ff8a63)}
+.goal-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 18px}
+.goal-team{margin:0 0 18px;border-color:rgba(255,255,255,.09)}
+.goal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.goal-card{display:flex;align-items:flex-start;gap:15px;padding:17px;border-radius:15px;border:1px solid var(--line2);background:rgba(255,255,255,.025);min-width:0}
+.goal-ring{--goal-progress:0deg;width:58px;height:58px;flex:0 0 58px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#df3556 var(--goal-progress),rgba(255,255,255,.10) 0);position:relative}
+.goal-ring:before{content:"";position:absolute;inset:5px;border-radius:50%;background:#10151e}
+.goal-ring span{position:relative;font-size:13px;font-weight:800}
+.goal-ring-done{background:conic-gradient(#51c795 360deg,rgba(255,255,255,.10) 0)}
+.goal-card-copy{min-width:0;flex:1}.goal-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.goal-card h4{font-size:16px;margin:10px 0 5px}.goal-card p{color:var(--muted);font-size:13px;margin:0 0 12px;line-height:1.5}.goal-card .progress-track{margin:12px 0 5px;max-width:none}.goal-card .row-actions{margin-top:12px;justify-content:flex-end}
+.goal-empty{display:flex;align-items:center;gap:14px;padding:20px 0}.goal-empty>div:nth-child(2){flex:1}.goal-empty p{margin:4px 0 0;color:var(--muted)}.goal-empty-icon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--redsoft);color:#ff8aa0;font-size:22px}
+.news-manager-list{display:grid;gap:12px}.news-manager-card h3{margin:10px 0 5px}.news-manager-card p{color:var(--muted);margin:0;line-height:1.55}.news-manager-card .section-head small{display:block;color:var(--muted);margin-top:5px}
+.public-news-card{width:100%;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}.public-news-card .news-body{display:flex;flex-direction:column;gap:10px}.public-news-card .news-body strong{font-size:19px}.public-news-summary{font-size:14px;line-height:1.55;color:var(--muted)}
+.public-news-dialog{width:min(720px,calc(100% - 28px));max-height:85vh;padding:28px;border:1px solid var(--line2);border-radius:20px;background:#0c1118;color:#f5f7fb;box-shadow:0 30px 100px rgba(0,0,0,.65)}.public-news-dialog::backdrop{background:rgba(0,0,0,.75);backdrop-filter:blur(4px)}.public-news-dialog form{display:flex;justify-content:flex-end}.public-news-dialog h2{font-size:clamp(25px,5vw,38px);margin:12px 0}.public-news-body{white-space:pre-wrap;line-height:1.75;color:#d4d9e1}
+@media(max-width:900px){.goal-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.goal-grid{grid-template-columns:1fr}}
+@media(max-width:520px){.goal-card{gap:10px;padding:13px}.goal-ring{width:48px;height:48px;flex-basis:48px}.goal-empty{align-items:flex-start;flex-wrap:wrap}.goal-empty button{margin-left:58px}}

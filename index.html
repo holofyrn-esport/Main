@@ -541,6 +541,15 @@
       border: 1px solid #3e3030;
       transition: transform .2s, border-color .2s
     }
+    button.news-card { width:100%; padding:0; color:inherit; text-align:left; font:inherit; cursor:pointer; }
+    .public-news-card .news-body { display:flex; flex-direction:column; gap:10px; }
+    .public-news-card .news-body strong { font-size:19px; }
+    .public-news-summary { color:var(--muted,#a9b1bd); font-size:14px; line-height:1.55; }
+    .public-news-dialog { width:min(720px,calc(100% - 28px)); max-height:85vh; padding:28px; border:1px solid rgba(255,255,255,.15); border-radius:20px; background:#0c1118; color:#f5f7fb; box-shadow:0 30px 100px rgba(0,0,0,.65); }
+    .public-news-dialog::backdrop { background:rgba(0,0,0,.75); backdrop-filter:blur(4px); }
+    .public-news-dialog form { display:flex; justify-content:flex-end; }
+    .public-news-dialog h2 { font-size:clamp(25px,5vw,38px); margin:12px 0; }
+    .public-news-body { white-space:pre-wrap; line-height:1.75; color:#d4d9e1; }
 
     .news-card:hover,
     .team-card:hover,
@@ -570,6 +579,10 @@
 
     .news-visual-brand {
       background: radial-gradient(circle at 65% 40%, #681218, transparent 50%), #120b0c
+    }
+
+    .news-visual-norway {
+      background: #100 url('assets/NorwayNews.png?v=20261006') left center / cover no-repeat
     }
 
     .news-visual-brand:before {
@@ -1046,7 +1059,7 @@
     }
 
     .footer-top {
-      padding: 45px 0;
+      padding: 24px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1060,7 +1073,7 @@
 
     .footer-bottom {
       border-top: 1px solid #292222;
-      padding: 22px 0 28px;
+      padding: 14px 0 18px;
       display: flex;
       justify-content: space-between;
       gap: 20px;
@@ -2053,8 +2066,8 @@
                 Rocket League.</span></p><span class="card-action"><span data-en="Read more" data-hu="Tovább">Read
                 more</span> ↗</span>
           </div>
-        </a><a class="news-card" href="#/teams/">
-          <div class="news-visual news-visual-brand"></div>
+        </a><a class="news-card" href="#/teams/rls-holofyrn-esport/">
+          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"></div>
           <div class="news-body"><span class="pill">TEAMS</span>
             <h3><span data-en="Norway, here we come!" data-hu="Norvégia itt jövünk!">Norway, here we come!</span></h3>
             <p><span
@@ -2389,8 +2402,8 @@
                 Rocket League.</span></p><span class="card-action"><span data-en="Read more" data-hu="Tovább">Read
                 more</span> ↗</span>
           </div>
-        </a><a class="news-card" href="#/teams/">
-          <div class="news-visual news-visual-brand"></div>
+        </a><a class="news-card" href="#/teams/rls-holofyrn-esport/">
+          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"></div>
           <div class="news-body"><span class="pill">TEAMS</span>
             <h3><span data-en="Norway, here we come!" data-hu="Norvégia itt jövünk!">Norway, here we come!</span></h3>
             <p><span
@@ -2651,14 +2664,13 @@
                 shared home.</span></p><span class="card-action"><span data-en="Explore"
                 data-hu="Megtekintés">Explore</span> ↗</span>
           </div>
-        </a><a class="news-card" href="#/staff/">
-          <div class="news-visual news-visual-brand"></div>
-          <div class="news-body"><span class="pill">PEOPLE</span>
-            <h3><span data-en="The people behind HoloFyrn" data-hu="A HoloFyrn mögött állók">The people behind
-                HoloFyrn</span></h3>
-            <p><span data-en="Meet the team working behind the scenes."
-                data-hu="Ismerd meg a háttérben dolgozó csapatot.">Meet the team working behind the scenes.</span></p>
-            <span class="card-action"><span data-en="Meet the staff" data-hu="A stáb">Meet the staff</span> ↗</span>
+        </a><a class="news-card" href="#/teams/rls-holofyrn-esport/">
+          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"></div>
+          <div class="news-body"><span class="pill">ROCKET LEAGUE · RLS</span>
+            <h3><span data-en="Norway, here we come!" data-hu="Norvégia, jövünk!">Norway, here we come!</span></h3>
+            <p><span data-en="HoloFyrn is taking part in the Norwegian RLS league. Meet the team representing us."
+                data-hu="A HoloFyrn indul a norvég RLS ligában. Ismerd meg a minket képviselő csapatot.">HoloFyrn is taking part in the Norwegian RLS league. Meet the team representing us.</span></p>
+            <span class="card-action"><span data-en="Explore the team" data-hu="A csapat megtekintése">Explore the team</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/about/">
           <div class="news-visual news-visual-lines"></div>
@@ -4353,7 +4365,7 @@
       route();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20260930-kenz-bio"></script>
+  <script type="module" src="public-data-v3.js?v=20261006-news"></script>
 </body>
 
 </html>
