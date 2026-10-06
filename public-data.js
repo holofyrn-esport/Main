@@ -10,7 +10,7 @@ const teamNames = {
   rls: 'RLS HoloFyrn Esport', 'rls-academy': 'RLS HoloFyrn Academy',
   'rls-eldr': 'RLS HoloFyrn Élet',
 };
-const portraits = {kenz: 'Kenz.png', eggy: 'eggy.webp', interz: 'interz.webp'};
+const portraits = {kenz: 'Kenz.webp', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;
 let loadError = false;
 
@@ -24,8 +24,8 @@ function playerLink(player) {
 
 function portrait(player) {
   const name = player.name.trim().toLowerCase();
-  if (name === 'zemsta') return 'assets/zemsta.png?v=2';
-  if (name === 'qex') return 'Ppic/Qex.png';
+  if (name === 'zemsta') return 'assets/zemsta-1200.webp';
+  if (name === 'qex') return 'Ppic/Qex.webp';
   return player.team === 'main' && portraits[name] ? `assets/${portraits[name]}` : null;
 }
 

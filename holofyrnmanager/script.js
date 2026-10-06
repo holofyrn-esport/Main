@@ -94,7 +94,7 @@ const sortLabels = {
   contact: "Contact",
 };
 const resultTypes = ["Match", "Tournament"];
-const logoMarkup = `<img class="brand-logo" src="assets/holofyrn-logo.png" alt="HoloFyrn logo">`;
+const logoMarkup = `<img class="brand-logo" src="assets/holofyrn-logo.webp" alt="HoloFyrn logo">`;
 const projectVersion = "v.1.0.1";
 
 const adminUsers = [];

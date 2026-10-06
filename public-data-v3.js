@@ -17,7 +17,7 @@ const teamNames = {
   shadows: 'HoloFyrn Shadows',
   vanguards: 'Holofyrn Vanguards',
 };
-const portraits = {kenz: 'Kenz.png', eggy: 'eggy.webp', interz: 'interz.webp'};
+const portraits = {kenz: 'Kenz.webp', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;
 let loadError = false;
 
@@ -41,9 +41,9 @@ function playerLink(player) {
 
 function portrait(player) {
   const name = player.name.trim().toLowerCase();
-  if (name === 'zemsta') return 'assets/zemsta.png?v=2';
-  if (name === 'qex') return 'Ppic/Qex.png';
-  return player.team === 'main' && portraits[name] ? `assets/${portraits[name]}` : 'assets/NoPicPlayer.png';
+  if (name === 'zemsta') return 'assets/zemsta-1200.webp';
+  if (name === 'qex') return 'Ppic/Qex.webp';
+  return player.team === 'main' && portraits[name] ? `assets/${portraits[name]}` : 'assets/NoPicPlayer.webp';
 }
 
 function translated(en, hu) {
@@ -69,7 +69,18 @@ function playerCard(player, index) {
   const photo = portrait(player);
   if (photo) {
     image.classList.add('has-portrait');
-    image.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('${photo}')`;
+    const artwork = document.createElement('img');
+    artwork.className = 'player-image-artwork';
+    artwork.src = photo;
+    artwork.alt = '';
+    artwork.setAttribute('aria-hidden', 'true');
+    artwork.loading = 'lazy';
+    artwork.decoding = 'async';
+    image.append(artwork);
+    const overlay = document.createElement('span');
+    overlay.className = 'player-image-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    image.append(overlay);
   }
   const label = document.createElement('span');
   label.className = 'player-index';
@@ -125,7 +136,7 @@ function renderProfile(route, players) {
   photo.className = 'profile-photo public-profile-photo';
   const isZemstaAcademy = player.team === 'academy' && player.name.trim().toLowerCase() === 'zemsta';
   const isKenzMain = player.team === 'main' && player.name.trim().toLowerCase() === 'kenz';
-  const photoFile = isZemstaAcademy ? 'assets/zemsta-profile.png' : portrait(player);
+  const photoFile = isZemstaAcademy ? 'assets/zemsta-1200.webp' : portrait(player);
   if (photoFile) {
     photo.classList.add('has-portrait');
     photo.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('${photoFile}')`;
@@ -133,7 +144,7 @@ function renderProfile(route, players) {
       photo.classList.add('signed-profile-photo');
       const signature = document.createElement('img');
       signature.className = isKenzMain ? 'profile-signature kenz-signature' : 'profile-signature';
-      signature.src = isKenzMain ? 'assets/kenz-signature.png' : 'assets/zemsta-signature.png';
+      signature.src = isKenzMain ? 'assets/kenz-signature-1200.webp' : 'assets/zemsta-signature-1200.webp';
       signature.alt = '';
       signature.setAttribute('aria-hidden', 'true');
       photo.append(signature);

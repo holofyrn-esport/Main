@@ -1,0 +1,10 @@
+{
+  "name": "holofyrn-image-optimization",
+  "private": true,
+  "scripts": {
+    "optimize:images": "node scripts/optimize-images.cjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
+  }
+}

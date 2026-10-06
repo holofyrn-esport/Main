@@ -3,7 +3,24 @@
 let services, model, publicModel, authenticatedUser, baseline, remoteData = {}, remoteProfiles = [];
 let subscriptions = [], pendingWrites = 0, writeQueue = Promise.resolve(), syncMessage = '';
 let availabilityOffset = 0, connectionEpoch = 0, liveReady = false, refreshDeferred = false, publicPublishStarted = false, coachingProfilesSynced = false;
+let storageApi;
+const EXISTING_SITE_NEWS = [
+  {id:'site-rocket-league-teams',title:'Discover our Rocket League teams',category:'ROCKET LEAGUE',summary:'Seven lineups, one shared home.',body:'Explore the teams representing HoloFyrn across Rocket League and meet the players behind each roster. Seven lineups, one shared home.',imageUrl:'https://holofyrn.eu/assets/Rllogo-960.webp',status:'published',createdAt:'2026-10-06T00:00:00.000Z',publishedAt:''},
+  {id:'site-norway-rls',title:'Norway, here we come!',category:'TEAMS',summary:'HoloFyrn is taking part in the Norwegian RLS league. Meet the team representing us.',body:'HoloFyrn is taking part in the Norwegian RLS league. Meet the team representing us and follow our Rocket League roster through the competition.',imageUrl:'https://holofyrn.eu/assets/NorwayNews-960.webp',status:'published',createdAt:'2026-10-06T00:00:00.000Z',publishedAt:''},
+  {id:'site-more-than-a-roster',title:'More than a roster',category:'HOLOFYRN',summary:'Discover the people and purpose behind HoloFyrn.',body:'HoloFyrn Esports brings together competitive and development focused Rocket League teams. Strong teams grow through commitment, trust and the willingness to keep learning. Discover the people and purpose behind HoloFyrn.',imageUrl:'https://holofyrn.eu/assets/Elnokseg-1200.webp',status:'published',createdAt:'2026-10-06T00:00:00.000Z',publishedAt:''}
+];
 function today(){return model ? model.localDate() : new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);}
+async function uploadNewsImage(file,articleId){
+  if(!file||!storageApi||!services?.storage||!authenticatedUser)throw new Error('Image storage is unavailable. Reload the manager and try again.');
+  const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+  const extension=extensions[file.type];
+  if(!extension)throw new Error('Choose a JPG, PNG or WebP image.');
+  if(file.size>8*1024*1024)throw new Error('The image must be smaller than 8 MB.');
+  const path=`news/${authenticatedUser.uid}/${articleId}/${crypto.randomUUID()}.${extension}`;
+  const target=storageApi.ref(services.storage,path);
+  await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
+  return {imageUrl:await storageApi.getDownloadURL(target),imagePath:path};
+}
 function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],goals:[],news:[],events:[],availability:[],notifications:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
 function safeUrl(input, image=false){
@@ -83,6 +100,10 @@ function applyDatabase(){
   state=normalizeState({...state,...mapped});
   if(!state.teams.some(t=>t.id===state.activeTeam))state.activeTeam=state.teams[0].id;
   baseline=structuredClone(state);render();
+  if(['admin','socials'].includes(state.users.find(user=>user.id===state.currentUserId)?.role)&&!remoteData.managerV8?.newsInitialized){
+    if(!state.news.length)state.news=structuredClone(EXISTING_SITE_NEWS);
+    save();
+  }
   if(!coachingProfilesSynced && me.role==='admin'){
     coachingProfilesSynced=true;
     syncCoachingProfiles(mapped).catch(error=>console.error('Coaching team assignment sync failed',error));
@@ -155,7 +176,7 @@ function bindPasswordChange(){
   };
 }
 function showLogin(message=''){
-  document.getElementById('app').innerHTML=`<main class="login-screen"><section class="card login-card"><div class="brand"><img src="assets/holofyrn-logo.png" alt="HoloFyrn"><div><div class="brand-title">HOLOFYRN</div><div class="brand-sub">Esports Management</div></div></div><h1>Welcome back.</h1><p class="page-sub">Sign in to your team workspace.</p><form id="login-form"><label class="field"><span>Username or email</span><input class="input" name="username" autocomplete="username" required></label><label class="field"><span>Password</span><input class="input" name="password" type="password" autocomplete="current-password" required></label><button class="btn primary" type="submit">Log in</button><p id="login-message" role="alert">${esc(message)}</p></form></section></main>`;
+  document.getElementById('app').innerHTML=`<main class="login-screen"><section class="card login-card"><div class="brand"><img src="assets/holofyrn-logo.webp" alt="HoloFyrn"><div><div class="brand-title">HOLOFYRN</div><div class="brand-sub">Esports Management</div></div></div><h1>Welcome back.</h1><p class="page-sub">Sign in to your team workspace.</p><form id="login-form"><label class="field"><span>Username or email</span><input class="input" name="username" autocomplete="username" required></label><label class="field"><span>Password</span><input class="input" name="password" type="password" autocomplete="current-password" required></label><button class="btn primary" type="submit">Log in</button><p id="login-message" role="alert">${esc(message)}</p></form></section></main>`;
   document.getElementById('login-form').onsubmit=async event=>{
     event.preventDefault();const form=event.currentTarget,button=form.querySelector('button'),message=document.getElementById('login-message');
     const username=form.elements.username.value.trim().toLowerCase(),email=username.includes('@')?username:`${username}@noctiq.local`;
@@ -165,10 +186,10 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi]=await Promise.all([import('./manager-data.mjs?v=20261006-news-teams'),import('./public-data.mjs?v=20261006-public-news'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261006-news-image'),import('./public-data.mjs?v=20261006-public-news-image'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
-    services={appApi,fire,authApi,db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};
+    storageApi=storage;services={appApi,fire,authApi,storageApi:storage,storage:storage.getStorage(app),db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};
     authApi.onAuthStateChanged(auth,async user=>{
       const epoch=++connectionEpoch;subscriptions.forEach(fn=>fn());subscriptions=[];
       liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];baseline=null;state=emptyState();publicPublishStarted=false;coachingProfilesSynced=false;resetCoachingCache();

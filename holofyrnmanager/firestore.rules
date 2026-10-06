@@ -75,7 +75,7 @@ service cloud.firestore {
             == resource.data.get('managerV8', {}).get('goals', [])))
         || (canManageNews()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['managerV8', 'updatedAt'])
-          && request.resource.data.get('managerV8', {}).diff(resource.data.get('managerV8', {})).affectedKeys().hasOnly(['news']));
+          && request.resource.data.get('managerV8', {}).diff(resource.data.get('managerV8', {})).affectedKeys().hasOnly(['news', 'newsInitialized']));
     }
 
     match /coachingTeams/{teamId}/notes/{noteId} {

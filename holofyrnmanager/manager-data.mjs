@@ -119,6 +119,7 @@ export function validateChanges(changes, user, players) {
     else if (key === 'news') {
       if (!(admin || user.role === 'socials')) throw new Error('Administrator or socials access required to manage news.');
       if (c.after && (!c.after.title?.trim() || !c.after.summary?.trim() || !c.after.body?.trim())) throw new Error('News needs a title, summary and article text.');
+      if (c.after && ((c.after.imageUrl && (typeof c.after.imageUrl !== 'string' || c.after.imageUrl.length > 2048 || !/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath !== 'string' || !/^news\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(c.after.imagePath))))) throw new Error('News images must use a valid HTTPS storage URL and image path.');
     }
     else if (key === 'availability') {
       if (!staff && [c.before,c.after].filter(Boolean).some(a=>players.find(p=>str(p.id)===str(a.playerId))?.accountId !== user.id)) throw new Error('You may only edit your own availability.');
@@ -150,7 +151,7 @@ export function toDatabase(data, profiles, uid, changes) {
   if (changes.results || deletedLeagues.size) patch.results = preserve('results',next.results,r=>({id:r.id,teamId:r.team,managerType:r.type,type:list(data.results).find(x=>str(x.id)===r.id)?.type || (r.type==='league'?'Match':'Tournament'),dateTime:r.date+'T12:00',title:r.event,stage:r.stage,placement:r.placement,prizeEur:r.prizeMoney,result:r.result,...(r.leagueId!=null?{leagueId:r.leagueId}:{})}));
   if (changes.availability) patch.availability = preserve('availability',next.availability,a=>({id:a.id,playerId:a.playerId,teamId:next.players.find(p=>p.id===a.playerId)?.team || 'main',date:a.date,startTime:a.from,endTime:a.until,status:a.status || 'Available'}));
   if (changes.events) patch.events = preserve('events',next.events.filter(e=>!e.source),e=>({id:e.id,title:e.title,dateTime:`${e.date}T${e.time}`,startsAtUtc:new Date(`${e.date}T${e.time}`).toISOString(),durationMinutes:e.duration,type:e.type,priority:e.priority || 'normal',creatorUserId:e.creatorUserId,invitedTeamIds:e.invitedTeamIds,invitedUserIds:e.invitedUserIds,directInvitedUserIds:e.directInvitedUserIds || [],hiddenFromAdmins:e.hiddenFromAdmins,teamId:e.invitedTeamIds[0] || '',targetType:e.invitedTeamIds.length?'team':'player'}));
-  if (['leagues','leagueGames','goals','news','notifications'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, ...Object.fromEntries(['leagues','leagueGames','goals','news','notifications'].filter(k=>changes[k]).map(k=>[k,next[k]]))};
+  if (['leagues','leagueGames','goals','news','notifications'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, ...Object.fromEntries(['leagues','leagueGames','goals','news','notifications'].filter(k=>changes[k]).map(k=>[k,next[k]])), ...(changes.news ? {newsInitialized:true} : {})};
   const userWrites = [];
   const affectedUserIds = new Set([...(changes.users || []).map(c=>c.id), ...(changes.players || []).flatMap(c=>[c.before?.accountId,c.after?.accountId]).filter(Boolean)]);
   for (const id of affectedUserIds) {

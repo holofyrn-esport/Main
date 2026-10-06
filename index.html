@@ -7,11 +7,104 @@
   <meta name="theme-color" content="#030303">
   <meta name="description" content="HoloFyrn Esports — Rocket League teams, players, news and partners.">
   <title>Home | HoloFyrn EsportS</title>
-  <link rel="icon" type="image/png" href="assets/brand-logo.png">
+  <link rel="icon" type="image/webp" href="assets/brand-logo-128.webp">
+  <link rel="preload" as="image" type="image/webp" fetchpriority="high" href="assets/hero-1920.webp"
+    imagesrcset="assets/hero-640.webp 640w, assets/hero-1280.webp 1280w, assets/hero-1920.webp 1920w, assets/hero-2560.webp 2560w"
+    imagesizes="100vw">
+  <link rel="preload" href="assets/fonts/barlow-condensed-900-latin.woff2" as="font" type="font/woff2" crossorigin>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-600-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-600-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-700-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-700-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 800;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-800-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 800;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-800-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 900;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-900-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    @font-face {
+      font-family: 'Barlow Condensed';
+      font-style: normal;
+      font-weight: 900;
+      font-display: swap;
+      src: url('assets/fonts/barlow-condensed-900-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Manrope';
+      font-style: normal;
+      font-weight: 500 800;
+      font-display: swap;
+      src: url('assets/fonts/manrope-500-800-latin-ext.woff2') format('woff2');
+      unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+    }
+
+    @font-face {
+      font-family: 'Manrope';
+      font-style: normal;
+      font-weight: 500 800;
+      font-display: swap;
+      src: url('assets/fonts/manrope-500-800-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
 
     :root {
+      --hero-image: url('assets/hero-1920.webp');
       --black: #030303;
       --ink: #f3f0ef;
       --muted: #ceb7b7;
@@ -288,9 +381,25 @@
     .hero-art {
       position: absolute;
       inset: 0;
-      background-image: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, .76) 25%, rgba(3, 3, 3, .12) 65%), linear-gradient(0deg, #030303 0%, transparent 25%), url('assets/hero.webp');
-      background-size: cover;
-      background-position: center
+      overflow: hidden
+    }
+
+    .hero-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      object-fit: cover;
+      object-position: center
+    }
+
+    .hero-art::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, .76) 25%, rgba(3, 3, 3, .12) 65%), linear-gradient(0deg, #030303 0%, transparent 25%)
     }
 
     .hero-grid {
@@ -570,11 +679,21 @@
     }
 
     .news-visual-beginnings {
-      background: #000 url('assets/Rllogo.png') center / contain no-repeat
+      background: #000
     }
 
-    .news-visual-arena {
-      background: url('assets/hero.webp') center / cover
+    .news-visual-artwork {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none
+    }
+
+    .news-visual-beginnings .news-visual-artwork {
+      object-fit: contain
     }
 
     .news-visual-brand {
@@ -582,11 +701,19 @@
     }
 
     .news-visual-norway {
-      background: #100 url('assets/NorwayNews.png?v=20261006') left center / cover no-repeat
+      background-color: #100
     }
 
     .news-visual-elnokseg {
-      background: #100 url('assets/Elnokseg.png?v=20261006') center 35% / cover no-repeat
+      background-color: #100
+    }
+
+    .news-visual-norway .news-visual-artwork {
+      object-position: left center
+    }
+
+    .news-visual-elnokseg .news-visual-artwork {
+      object-position: center 35%
     }
 
     .news-visual-brand:before {
@@ -670,11 +797,54 @@
     }
 
     .division-live {
-      background-color: #030303;
-      background-image: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, .72) 35%, transparent 78%), linear-gradient(0deg, #030303 0%, transparent 48%), url('assets/Rllogo.png');
-      background-position: center, center, right center;
-      background-size: cover, cover, auto 112%;
-      background-repeat: no-repeat
+      isolation: isolate;
+      background-color: #030303
+    }
+
+    .division-live::before,
+    .division-soon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none
+    }
+
+    .division-live::before {
+      background-image: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, .72) 35%, transparent 78%), linear-gradient(0deg, #030303 0%, transparent 48%)
+    }
+
+    .division-soon::before {
+      background: linear-gradient(0deg, rgba(0, 0, 0, .66), rgba(0, 0, 0, .12))
+    }
+
+    .division-bg {
+      position: absolute;
+      z-index: -1;
+      pointer-events: none
+    }
+
+    .division-live .division-bg {
+      top: 50%;
+      right: 0;
+      width: auto;
+      height: 112%;
+      max-width: none;
+      transform: translateY(-50%);
+      object-fit: contain
+    }
+
+    .division-soon .division-bg {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .division-live > div:not(.division-bg),
+    .division-soon > div {
+      position: relative;
+      z-index: 1
     }
 
     .division-live:hover {
@@ -682,7 +852,8 @@
     }
 
     .division-soon {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .66), rgba(0, 0, 0, .12)), url('assets/whatsnext.png?v=20261006') center / cover no-repeat;
+      isolation: isolate;
+      background: #151515;
       color: #aaa
     }
 
@@ -805,25 +976,41 @@
 
     .player-image {
       height: 390px;
-      background-size: cover;
-      background-position: center 18%;
-      position: relative
+      position: relative;
+      overflow: hidden
     }
 
-    .portrait-01 {
-      background-image: linear-gradient(0deg, #131010, transparent 35%), url('assets/Kenz.png')
+    .player-image-artwork {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+      pointer-events: none
     }
 
-    .portrait-02 {
-      background-image: linear-gradient(0deg, #131010, transparent 35%), url('assets/eggy.webp')
+    .player-image::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(0deg, #131010, transparent 35%);
+      pointer-events: none
     }
 
-    .portrait-03 {
-      background-image: linear-gradient(0deg, #131010, transparent 35%), url('assets/interz.webp')
+    .player-image-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(0deg, #131010, transparent 35%);
+      pointer-events: none
     }
 
     .player-index {
       position: absolute;
+      z-index: 2;
       top: 15px;
       left: 16px;
       color: #e8c1c1;
@@ -914,11 +1101,47 @@
       background: linear-gradient(140deg, #232020, #121212)
     }
 
-    .staff-preview a:first-child {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/KenzStaff.png') center top/cover
+    .staff-preview-artwork {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      pointer-events: none
     }
 
-    .staff-preview a>span:first-child {
+    .staff-preview-zemsta .staff-preview-artwork {
+      inset: 0 auto auto 50%;
+      width: auto;
+      height: 150%;
+      max-width: none;
+      transform: translateX(-50%);
+      object-fit: contain
+    }
+
+    .staff-preview a>span,
+    .staff-preview a>strong,
+    .staff-preview a>small {
+      position: relative;
+      z-index: 1
+    }
+
+    .staff-preview a:first-child { overflow: hidden }
+
+    .staff-preview a:first-child::after,
+    .staff-preview .staff-preview-zemsta::after,
+    .staff-preview .staff-preview-qex::after {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12));
+      content: "";
+      pointer-events: none
+    }
+
+      .staff-preview a>span:first-child {
       position: absolute;
       top: 18px;
       left: 24px
@@ -1075,6 +1298,39 @@
       font-size: 14px
     }
 
+    .footer-socials {
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    .footer-socials a {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: #c9b6b6;
+      background: linear-gradient(145deg, #1c1112, #0e0d0d);
+      border: 1px solid #493033;
+      border-radius: 12px;
+      transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease
+    }
+
+    .footer-socials a:hover,
+    .footer-socials a:focus-visible {
+      color: #fff;
+      background: linear-gradient(145deg, #7d1721, #351014);
+      border-color: #e32636;
+      transform: translateY(-3px);
+      outline: none
+    }
+
+    .footer-socials svg {
+      width: 19px;
+      height: 19px;
+      fill: currentColor
+    }
+
     .footer-bottom {
       border-top: 1px solid #292222;
       padding: 14px 0 18px;
@@ -1118,7 +1374,7 @@
 
     .team-hero {
       min-height: 405px;
-      background: linear-gradient(90deg, #080606 8%, rgba(5, 5, 5, .8) 48%, rgba(5, 5, 5, .55)), url('assets/hero.webp') center / cover;
+      background: linear-gradient(90deg, #080606 8%, rgba(5, 5, 5, .8) 48%, rgba(5, 5, 5, .55)), var(--hero-image) center / cover;
       border-bottom: 1px solid #3b2223
     }
 
@@ -1433,8 +1689,8 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: center 35%
+      object-fit: contain;
+      object-position: center
     }
 
     .about-story .button {
@@ -1456,6 +1712,12 @@
       color: #cbb8b8;
       max-width: 620px;
       margin-bottom: 30px
+    }
+
+    .join-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px
     }
 
     @media(max-width:1100px) {
@@ -1576,9 +1838,12 @@
         min-height: 680px
       }
 
-      .hero-art {
-        background-image: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, .68) 53%, rgba(3, 3, 3, .23)), linear-gradient(0deg, #030303, transparent 35%), url('assets/hero.webp');
-        background-position: 58% center
+      .hero-art .hero-image {
+        object-position: 58% center
+      }
+
+      .hero-art::after {
+        background-image: linear-gradient(90deg, #030303 0%, rgba(3, 3, 3, .68) 53%, rgba(3, 3, 3, .23)), linear-gradient(0deg, #030303, transparent 35%)
       }
 
       .hero-content {
@@ -1656,9 +1921,12 @@
         min-height: 670px
       }
 
-      .hero-art {
-        background-image: linear-gradient(90deg, rgba(3, 3, 3, .88), rgba(3, 3, 3, .4)), linear-gradient(0deg, #030303, transparent 55%), url('assets/hero.webp');
-        background-position: 63% center
+      .hero-art .hero-image {
+        object-position: 63% center
+      }
+
+      .hero-art::after {
+        background-image: linear-gradient(90deg, rgba(3, 3, 3, .88), rgba(3, 3, 3, .4)), linear-gradient(0deg, #030303, transparent 55%)
       }
 
       .hero-content {
@@ -1955,6 +2223,10 @@
       font-style: normal
     }
 
+    .player-image .concept-label {
+      z-index: 2
+    }
+
     .profile-photo .concept-label {
       bottom: 20px;
       right: 20px
@@ -1977,7 +2249,7 @@
     }
 
     .public-player-image .player-index {
-      z-index: 1
+      z-index: 2
     }
 
     .public-results {
@@ -2004,13 +2276,9 @@
       font-size: 14px
     }
 
-    .staff-preview .staff-preview-zemsta {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('assets/zemsta-profile.png') center top / auto 150% no-repeat, #000
-    }
+    .staff-preview .staff-preview-zemsta { overflow: hidden; background: #000 }
 
-    .staff-preview .staff-preview-qex {
-      background: linear-gradient(0deg, rgba(0, 0, 0, .82), rgba(0, 0, 0, .12)), url('Ppic/Qex.png') center top/cover
-    }
+    .staff-preview .staff-preview-qex { overflow: hidden }
   </style>
 </head>
 
@@ -2018,7 +2286,7 @@
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="header-inner"><a class="brand" href="#/" aria-label="HoloFyrn Esports home"><img
-          src="assets/brand-logo.png" alt=""><span class="brand-type">HOLOFYRN<small>ESPORTS</small></span></a><button
+          src="assets/brand-logo-64.webp" srcset="assets/brand-logo-64.webp 64w, assets/brand-logo-128.webp 128w" sizes="(max-width: 380px) 38px, (max-width: 700px) 44px, 64px" width="64" height="64" alt=""><span class="brand-type">HOLOFYRN<small>ESPORTS</small></span></a><button
         class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false"
         aria-controls="main-nav"><span></span><span></span><span></span></button>
       <nav id="main-nav" class="main-nav" aria-label="Main navigation"><a href="#/teams/" class=""><span data-en="Teams"
@@ -2037,7 +2305,9 @@
   </header>
   <main id="main">
     <section class="hero">
-      <div class="hero-art"></div>
+      <div class="hero-art"><img class="hero-image" src="assets/hero-1920.webp"
+          srcset="assets/hero-640.webp 640w, assets/hero-1280.webp 1280w, assets/hero-1920.webp 1920w, assets/hero-2560.webp 2560w"
+          sizes="100vw" width="1920" height="822" alt="" fetchpriority="high" decoding="async"></div>
       <div class="hero-grid"></div>
       <div class="container hero-content">
         <div class="hero-copy">
@@ -2073,7 +2343,7 @@
             aria-hidden="true">↗</span></a>
       </div>
       <div class="news-grid"><a class="news-card news-card-feature" href="#/news/">
-          <div class="news-visual news-visual-beginnings"></div>
+          <div class="news-visual news-visual-beginnings"><img class="news-visual-artwork" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960"></div>
           <div class="news-body"><span class="pill">ROCKET LEAGUE</span>
             <h3><span data-en="Beginnings" data-hu="Kezdetek">Beginnings</span></h3>
             <p><span data-en="Explore the teams representing HoloFyrn across Rocket League."
@@ -2082,7 +2352,7 @@
                 more</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/teams/rls-holofyrn-esport/">
-          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"></div>
+          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"><img class="news-visual-artwork" src="assets/NorwayNews-960.webp" srcset="assets/NorwayNews-480.webp 480w, assets/NorwayNews-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="960" height="540"></div>
           <div class="news-body"><span class="pill">TEAMS</span>
             <h3><span data-en="Norway, here we come!" data-hu="Norvégia itt jövünk!">Norway, here we come!</span></h3>
             <p><span
@@ -2092,7 +2362,7 @@
               class="card-action"><span data-en="Explore teams" data-hu="Csapatok">Explore teams</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/about/">
-          <div class="news-visual news-visual-elnokseg" role="img" aria-label="HoloFyrn leadership team"></div>
+          <div class="news-visual news-visual-elnokseg" role="img" aria-label="HoloFyrn leadership team"><img class="news-visual-artwork" src="assets/Elnokseg-1200.webp" srcset="assets/Elnokseg-800.webp 800w, assets/Elnokseg-1200.webp 1200w" sizes="(max-width: 700px) calc(100vw - 48px), 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="675"></div>
           <div class="news-body"><span class="pill">ORGANISATION</span>
             <h3><span data-en="More than a roster" data-hu="Több mint egy játékoskeret">More than a roster</span></h3>
             <p><span data-en="Discover the people and purpose behind HoloFyrn."
@@ -2113,13 +2383,14 @@
               divisions</span> <span aria-hidden="true">↗</span></a>
         </div>
         <div class="division-grid"><a href="#/teams/" class="division-card division-live">
-            <div class="division-bg"></div>
+            <img class="division-bg" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960">
             <div>
               <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore teams"
                   data-hu="Csapatok">Explore teams</span> ↗</span>
             </div>
           </a>
           <div class="division-card division-soon">
+            <img class="division-bg" src="assets/whatsnext-1200.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="900">
             <div>
               <h3>WHAT'S<br>NEXT?</h3>
               <p><span data-en="A new division is on the horizon." data-hu="Új szakosztály van a láthatáron.">A new
@@ -2140,33 +2411,33 @@
         </div><a class="text-link" href="#/teams/"><span data-en="All teams" data-hu="Összes csapat">All teams</span>
           <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="team-grid"><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-esport/">
-          <div class="team-card-center"><img src="assets/HolofyrnMain-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+      <div class="team-grid"><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-esport/"><img class="team-card-background" src="assets/HolofyrnMainBG-480.webp" srcset="assets/HolofyrnMainBG-480.webp 480w, assets/HolofyrnMainBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnMain-transparent-360.webp" srcset="assets/HolofyrnMain-transparent-360.webp 360w, assets/HolofyrnMain-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="360" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Esports</h3>
-        </a><a class="team-card" style="--team-accent:#bd8855" href="#/teams/holofyrn-academy/">
-          <div class="team-card-center"><img src="assets/HolofyrnAcademy-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#bd8855" href="#/teams/holofyrn-academy/"><img class="team-card-background" src="assets/HoloFyrnAcademyBG-480.webp" srcset="assets/HoloFyrnAcademyBG-480.webp 480w, assets/HoloFyrnAcademyBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnAcademy-transparent-360.webp" srcset="assets/HolofyrnAcademy-transparent-360.webp 360w, assets/HolofyrnAcademy-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Academy</h3>
-        </a><a class="team-card" style="--team-accent:#a71d3c" href="#/teams/rls-holofyrn-esport/">
-          <div class="team-card-center"><img src="assets/RLSHolofyrnMain-transparent.png?v=20260930-clean" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#a71d3c" href="#/teams/rls-holofyrn-esport/"><img class="team-card-background" src="assets/RLSHoloFyrnMainBG-480.webp" srcset="assets/RLSHoloFyrnMainBG-480.webp 480w, assets/RLSHoloFyrnMainBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/RLSHolofyrnEsport-360.webp" srcset="assets/RLSHolofyrnEsport-360.webp 360w, assets/RLSHolofyrnEsport-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="251" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Esports</h3>
-        </a><a class="team-card" style="--team-accent:#c29a60" href="#/teams/rls-holofyrn-academy/">
-          <div class="team-card-center"><img src="assets/RLSHoloFyrnAcademy-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#c29a60" href="#/teams/rls-holofyrn-academy/"><img class="team-card-background" src="assets/RLSHolofyrnacademyBG-480.webp" srcset="assets/RLSHolofyrnacademyBG-480.webp 480w, assets/RLSHolofyrnacademyBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/RLSHoloFyrnAcademy-transparent-360.webp" srcset="assets/RLSHoloFyrnAcademy-transparent-360.webp 360w, assets/RLSHoloFyrnAcademy-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Academy</h3>
-        </a><a class="team-card" style="--team-accent:#fa7116" href="#/teams/rls-holofyrn-elet/">
-          <div class="team-card-center"><img src="assets/RLSHolofyrnEldr-transparent.png?v=20260930-eldr" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#fa7116" href="#/teams/rls-holofyrn-elet/"><img class="team-card-background" src="assets/RLSHoloFyrnEldBG-480.webp" srcset="assets/RLSHoloFyrnEldBG-480.webp 480w, assets/RLSHoloFyrnEldBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnEldr-360.webp" srcset="assets/HolofyrnEldr-360.webp 360w, assets/HolofyrnEldr-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="223" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Eldr</h3>
-        </a><a class="team-card" style="--team-accent:#929ba5" href="#/teams/holofyrn-shadows/">
-          <div class="team-card-center"><img src="assets/HoloFyrnShadows-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#929ba5" href="#/teams/holofyrn-shadows/"><img class="team-card-background" src="assets/HolofyrnShadowsBG-480.webp" srcset="assets/HolofyrnShadowsBG-480.webp 480w, assets/HolofyrnShadowsBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HoloFyrnShadows-transparent-360.webp" srcset="assets/HoloFyrnShadows-transparent-360.webp 360w, assets/HoloFyrnShadows-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Shadows</h3>
-        </a><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-vanguards/">
-          <div class="team-card-center"><img src="assets/HoloFyrnVanguards-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-vanguards/"><img class="team-card-background" src="assets/HoloFyrnVanguardsBG-480.webp" srcset="assets/HoloFyrnVanguardsBG-480.webp 480w, assets/HoloFyrnVanguardsBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HoloFyrnVanguards-transparent-360.webp" srcset="assets/HoloFyrnVanguards-transparent-360.webp 360w, assets/HoloFyrnVanguards-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>Holofyrn Vanguards</h3>
         </a></div>
     </section>
@@ -2181,7 +2452,7 @@
               data-hu="Játékoskeret">View roster</span> <span aria-hidden="true">↗</span></a>
         </div>
         <div class="players-grid"><a class="player-card" href="#/players/kenz/">
-            <div class="player-image portrait-01"><span class="player-index">01 / HF</span></div>
+            <div class="player-image portrait-01"><img class="player-image-artwork" src="assets/Kenz-profile.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1024" height="1536"><span class="player-index">01 / HF</span></div>
             <div class="player-info">
               <div><span class="small-label"><span data-en="ROCKET LEAGUE PLAYER" data-hu="ROCKET LEAGUE JÁTÉKOS">ROCKET
                     LEAGUE PLAYER</span></span>
@@ -2189,7 +2460,7 @@
               </div><span aria-hidden="true">↗</span>
             </div>
           </a><a class="player-card" href="#/players/eggy/">
-            <div class="player-image portrait-02"><span class="player-index">02 / HF</span><span
+            <div class="player-image portrait-02"><img class="player-image-artwork" src="assets/eggy.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="724" height="724"><span class="player-index">02 / HF</span><span
                 class="concept-label"><span data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative
                   portrait</span></span></div>
             <div class="player-info">
@@ -2199,7 +2470,7 @@
               </div><span aria-hidden="true">↗</span>
             </div>
           </a><a class="player-card" href="#/players/interz/">
-            <div class="player-image portrait-03"><span class="player-index">03 / HF</span><span
+            <div class="player-image portrait-03"><img class="player-image-artwork" src="assets/interz.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="724" height="724"><span class="player-index">03 / HF</span><span
                 class="concept-label"><span data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative
                   portrait</span></span></div>
             <div class="player-info">
@@ -2247,11 +2518,11 @@
         </div><a class="text-link" href="#/staff/"><span data-en="Meet the staff" data-hu="Ismerd meg a stábot">Meet the
             staff</span> <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="staff-preview"><a href="#/staff/kenz/"><span>01</span><strong>Kenz</strong><small><span
+      <div class="staff-preview"><a href="#/staff/kenz/"><img class="staff-preview-artwork" src="assets/KenzStaff-1200.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="675"><span>01</span><strong>Kenz</strong><small><span
               data-en="President" data-hu="Elnök">President</span></small></a><a class="staff-preview-zemsta"
-          href="#/staff/zemsta/"><span>02</span><strong>Zemsta</strong><small><span data-en="Vice President of IT"
+          href="#/staff/zemsta/"><img class="staff-preview-artwork" src="assets/ZemstaStaff.png" alt="Zemsta, HoloFyrn Esport staff member" loading="lazy" decoding="async" width="1680" height="945"><span>02</span><strong>Zemsta</strong><small><span data-en="Vice President of IT"
               data-hu="IT-alelnök">Vice President of IT</span></small></a><a class="staff-preview-qex"
-          href="#/staff/qex/"><span>03</span><strong>Qex</strong><small><span data-en="General Vice-President"
+          href="#/staff/qex/"><img class="staff-preview-artwork" src="Ppic/Qex.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1082" height="1454"><span>03</span><strong>Qex</strong><small><span data-en="General Vice-President"
               data-hu="Általános alelnök">General Vice-President</span></small></a></div>
     </section>
     <section class="section partners-section">
@@ -2267,7 +2538,7 @@
               community.</span></p><a class="text-link" href="#/sponsors/"><span data-en="Meet 86 Esports"
               data-hu="86 Esport bemutatása">Meet 86 Esports</span> <span aria-hidden="true">↗</span></a>
         </div><a class="partner-placeholder sponsor-preview" href="#/sponsors/" aria-label="86 Esports"><img
-            src="assets/86-esport.png" alt="86 Esports logo" loading="lazy"><strong>86 Esports</strong></a>
+            src="assets/86-esport.webp" width="600" height="550" alt="86 Esports logo" loading="lazy" decoding="async"><strong>86 Esports</strong></a>
       </div>
     </section>
     <section class="section community-section" id="socials">
@@ -2302,10 +2573,16 @@
     </div>
   </main>
   <footer class="footer">
-    <div class="container footer-top"><a class="brand" href="#/"><img src="assets/brand-logo.png" alt=""><span
+    <div class="container footer-top"><a class="brand" href="#/"><img src="assets/brand-logo-64.webp" srcset="assets/brand-logo-64.webp 64w, assets/brand-logo-128.webp 128w" sizes="(max-width: 380px) 38px, (max-width: 700px) 44px, 64px" width="64" height="64" alt=""><span
           class="brand-type">HOLOFYRN<small>ESPORTS</small></span></a>
       <p><span data-en="Limits are only a matter of perspective" data-hu="A határokat a nézőpont teremti">Limits are
           only a matter of perspective</span></p>
+      <nav class="footer-socials" aria-label="HoloFyrn social media">
+        <a href="https://discord.gg/3xE5bmsMJ" target="_blank" rel="noopener noreferrer" aria-label="HoloFyrn on Discord" title="Discord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.7 5.3A18.7 18.7 0 0 0 15.1 4l-.6 1.2a17 17 0 0 0-5 0L8.9 4a18.7 18.7 0 0 0-4.6 1.3C1.4 9.6.6 13.8 1 18a18.8 18.8 0 0 0 5.7 2.9l1.2-2a12 12 0 0 1-1.9-.9l.5-.4a13.4 13.4 0 0 0 11 0l.5.4a12 12 0 0 1-1.9.9l1.2 2A18.8 18.8 0 0 0 23 18c.5-4.9-.8-9-3.3-12.7ZM8.8 14.8c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Zm6.4 0c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Z"/></svg></a>
+        <a href="https://x.com/HoloFyrnEsports" target="_blank" rel="noopener noreferrer" aria-label="HoloFyrn on X" title="X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 14.8 5.7 22H2.5l7.3-8.4L1.8 2h6.5l4.4 6.6L18.9 2Zm-1.1 18h1.7L7.3 3.9H5.5L17.8 20Z"/></svg></a>
+        <a href="https://www.instagram.com/holofyrnesports/" target="_blank" rel="noopener noreferrer" aria-label="HoloFyrn on Instagram" title="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2.2A2.8 2.8 0 0 0 4.2 7v10A2.8 2.8 0 0 0 7 19.8h10a2.8 2.8 0 0 0 2.8-2.8V7A2.8 2.8 0 0 0 17 4.2H7Zm5 2.1a5.7 5.7 0 1 1 0 11.4 5.7 5.7 0 0 1 0-11.4Zm0 2.2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7ZM17.7 5.8a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6Z"/></svg></a>
+        <a href="https://www.tiktok.com/@holofyrn.esports" target="_blank" rel="noopener noreferrer" aria-label="HoloFyrn on TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.6 6.3a5.8 5.8 0 0 1-3.5-3.5A6.3 6.3 0 0 1 15.8 1h-4.1v14.1a2.8 2.8 0 1 1-2.8-2.8c.4 0 .8.1 1.1.2v-4.2a7 7 0 1 0 5.8 6.9V8.1a9.8 9.8 0 0 0 5.7 1.8V5.8a5.8 5.8 0 0 1-1.9.5Z"/></svg></a>
+      </nav>
     </div>
     <div class="container footer-bottom">
       <nav aria-label="Footer navigation"><a href="#/teams/"><span data-en="Teams" data-hu="Csapatok">Teams</span></a><a
@@ -2327,7 +2604,7 @@
           improve.</span></p>
     </div>
     <section class="section container page-section about-story">
-      <div><img class="about-story-photo" src="assets/Elnokseg.png?v=20261006" alt="HoloFyrn leadership team"></div>
+      <div><img class="about-story-photo" src="assets/Elnokseg-800.webp" srcset="assets/Elnokseg-800.webp 800w, assets/Elnokseg-1200.webp 1200w" sizes="(max-width: 700px) calc(100vw - 40px), 50vw" width="800" height="450" loading="lazy" decoding="async" alt="HoloFyrn leadership team"></div>
       <div>
         <div class="eyebrow"><i></i><span data-en="OUR PURPOSE" data-hu="A CÉLUNK">OUR PURPOSE</span></div>
         <h2><span data-en="Built around the game and the people who play it."
@@ -2355,13 +2632,14 @@
     </div>
     <section class="section container page-section">
       <div class="division-grid"><a href="#/teams/" class="division-card division-live">
-          <div class="division-bg"></div>
+          <img class="division-bg" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960">
           <div>
             <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore teams"
                 data-hu="Csapatok">Explore teams</span> ↗</span>
           </div>
         </a>
         <div class="division-card division-soon">
+          <img class="division-bg" src="assets/whatsnext-1200.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="900">
           <div>
             <h3>WHAT'S<br>NEXT?</h3>
             <p><span data-en="More esports in the future."
@@ -2373,7 +2651,9 @@
   </template>
   <template data-route="/" data-title="Home | HoloFyrn Esport">
     <section class="hero">
-      <div class="hero-art"></div>
+      <div class="hero-art"><img class="hero-image" src="assets/hero-1920.webp"
+          srcset="assets/hero-640.webp 640w, assets/hero-1280.webp 1280w, assets/hero-1920.webp 1920w, assets/hero-2560.webp 2560w"
+          sizes="100vw" width="1920" height="822" alt="" fetchpriority="high" decoding="async"></div>
       <div class="hero-grid"></div>
       <div class="container hero-content">
         <div class="hero-copy">
@@ -2409,7 +2689,7 @@
             aria-hidden="true">↗</span></a>
       </div>
       <div class="news-grid"><a class="news-card news-card-feature" href="#/news/">
-          <div class="news-visual news-visual-beginnings"></div>
+          <div class="news-visual news-visual-beginnings"><img class="news-visual-artwork" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960"></div>
           <div class="news-body"><span class="pill">ROCKET LEAGUE</span>
             <h3><span data-en="Beginnings" data-hu="Kezdetek">Beginnings</span></h3>
             <p><span data-en="Explore the teams representing HoloFyrn across Rocket League."
@@ -2418,7 +2698,7 @@
                 more</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/teams/rls-holofyrn-esport/">
-          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"></div>
+          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"><img class="news-visual-artwork" src="assets/NorwayNews-960.webp" srcset="assets/NorwayNews-480.webp 480w, assets/NorwayNews-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="960" height="540"></div>
           <div class="news-body"><span class="pill">TEAMS</span>
             <h3><span data-en="Norway, here we come!" data-hu="Norvégia itt jövünk!">Norway, here we come!</span></h3>
             <p><span
@@ -2428,7 +2708,7 @@
               class="card-action"><span data-en="Explore teams" data-hu="Csapatok">Explore teams</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/about/">
-          <div class="news-visual news-visual-elnokseg" role="img" aria-label="HoloFyrn leadership team"></div>
+          <div class="news-visual news-visual-elnokseg" role="img" aria-label="HoloFyrn leadership team"><img class="news-visual-artwork" src="assets/Elnokseg-1200.webp" srcset="assets/Elnokseg-800.webp 800w, assets/Elnokseg-1200.webp 1200w" sizes="(max-width: 700px) calc(100vw - 48px), 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="675"></div>
           <div class="news-body"><span class="pill">ORGANISATION</span>
             <h3><span data-en="More than a roster" data-hu="Több mint egy játékoskeret">More than a roster</span></h3>
             <p><span data-en="Discover the people and purpose behind HoloFyrn."
@@ -2449,13 +2729,14 @@
               divisions</span> <span aria-hidden="true">↗</span></a>
         </div>
         <div class="division-grid"><a href="#/teams/" class="division-card division-live">
-            <div class="division-bg"></div>
+            <img class="division-bg" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960">
             <div>
               <h3>ROCKET<br>LEAGUE</h3><span class="division-link"><span data-en="Explore teams"
                   data-hu="Csapatok">Explore teams</span> ↗</span>
             </div>
           </a>
           <div class="division-card division-soon">
+            <img class="division-bg" src="assets/whatsnext-1200.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="900">
             <div>
               <h3>WHAT'S<br>NEXT?</h3>
               <p><span data-en="A new division is on the horizon." data-hu="Új szakosztály van a láthatáron.">A new
@@ -2476,33 +2757,33 @@
         </div><a class="text-link" href="#/teams/"><span data-en="All teams" data-hu="Összes csapat">All teams</span>
           <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="team-grid"><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-esport/">
-          <div class="team-card-center"><img src="assets/HolofyrnMain-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+      <div class="team-grid"><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-esport/"><img class="team-card-background" src="assets/HolofyrnMainBG-480.webp" srcset="assets/HolofyrnMainBG-480.webp 480w, assets/HolofyrnMainBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnMain-transparent-360.webp" srcset="assets/HolofyrnMain-transparent-360.webp 360w, assets/HolofyrnMain-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="360" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Esports</h3>
-        </a><a class="team-card" style="--team-accent:#bd8855" href="#/teams/holofyrn-academy/">
-          <div class="team-card-center"><img src="assets/HolofyrnAcademy-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#bd8855" href="#/teams/holofyrn-academy/"><img class="team-card-background" src="assets/HoloFyrnAcademyBG-480.webp" srcset="assets/HoloFyrnAcademyBG-480.webp 480w, assets/HoloFyrnAcademyBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnAcademy-transparent-360.webp" srcset="assets/HolofyrnAcademy-transparent-360.webp 360w, assets/HolofyrnAcademy-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Academy</h3>
-        </a><a class="team-card" style="--team-accent:#a71d3c" href="#/teams/rls-holofyrn-esport/">
-          <div class="team-card-center"><img src="assets/RLSHolofyrnMain-transparent.png?v=20260930-clean" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#a71d3c" href="#/teams/rls-holofyrn-esport/"><img class="team-card-background" src="assets/RLSHoloFyrnMainBG-480.webp" srcset="assets/RLSHoloFyrnMainBG-480.webp 480w, assets/RLSHoloFyrnMainBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/RLSHolofyrnEsport-360.webp" srcset="assets/RLSHolofyrnEsport-360.webp 360w, assets/RLSHolofyrnEsport-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="251" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Esports</h3>
-        </a><a class="team-card" style="--team-accent:#c29a60" href="#/teams/rls-holofyrn-academy/">
-          <div class="team-card-center"><img src="assets/RLSHoloFyrnAcademy-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#c29a60" href="#/teams/rls-holofyrn-academy/"><img class="team-card-background" src="assets/RLSHolofyrnacademyBG-480.webp" srcset="assets/RLSHolofyrnacademyBG-480.webp 480w, assets/RLSHolofyrnacademyBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/RLSHoloFyrnAcademy-transparent-360.webp" srcset="assets/RLSHoloFyrnAcademy-transparent-360.webp 360w, assets/RLSHoloFyrnAcademy-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Academy</h3>
-        </a><a class="team-card" style="--team-accent:#fa7116" href="#/teams/rls-holofyrn-elet/">
-          <div class="team-card-center"><img src="assets/RLSHolofyrnEldr-transparent.png?v=20260930-eldr" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#fa7116" href="#/teams/rls-holofyrn-elet/"><img class="team-card-background" src="assets/RLSHoloFyrnEldBG-480.webp" srcset="assets/RLSHoloFyrnEldBG-480.webp 480w, assets/RLSHoloFyrnEldBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnEldr-360.webp" srcset="assets/HolofyrnEldr-360.webp 360w, assets/HolofyrnEldr-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="223" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Eldr</h3>
-        </a><a class="team-card" style="--team-accent:#929ba5" href="#/teams/holofyrn-shadows/">
-          <div class="team-card-center"><img src="assets/HoloFyrnShadows-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#929ba5" href="#/teams/holofyrn-shadows/"><img class="team-card-background" src="assets/HolofyrnShadowsBG-480.webp" srcset="assets/HolofyrnShadowsBG-480.webp 480w, assets/HolofyrnShadowsBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HoloFyrnShadows-transparent-360.webp" srcset="assets/HoloFyrnShadows-transparent-360.webp 360w, assets/HoloFyrnShadows-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Shadows</h3>
-        </a><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-vanguards/">
-          <div class="team-card-center"><img src="assets/HoloFyrnVanguards-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-vanguards/"><img class="team-card-background" src="assets/HoloFyrnVanguardsBG-480.webp" srcset="assets/HoloFyrnVanguardsBG-480.webp 480w, assets/HoloFyrnVanguardsBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HoloFyrnVanguards-transparent-360.webp" srcset="assets/HoloFyrnVanguards-transparent-360.webp 360w, assets/HoloFyrnVanguards-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>Holofyrn Vanguards</h3>
         </a></div>
     </section>
@@ -2517,7 +2798,7 @@
               data-hu="Játékoskeret">View roster</span> <span aria-hidden="true">↗</span></a>
         </div>
         <div class="players-grid"><a class="player-card" href="#/players/kenz/">
-            <div class="player-image portrait-01"><span class="player-index">01 / HF</span></div>
+            <div class="player-image portrait-01"><img class="player-image-artwork" src="assets/Kenz-profile.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1024" height="1536"><span class="player-index">01 / HF</span></div>
             <div class="player-info">
               <div><span class="small-label"><span data-en="ROCKET LEAGUE PLAYER" data-hu="ROCKET LEAGUE JÁTÉKOS">ROCKET
                     LEAGUE PLAYER</span></span>
@@ -2525,7 +2806,7 @@
               </div><span aria-hidden="true">↗</span>
             </div>
           </a><a class="player-card" href="#/players/eggy/">
-            <div class="player-image portrait-02"><span class="player-index">02 / HF</span><span
+            <div class="player-image portrait-02"><img class="player-image-artwork" src="assets/eggy.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="724" height="724"><span class="player-index">02 / HF</span><span
                 class="concept-label"><span data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative
                   portrait</span></span></div>
             <div class="player-info">
@@ -2535,7 +2816,7 @@
               </div><span aria-hidden="true">↗</span>
             </div>
           </a><a class="player-card" href="#/players/interz/">
-            <div class="player-image portrait-03"><span class="player-index">03 / HF</span><span
+            <div class="player-image portrait-03"><img class="player-image-artwork" src="assets/interz.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="724" height="724"><span class="player-index">03 / HF</span><span
                 class="concept-label"><span data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative
                   portrait</span></span></div>
             <div class="player-info">
@@ -2583,11 +2864,11 @@
         </div><a class="text-link" href="#/staff/"><span data-en="Meet the staff" data-hu="Ismerd meg a stábot">Meet the
             staff</span> <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="staff-preview"><a href="#/staff/kenz/"><span>01</span><strong>Kenz</strong><small><span
+      <div class="staff-preview"><a href="#/staff/kenz/"><img class="staff-preview-artwork" src="assets/KenzStaff-1200.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="675"><span>01</span><strong>Kenz</strong><small><span
               data-en="President" data-hu="Elnök">President</span></small></a><a class="staff-preview-zemsta"
-          href="#/staff/zemsta/"><span>02</span><strong>Zemsta</strong><small><span data-en="Vice President of IT"
+          href="#/staff/zemsta/"><img class="staff-preview-artwork" src="assets/ZemstaStaff.png" alt="Zemsta, HoloFyrn Esport staff member" loading="lazy" decoding="async" width="1680" height="945"><span>02</span><strong>Zemsta</strong><small><span data-en="Vice President of IT"
               data-hu="IT-alelnök">Vice President of IT</span></small></a><a class="staff-preview-qex"
-          href="#/staff/qex/"><span>03</span><strong>Qex</strong><small><span data-en="General Vice-President"
+          href="#/staff/qex/"><img class="staff-preview-artwork" src="Ppic/Qex.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1082" height="1454"><span>03</span><strong>Qex</strong><small><span data-en="General Vice-President"
               data-hu="Általános alelnök">General Vice-President</span></small></a></div>
     </section>
     <section class="section partners-section">
@@ -2603,7 +2884,7 @@
               community.</span></p><a class="text-link" href="#/sponsors/"><span data-en="Meet 86 Esports"
               data-hu="86 Esports bemutatása">Meet 86 Esports</span> <span aria-hidden="true">↗</span></a>
         </div><a class="partner-placeholder sponsor-preview" href="#/sponsors/" aria-label="86 Esport"><img
-            src="assets/86-esport.png" alt="86 Esports logo" loading="lazy"><strong>86 Esports</strong></a>
+            src="assets/86-esport.webp" width="600" height="550" alt="86 Esports logo" loading="lazy" decoding="async"><strong>86 Esports</strong></a>
       </div>
     </section>
     <section class="section community-section" id="socials">
@@ -2655,8 +2936,8 @@
             data-en="Applications and contact details will be published here when they are available. In the meantime, meet our teams and the people behind HoloFyrn."
             data-hu="A jelentkezési lehetőségek és elérhetőségek itt jelennek meg, amint elérhetők. Addig is ismerd meg csapatainkat és a HoloFyrn mögött álló embereket.">Applications
             and contact details will be published here when they are available. In the meantime, meet our teams and the
-            people behind HoloFyrn.</span></p><a class="button button-outline" href="#/teams/"><span
-            data-en="Explore teams" data-hu="Csapatok">Explore teams</span> <span aria-hidden="true">↗</span></a>
+            people behind HoloFyrn.</span></p><div class="join-actions"><a class="button button-outline" href="#/teams/"><span
+            data-en="Explore teams" data-hu="Csapatok">Explore teams</span> <span aria-hidden="true">↗</span></a><a class="button" href="https://discord.gg/3xE5bmsMJ" target="_blank" rel="noopener noreferrer"><span>Discord</span><span aria-hidden="true">↗</span></a></div>
       </div>
     </section>
   </template>
@@ -2670,7 +2951,7 @@
     </div>
     <section class="section container page-section">
       <div class="news-grid"><a class="news-card news-card-feature" href="#/teams/">
-          <div class="news-visual news-visual-beginnings"></div>
+          <div class="news-visual news-visual-beginnings"><img class="news-visual-artwork" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960"></div>
           <div class="news-body"><span class="pill">ROCKET LEAGUE</span>
             <h3><span data-en="Discover our Rocket League teams"
                 data-hu="Ismerd meg Rocket League csapatainkat">Discover our Rocket League teams</span></h3>
@@ -2680,7 +2961,7 @@
                 data-hu="Megtekintés">Explore</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/teams/rls-holofyrn-esport/">
-          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"></div>
+          <div class="news-visual news-visual-norway" role="img" aria-label="Norwegian RLS 2026 Rocket League artwork"><img class="news-visual-artwork" src="assets/NorwayNews-960.webp" srcset="assets/NorwayNews-480.webp 480w, assets/NorwayNews-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="960" height="540"></div>
           <div class="news-body"><span class="pill">ROCKET LEAGUE · RLS</span>
             <h3><span data-en="Norway, here we come!" data-hu="Norvégia, jövünk!">Norway, here we come!</span></h3>
             <p><span data-en="HoloFyrn is taking part in the Norwegian RLS league. Meet the team representing us."
@@ -2688,7 +2969,7 @@
             <span class="card-action"><span data-en="Explore the team" data-hu="A csapat megtekintése">Explore the team</span> ↗</span>
           </div>
         </a><a class="news-card" href="#/about/">
-          <div class="news-visual news-visual-elnokseg" role="img" aria-label="HoloFyrn leadership team"></div>
+          <div class="news-visual news-visual-elnokseg" role="img" aria-label="HoloFyrn leadership team"><img class="news-visual-artwork" src="assets/Elnokseg-1200.webp" srcset="assets/Elnokseg-800.webp 800w, assets/Elnokseg-1200.webp 1200w" sizes="(max-width: 700px) calc(100vw - 48px), 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1200" height="675"></div>
           <div class="news-body"><span class="pill">HOLOFYRN</span>
             <h3><span data-en="More than a roster" data-hu="Több mint egy játékoskeret">More than a roster</span></h3>
             <p><span data-en="Discover the people and purpose behind HoloFyrn."
@@ -2767,7 +3048,7 @@
       <div class="breadcrumbs"><a href="#/teams/holofyrn-esport/">HoloFyrn Esport</a><span>/</span>Kenz</div>
       <div class="profile-grid">
         <div class="profile-photo portrait-01 signed-profile-photo"><img class="profile-signature kenz-signature"
-            src="assets/kenz-signature.png" alt="" aria-hidden="true"></div>
+            src="assets/kenz-signature-1200.webp" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="PLAYER PROFILE" data-hu="JÁTÉKOSPROFIL">PLAYER PROFILE</span></div>
           <h1>KENZ</h1>
@@ -2820,7 +3101,7 @@
     </div>
     <section class="section container page-section">
       <div class="partner-feature sponsor-feature">
-        <div class="sponsor-mark"><img src="assets/86-esport.png" alt="86 Esport logo"></div>
+        <div class="sponsor-mark"><img src="assets/86-esport.webp" width="600" height="550" alt="86 Esport logo"></div>
         <div class="sponsor-content">
           <div class="eyebrow"><i></i><span data-en="OUR FIRST PARTNER" data-hu="ELSŐ SZPONZORUNK">OUR FIRST
               PARTNER</span></div>
@@ -2856,8 +3137,8 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Kenz</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/KenzStaff.png"
-            alt="Kenz"><img class="profile-signature kenz-signature" src="assets/kenz-signature.png" alt=""
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/KenzStaff-1200.webp"
+            alt="Kenz"><img class="profile-signature kenz-signature" src="assets/kenz-signature-1200.webp" alt=""
             aria-hidden="true">
         </div>
         <div class="profile-copy">
@@ -2884,8 +3165,8 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Zemsta</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/zemsta-profile.png"
-            alt="Zemsta"><img class="profile-signature" src="assets/zemsta-signature.png" alt="" aria-hidden="true">
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/ZemstaStaff.png"
+            alt="Zemsta, HoloFyrn Esport staff member"><img class="profile-signature" src="assets/zemsta-signature.webp" alt="" aria-hidden="true">
         </div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
@@ -2912,7 +3193,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff" data-hu="Stáb">Staff</span></a><span>/</span>Qex
       </div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="Ppic/Qex.png" alt="Qex"></div>
+        <div class="profile-photo staff-profile-photo"><img src="Ppic/Qex.webp" alt="Qex"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Qex</h1>
@@ -2938,7 +3219,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Metalhub</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">M</strong></div>
+        <div class="profile-photo staff-profile-photo"><img src="assets/MetalStaff.png" alt="Metalhub, HoloFyrn Esport staff member" loading="lazy" decoding="async"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Metalhub</h1>
@@ -2964,7 +3245,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Bensai</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-placeholder"><strong aria-hidden="true">B</strong></div>
+        <div class="profile-photo staff-profile-photo"><img src="assets/BensaiStaff.png" alt="Bensai, HoloFyrn Esport staff member" loading="lazy" decoding="async"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Bensai</h1>
@@ -3016,7 +3297,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>BigV</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="assets/bigv.png" alt="BigV"></div>
+        <div class="profile-photo staff-profile-photo"><img src="assets/bigv.webp" alt="BigV"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>BigV</h1>
@@ -3041,7 +3322,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Vortex</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/Vortex.jpg" alt="Vortex"><img class="profile-signature" src="assets/vortex-signature.png" alt="" aria-hidden="true"></div>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/Vortex.webp" alt="Vortex"><img class="profile-signature" src="assets/vortex-signature.webp" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Vortex</h1>
@@ -3071,26 +3352,26 @@
     </div>
     <section class="section container page-section">
       <div class="staff-grid"><a class="staff-card" href="#/staff/kenz/"><span class="staff-number">01</span><img
-            class="staff-avatar staff-avatar-photo" src="assets/KenzStaff.png" alt="Kenz" loading="lazy">
+            class="staff-avatar staff-avatar-photo" src="assets/KenzStaff-1200.webp" alt="Kenz" loading="lazy" decoding="async">
           <h2>Kenz</h2>
           <p><span data-en="President" data-hu="Elnök">President</span> <span aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/zemsta/"><span class="staff-number">02</span><img
-            class="staff-avatar staff-avatar-photo" src="assets/zemsta.png" alt="Zemsta" loading="lazy">
+            class="staff-avatar staff-avatar-photo" src="assets/ZemstaStaff.png" alt="Zemsta, HoloFyrn Esport staff member" loading="lazy" decoding="async">
           <h2>Zemsta</h2>
           <p><span data-en="Vice President of IT" data-hu="IT-alelnök">Vice President of IT</span> <span
               aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/qex/"><span class="staff-number">03</span><img
-            class="staff-avatar staff-avatar-photo" src="Ppic/Qex.png" alt="Qex" loading="lazy">
+            class="staff-avatar staff-avatar-photo" src="Ppic/Qex.webp" alt="Qex" loading="lazy" decoding="async">
           <h2>Qex</h2>
           <p><span data-en="General Vice-President" data-hu="Általános alelnök">General Vice-President</span> <span
               aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/metalhub/"><span class="staff-number">04</span>
-          <div class="staff-avatar">M</div>
+          <img class="staff-avatar staff-avatar-photo" src="assets/MetalStaff.png" alt="Metalhub, HoloFyrn Esport staff member" loading="lazy" decoding="async">
           <h2>Metalhub</h2>
           <p><span data-en="Event Manager and Organizer" data-hu="Eseménymenedzser és szervező">Event Manager and
               Organizer</span> <span aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/bensai/"><span class="staff-number">05</span>
-          <div class="staff-avatar">B</div>
+          <img class="staff-avatar staff-avatar-photo" src="assets/BensaiStaff.png" alt="Bensai, HoloFyrn Esport staff member" loading="lazy" decoding="async">
           <h2>Bensai</h2>
           <p><span data-en="Financial Manager" data-hu="Pénzügyi menedzser">Financial Manager</span> <span
               aria-hidden="true">↗</span></p>
@@ -3100,11 +3381,11 @@
           <p><span data-en="Social Media Manager" data-hu="Közösségimédia-menedzser">Social Media Manager</span> <span
               aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/bigv/"><span class="staff-number">07</span>
-          <span class="staff-avatar staff-avatar-bigv"><img src="assets/bigv.png" alt="BigV" loading="lazy"></span>
+          <span class="staff-avatar staff-avatar-bigv"><img src="assets/bigv.webp" alt="BigV" loading="lazy" decoding="async"></span>
           <h2>BigV</h2>
           <p><span data-en="Secretary" data-hu="Titkár">Secretary</span> <span aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/vortex/"><span class="staff-number">08</span>
-          <img class="staff-avatar staff-avatar-photo" src="assets/Vortex.jpg" alt="Qex" loading="lazy">
+          <img class="staff-avatar staff-avatar-photo" src="assets/Vortex.webp" alt="Qex" loading="lazy" decoding="async">
           <h2>Vortex</h2>
           <p><span data-en="Head of Design" data-hu="Vezető grafikus">Head of Design</span> <span
               aria-hidden="true">↗</span></p>
@@ -3278,7 +3559,7 @@
         </div>
       </div>
       <div class="players-grid"><a class="player-card" href="#/players/kenz/">
-          <div class="player-image portrait-01"><span class="player-index">01 / HF</span></div>
+          <div class="player-image portrait-01"><img class="player-image-artwork" src="assets/Kenz-profile.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="1024" height="1536"><span class="player-index">01 / HF</span></div>
           <div class="player-info">
             <div><span class="small-label"><span data-en="ROCKET LEAGUE PLAYER" data-hu="ROCKET LEAGUE JÁTÉKOS">ROCKET
                   LEAGUE PLAYER</span></span>
@@ -3286,7 +3567,7 @@
             </div><span aria-hidden="true">↗</span>
           </div>
         </a><a class="player-card" href="#/players/eggy/">
-          <div class="player-image portrait-02"><span class="player-index">02 / HF</span><span
+          <div class="player-image portrait-02"><img class="player-image-artwork" src="assets/eggy.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="724" height="724"><span class="player-index">02 / HF</span><span
               class="concept-label"><span data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative
                 portrait</span></span></div>
           <div class="player-info">
@@ -3296,7 +3577,7 @@
             </div><span aria-hidden="true">↗</span>
           </div>
         </a><a class="player-card" href="#/players/interz/">
-          <div class="player-image portrait-03"><span class="player-index">03 / HF</span><span
+          <div class="player-image portrait-03"><img class="player-image-artwork" src="assets/interz.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="724" height="724"><span class="player-index">03 / HF</span><span
               class="concept-label"><span data-en="Illustrative portrait" data-hu="Illusztráció">Illustrative
                 portrait</span></span></div>
           <div class="player-info">
@@ -3315,7 +3596,7 @@
         </div>
       </div>
       <div class="staff-grid"><a class="staff-card" href="#/staff/zemsta/"><span class="staff-number">01</span><img
-            class="staff-avatar staff-avatar-photo" src="assets/zemsta.png" alt="Zemsta (Dávid Fekete)" loading="lazy">
+            class="staff-avatar staff-avatar-photo" src="assets/zemsta-1200.webp" alt="Zemsta (Dávid Fekete)" loading="lazy" decoding="async">
           <h2>Zemsta</h2>
           <p><span data-en="Vice President of IT" data-hu="IT-alelnök">Vice President of IT</span> <span
               aria-hidden="true">↗</span></p>
@@ -3351,33 +3632,33 @@
           Explore every HoloFyrn lineup.</span></p>
     </div>
     <section class="section container page-section">
-      <div class="team-grid"><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-esport/">
-          <div class="team-card-center"><img src="assets/HolofyrnMain-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+      <div class="team-grid"><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-esport/"><img class="team-card-background" src="assets/HolofyrnMainBG-480.webp" srcset="assets/HolofyrnMainBG-480.webp 480w, assets/HolofyrnMainBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnMain-transparent-360.webp" srcset="assets/HolofyrnMain-transparent-360.webp 360w, assets/HolofyrnMain-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="360" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Esport</h3>
-        </a><a class="team-card" style="--team-accent:#bd8855" href="#/teams/holofyrn-academy/">
-          <div class="team-card-center"><img src="assets/HolofyrnAcademy-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#bd8855" href="#/teams/holofyrn-academy/"><img class="team-card-background" src="assets/HoloFyrnAcademyBG-480.webp" srcset="assets/HoloFyrnAcademyBG-480.webp 480w, assets/HoloFyrnAcademyBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnAcademy-transparent-360.webp" srcset="assets/HolofyrnAcademy-transparent-360.webp 360w, assets/HolofyrnAcademy-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Academy</h3>
-        </a><a class="team-card" style="--team-accent:#a71d3c" href="#/teams/rls-holofyrn-esport/">
-          <div class="team-card-center"><img src="assets/RLSHolofyrnMain-transparent.png?v=20260930-clean" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#a71d3c" href="#/teams/rls-holofyrn-esport/"><img class="team-card-background" src="assets/RLSHoloFyrnMainBG-480.webp" srcset="assets/RLSHoloFyrnMainBG-480.webp 480w, assets/RLSHoloFyrnMainBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/RLSHolofyrnEsport-360.webp" srcset="assets/RLSHolofyrnEsport-360.webp 360w, assets/RLSHolofyrnEsport-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="251" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Esport</h3>
-        </a><a class="team-card" style="--team-accent:#c29a60" href="#/teams/rls-holofyrn-academy/">
-          <div class="team-card-center"><img src="assets/RLSHoloFyrnAcademy-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#c29a60" href="#/teams/rls-holofyrn-academy/"><img class="team-card-background" src="assets/RLSHolofyrnacademyBG-480.webp" srcset="assets/RLSHolofyrnacademyBG-480.webp 480w, assets/RLSHolofyrnacademyBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/RLSHoloFyrnAcademy-transparent-360.webp" srcset="assets/RLSHoloFyrnAcademy-transparent-360.webp 360w, assets/RLSHoloFyrnAcademy-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Academy</h3>
-        </a><a class="team-card" style="--team-accent:#fa7116" href="#/teams/rls-holofyrn-elet/">
-          <div class="team-card-center"><img src="assets/RLSHolofyrnEldr-transparent.png?v=20260930-eldr" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#fa7116" href="#/teams/rls-holofyrn-elet/"><img class="team-card-background" src="assets/RLSHoloFyrnEldBG-480.webp" srcset="assets/RLSHoloFyrnEldBG-480.webp 480w, assets/RLSHoloFyrnEldBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HolofyrnEldr-360.webp" srcset="assets/HolofyrnEldr-360.webp 360w, assets/HolofyrnEldr-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="223" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>RLS HoloFyrn Eldr</h3>
-        </a><a class="team-card" style="--team-accent:#929ba5" href="#/teams/holofyrn-shadows/">
-          <div class="team-card-center"><img src="assets/HoloFyrnShadows-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#929ba5" href="#/teams/holofyrn-shadows/"><img class="team-card-background" src="assets/HolofyrnShadowsBG-480.webp" srcset="assets/HolofyrnShadowsBG-480.webp 480w, assets/HolofyrnShadowsBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HoloFyrnShadows-transparent-360.webp" srcset="assets/HoloFyrnShadows-transparent-360.webp 360w, assets/HoloFyrnShadows-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>HoloFyrn Shadows</h3>
-        </a><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-vanguards/">
-          <div class="team-card-center"><img src="assets/HoloFyrnVanguards-transparent.png?v=20260930-cutout-v2" alt=""
-              loading="lazy"></div>
+        </a><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-vanguards/"><img class="team-card-background" src="assets/HoloFyrnVanguardsBG-480.webp" srcset="assets/HoloFyrnVanguardsBG-480.webp 480w, assets/HoloFyrnVanguardsBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
+          <div class="team-card-center"><img src="assets/HoloFyrnVanguards-transparent-360.webp" srcset="assets/HoloFyrnVanguards-transparent-360.webp 360w, assets/HoloFyrnVanguards-transparent-720.webp 720w" sizes="(max-width: 700px) 312px, 360px" width="360" height="270" alt=""
+              loading="lazy" decoding="async"></div>
           <h3>Holofyrn Vanguards</h3>
         </a></div>
     </section>
@@ -4086,40 +4367,18 @@
       }
     }
 
-    /* Fit the supplied decorative frames to the complete team card. */
-    .team-card[href="#/teams/holofyrn-esport/"] {
-      --team-background: url('assets/HolofyrnMainBG.png');
-    }
-
-    .team-card[href="#/teams/holofyrn-academy/"] {
-      --team-background: url('assets/HoloFyrnAcademyBG.png');
-    }
-
-    .team-card[href="#/teams/rls-holofyrn-esport/"] {
-      --team-background: url('assets/RLSHoloFyrnMainBG.png');
-    }
-
-    .team-card[href="#/teams/rls-holofyrn-academy/"] {
-      --team-background: url('assets/RLSHolofyrnacademyBG.png');
-    }
-
-    .team-card[href="#/teams/rls-holofyrn-elet/"] {
-      --team-background: url('assets/RLSHoloFyrnEldBG.png');
-    }
-
-    .team-card[href="#/teams/holofyrn-shadows/"] {
-      --team-background: url('assets/HolofyrnShadowsBG.png');
-    }
-
-    .team-card[href="#/teams/holofyrn-vanguards/"] {
-      --team-background: url('assets/HoloFyrnVanguardsBG.png?v=20260930');
-    }
-
     .team-card {
-      background-image: var(--team-background, linear-gradient(140deg, #212020, #121212 68%));
-      background-position: center;
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
+      background-image: linear-gradient(140deg, #212020, #121212 68%);
+    }
+
+    .team-card-background {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
     }
 
     /* Four narrow moving strips keep the animation on the card border only. */
@@ -4190,43 +4449,43 @@
       filter: none;
     }
 
-    .team-card-center img[src*="HolofyrnMain-transparent.png"] {
+    .team-card-center img[src*="HolofyrnMain-transparent-360.webp"] {
       --logo-width: 102.20049%;
       --logo-x: -50.03987%;
       --logo-y: -47.72727%;
     }
 
-    .team-card-center img[src*="HolofyrnAcademy-transparent.png"] {
+    .team-card-center img[src*="HolofyrnAcademy-transparent-360.webp"] {
       --logo-width: 103.94831%;
       --logo-x: -49.89641%;
       --logo-y: -49.07919%;
     }
 
-    .team-card-center img[src*="RLSHolofyrnMain-transparent.png"] {
-      --logo-width: 119.86755%;
-      --logo-x: -49.93094%;
-      --logo-y: -48.66483%;
+    .team-card-center img[src*="RLSHolofyrnEsport-360.webp"] {
+      --logo-width: 100%;
+      --logo-x: -50%;
+      --logo-y: -50%;
     }
 
-    .team-card-center img[src*="RLSHoloFyrnAcademy-transparent.png"] {
+    .team-card-center img[src*="RLSHoloFyrnAcademy-transparent-360.webp"] {
       --logo-width: 100.83565%;
       --logo-x: -49.93094%;
       --logo-y: -47.05341%;
     }
 
-    .team-card-center img[src*="RLSHolofyrnEldr-transparent.png"] {
-      --logo-width: 117.62794%;
-      --logo-x: -49.89641%;
-      --logo-y: -48.75691%;
+    .team-card-center img[src*="HolofyrnEldr-360.webp"] {
+      --logo-width: 100%;
+      --logo-x: -50%;
+      --logo-y: -50%;
     }
 
-    .team-card-center img[src*="HoloFyrnShadows-transparent.png"] {
+    .team-card-center img[src*="HoloFyrnShadows-transparent-360.webp"] {
       --logo-width: 102.11566%;
       --logo-x: -50.00000%;
       --logo-y: -48.57274%;
     }
 
-    .team-card-center img[src*="HoloFyrnVanguards-transparent.png"] {
+    .team-card-center img[src*="HoloFyrnVanguards-transparent-360.webp"] {
       --logo-width: 102.98720%;
       --logo-x: -49.86188%;
       --logo-y: -47.97422%;
@@ -4259,7 +4518,7 @@
     }
 
     #main> :is(.section.container, .player-profile.container)::before {
-      background: linear-gradient(rgba(3, 3, 3, .7), rgba(3, 3, 3, .7)), url('assets/site-background.png?v=20260930-hires') center / cover no-repeat;
+      background: linear-gradient(rgba(3, 3, 3, .7), rgba(3, 3, 3, .7)), url('assets/site-background-1920.webp') center / cover no-repeat;
     }
 
     #main>.page-intro.container::before {
@@ -4275,6 +4534,26 @@
         width: min(100%, 260px);
         height: 205px;
       }
+    }
+
+    @media (max-width: 1200px) {
+      :root { --hero-image: url('assets/hero-1280.webp'); }
+    }
+
+    @media (max-width: 1200px) and (min-resolution: 1.5dppx) {
+      :root { --hero-image: url('assets/hero-1920.webp'); }
+    }
+
+    @media (max-width: 600px) {
+      :root { --hero-image: url('assets/hero-640.webp'); }
+    }
+
+    @media (max-width: 600px) and (min-resolution: 1.5dppx) {
+      :root { --hero-image: url('assets/hero-1280.webp'); }
+    }
+
+    @media (min-width: 1201px) and (min-resolution: 1.5dppx) {
+      :root { --hero-image: url('assets/hero-2560.webp'); }
     }
 
     @media (prefers-reduced-motion: reduce) {

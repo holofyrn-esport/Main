@@ -1,6 +1,6 @@
 ﻿# HoloFyrn logo
 
-Asset: `holofyrn-logo.png`
+Asset: `holofyrn-logo.webp`
 Source: user-supplied HoloFyrn Esports logo.
 Editing: built-in image_gen, background extraction; transparent PNG.
 

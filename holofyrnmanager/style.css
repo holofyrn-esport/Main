@@ -91,7 +91,7 @@ a {
   border-radius: 8px;
   background:
     linear-gradient(rgba(7, 10, 20, 0.05), rgba(7, 10, 20, 0.82)),
-    url("assets/holofyrn-logo.png") center 38% / min(440px, 62%) no-repeat,
+    url("assets/holofyrn-logo.webp") center 38% / min(440px, 62%) no-repeat,
     linear-gradient(135deg, #02051a, #24073d);
 }
 
