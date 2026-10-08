@@ -9,6 +9,16 @@ export const defaultTeams = [
   { id: 'shadows', name: 'HoloFyrn Shadows', code: 'Shadows' },
   { id: 'vanguards', name: 'Holofyrn Vanguards', code: 'Vanguards' },
 ];
+export const defaultStaff = [
+  {id:'kenz',name:'Kenz',role:'President',imageUrl:'assets/KenzStaff-1200.webp',profileUrl:'#/staff/kenz/'},
+  {id:'zemsta',name:'Zemsta',role:'Vice President of IT',imageUrl:'assets/ZemstaStaff.png',profileUrl:'#/staff/zemsta/'},
+  {id:'qex',name:'Qex',role:'General Vice-President',imageUrl:'assets/QexStaff.png',profileUrl:'#/staff/qex/'},
+  {id:'metalhub',name:'Metalhub',role:'Event Manager and Organizer',imageUrl:'assets/MetalStaff.png',profileUrl:'#/staff/metalhub/'},
+  {id:'bensai',name:'Bensai',role:'Financial Manager',imageUrl:'assets/BensaiStaff.png',profileUrl:'#/staff/bensai/'},
+  {id:'tobba',name:'Tobba',role:'Social Media Manager',imageUrl:'',profileUrl:'#/staff/tobba/'},
+  {id:'bigv',name:'BigV',role:'Secretary',imageUrl:'assets/BigVStaff.png',profileUrl:'#/staff/bigv/'},
+  {id:'vortex',name:'Vortex',role:'Head of Design',imageUrl:'assets/VortexStaff.png',profileUrl:'#/staff/vortex/'},
+];
 // League team names also occur as seed-map keys and in playoff fixtures.
 function rebrand(value) {
   if (typeof value === 'string') return value.replace(/Noctiq\s+eSports\s+Academy/gi, 'HoloFyrn Academy').replace(/Noctiq\s+Esports/gi, 'HoloFyrn Esports').replace(/Noctiq/g, 'HoloFyrn');
@@ -16,7 +26,7 @@ function rebrand(value) {
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [rebrand(key), rebrand(item)]));
   return value;
 }
-export const sharedKeys = ['players', 'results', 'events', 'availability', 'leagues', 'leagueGames', 'goals', 'news', 'notifications', 'users'];
+export const sharedKeys = ['players', 'results', 'events', 'availability', 'leagues', 'leagueGames', 'goals', 'news', 'notifications', 'users', 'staff', 'matches'];
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
@@ -56,10 +66,10 @@ export function fromDatabase(data = {}, profiles = [], uid = '') {
   const extension = data.managerV8 || {};
   return {
     currentUserId: users.find(u=>u.authUid===uid || u.id===uid)?.id || uid,
-    teams: [...defaultTeams.map(t=>({...list(extension.teams).find(saved=>saved.id===t.id),...t})), ...list(extension.teams).filter(t=>t.id!=='synq'&&!defaultTeams.some(known=>known.id===t.id)).map(rebrand)], users, players, events,
+    teams: [...defaultTeams.map(t=>({...list(extension.teams).find(saved=>saved.id===t.id),...t})), ...list(extension.teams).filter(t=>t.id!=='synq'&&!defaultTeams.some(known=>known.id===t.id)).map(rebrand)], users, players, events, staff: Array.isArray(extension.staff) ? extension.staff : structuredClone(defaultStaff), matches: list(extension.matches),
     results: list(data.results).map(r=>({id:str(r.id), team:r.teamId || 'main', type:r.managerType || (r.type === 'League match' ? 'league' : 'tournament'), date:dateParts(r).date, event:r.title || r.event || '', stage:r.stage || '', placement:r.placement || r.score || '', prizeMoney:Number(r.prizeEur || r.prizeMoney || 0), result:r.result || 'pending', ...(r.leagueId != null ? {leagueId:r.leagueId} : {})})),
     availability: list(data.availability).map(a=>({id:str(a.id), playerId:str(a.playerId), date:a.date || '', from:a.startTime || a.from || '', until:a.endTime || a.until || '', status:a.status || 'Available'})),
-    leagues: rebrand(list(extension.leagues)), leagueGames: rebrand(list(extension.leagueGames)), goals: list(extension.goals), news: list(extension.news), notifications: list(extension.notifications),
+    leagues: rebrand(list(extension.leagues).map(l=>({...l,playoffs:l.playoffs||{rounds:[]}}))), leagueGames: rebrand(list(extension.leagueGames)), goals: list(extension.goals).map(g=>({...g,progress:Math.max(0,Math.min(100,Number(g.progress)||0)),mode:g.mode||'percent',status:g.status||'active'})), news: list(extension.news), notifications: list(extension.notifications),
   };
 }
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
@@ -111,6 +121,18 @@ export function validateChanges(changes, user, players) {
         if (row.id !== user.id || Object.keys({...c.before,...c.after}).some(k=>!allowed.includes(k) && !equal(c.before[k],c.after[k]))) throw new Error('You may only edit your own profile.');
       }
     } else if (key === 'players' && !admin) throw new Error('Administrator access required.');
+    else if (key === 'staff') {
+      if (!admin) throw new Error('Administrator access required to manage staff.');
+      if (c.after && (!c.after.name?.trim() || !c.after.role?.trim())) throw new Error('Staff needs a name and role.');
+      if (c.after && (c.after.imageUrl && !(/^(https:\/\/|assets\/)[^\s<>"']{1,500}$/i.test(c.after.imageUrl)))) throw new Error('Use an HTTPS image URL or a site assets path.');
+      if (c.after && (c.after.profileUrl && !/^#\/staff\/(?:member\/)?[a-z0-9-]+\/$/i.test(c.after.profileUrl))) throw new Error('Staff profile links must use a valid staff page path.');
+      if (c.after && (c.after.bio && (typeof c.after.bio !== 'string' || c.after.bio.length > 2000))) throw new Error('Staff introductions must be 2,000 characters or fewer.');
+    }
+    else if (key === 'matches') {
+      if (!staff) throw new Error('Staff access required to manage matches.');
+      if (c.after && (!['league','tournament'].includes(c.after.type) || !c.after.competition?.trim() || !c.after.teamId || !c.after.date || !/^\d{2}:\d{2}$/.test(c.after.time || '') || !c.after.opponent?.trim())) throw new Error('Choose a match type and complete the competition, team, opponent, date and time.');
+      if (c.after && (c.after.competition.length > 120 || c.after.opponent.length > 100 || (c.after.notes||'').length > 1000)) throw new Error('Match details exceed the allowed length.');
+    }
     else if (['results','leagues','leagueGames'].includes(key) && !staff) throw new Error('Staff access required.');
     else if (key === 'goals') {
       if (!(admin || ['coach','manager'].includes(user.role) || user.coachAccess || user.managerAccess)) throw new Error('Admin, coach or manager access required.');
@@ -152,7 +174,7 @@ export function toDatabase(data, profiles, uid, changes) {
   if (changes.results || deletedLeagues.size) patch.results = preserve('results',next.results,r=>({id:r.id,teamId:r.team,managerType:r.type,type:list(data.results).find(x=>str(x.id)===r.id)?.type || (r.type==='league'?'Match':'Tournament'),dateTime:r.date+'T12:00',title:r.event,stage:r.stage,placement:r.placement,prizeEur:r.prizeMoney,result:r.result,...(r.leagueId!=null?{leagueId:r.leagueId}:{})}));
   if (changes.availability) patch.availability = preserve('availability',next.availability,a=>({id:a.id,playerId:a.playerId,teamId:next.players.find(p=>p.id===a.playerId)?.team || 'main',date:a.date,startTime:a.from,endTime:a.until,status:a.status || 'Available'}));
   if (changes.events) patch.events = preserve('events',next.events.filter(e=>!e.source),e=>({id:e.id,title:e.title,dateTime:`${e.date}T${e.time}`,startsAtUtc:new Date(`${e.date}T${e.time}`).toISOString(),durationMinutes:e.duration,type:e.type,priority:e.priority || 'normal',creatorUserId:e.creatorUserId,invitedTeamIds:e.invitedTeamIds,invitedUserIds:e.invitedUserIds,directInvitedUserIds:e.directInvitedUserIds || [],hiddenFromAdmins:e.hiddenFromAdmins,teamId:e.invitedTeamIds[0] || '',targetType:e.invitedTeamIds.length?'team':'player'}));
-  if (['leagues','leagueGames','goals','news','notifications'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, ...Object.fromEntries(['leagues','leagueGames','goals','news','notifications'].filter(k=>changes[k]).map(k=>[k,next[k]])), ...(changes.news ? {newsInitialized:true} : {})};
+  if (['leagues','leagueGames','goals','news','notifications','staff','matches'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, ...Object.fromEntries(['leagues','leagueGames','goals','news','notifications','staff','matches'].filter(k=>changes[k]).map(k=>[k,next[k]])), ...(changes.news ? {newsInitialized:true} : {})};
   const userWrites = [];
   const affectedUserIds = new Set([...(changes.users || []).map(c=>c.id), ...(changes.players || []).flatMap(c=>[c.before?.accountId,c.after?.accountId]).filter(Boolean)]);
   for (const id of affectedUserIds) {

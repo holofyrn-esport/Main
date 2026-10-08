@@ -21,7 +21,7 @@ async function uploadNewsImage(file,articleId){
   await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
   return {imageUrl:await storageApi.getDownloadURL(target),imagePath:path};
 }
-function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],goals:[],news:[],events:[],availability:[],notifications:[]};}
+function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],goals:[],news:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
 function safeUrl(input, image=false){
   if(image && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(input))return input;
@@ -63,7 +63,7 @@ function queueSave(){
         // the manager document. A public document write is needed only when its
         // actual source data changes; otherwise an outdated public rule can
         // reject an unrelated goal or settings save.
-        if(changes.players || changes.results || changes.leagueGames || changes.news) transaction.set(services.publicRef,{...publicModel.publicHoloFyrnData({...latest,...patch}),publishedAt:fire.serverTimestamp()});
+        if(changes.players || changes.results || changes.leagueGames || changes.news || changes.staff || changes.matches) transaction.set(services.publicRef,{...publicModel.publicHoloFyrnData({...latest,...patch}),publishedAt:fire.serverTimestamp()});
       }
       for(const profile of userWrites)transaction.set(fire.doc(db,'users',profile.id),profile,{merge:true});
       committedSnapshot={...latest,...patch};committedUserWrites=userWrites;
@@ -186,7 +186,7 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261008-news-cta'),import('./public-data.mjs?v=20261008-news-cta'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261008-matches-tab'),import('./public-data.mjs?v=20261008-matches-tab'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     storageApi=storage;services={appApi,fire,authApi,storageApi:storage,storage:storage.getStorage(app),db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};

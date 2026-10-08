@@ -20,6 +20,7 @@ const teamNames = {
 const portraits = {kenz: 'Kenz-profile.webp', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;
 let loadError = false;
+let matchCountdownTimer = null;
 
 function playerTeams(player) {
   return Array.isArray(player.teamIds) && player.teamIds.length ? player.teamIds : [player.team];
@@ -255,7 +256,10 @@ function renderUpcomingMatches(matches) {
   const layout = document.querySelector('#main .match-layout');
   if (!layout) return;
   const block = layout.firstElementChild;
-  const selected = matchesForNextDay(matches);
+  if(matchCountdownTimer){clearInterval(matchCountdownTimer);matchCountdownTimer=null;}
+  const now=Date.now(),today=todayInBudapest();
+  const future=(Array.isArray(matches)?matches:[]).filter(match=>match?.date>=today&&(!match.time||budapestTimestamp(match.date,match.time)>=now));
+  const selected = matchesForNextDay(future);
   const label = document.createElement('span');
   label.className = 'small-label';
   label.append(translated('UPCOMING MATCHES', 'KÖVETKEZŐ MÉRKŐZÉSEK'));
@@ -272,8 +276,9 @@ function renderUpcomingMatches(matches) {
       const row = document.createElement('div');
       row.className = 'upcoming-match-row';
       const sides = document.createElement('span');
-      sides.textContent = `${match.home} vs ${match.away}`;
+      sides.textContent = match.away ? `${match.home} vs ${match.away}` : `${match.home} · ${match.title||'Tournament'}`;
       row.append(sides);
+      if(match.type&&match.away){const detail=document.createElement('small');detail.className='upcoming-match-detail';detail.textContent=match.title?`${match.type} · ${match.title}`:match.type;row.append(detail);}
       if (match.time) {
         const time = document.createElement('time');
         time.dateTime = `${match.date}T${match.time}`;
@@ -282,7 +287,16 @@ function renderUpcomingMatches(matches) {
       }
       list.append(row);
     }
-    block.replaceChildren(label, heading, list);
+    const countdown=document.createElement('span');countdown.className='match-countdown';countdown.setAttribute('aria-live','off');
+    const updateCountdown=()=>{
+      const next=selected.find(match=>match.time);
+      if(!next){countdown.textContent='';countdown.hidden=true;return;}
+      const left=budapestTimestamp(next.date,next.time)-Date.now();
+      countdown.hidden=false;
+      countdown.textContent=left<=0?(document.documentElement.lang==='hu'?'Hamarosan kezdődik':'Starting soon'):`${document.documentElement.lang==='hu'?'Kezdés: ':'Starts in '}${formatCountdown(left)}`;
+    };
+    updateCountdown();if(selected.some(match=>match.time))matchCountdownTimer=setInterval(updateCountdown,1000);
+    block.replaceChildren(label, heading, list, countdown);
   } else {
     heading.append(translated(loadError ? 'Matches temporarily unavailable' : !publicData ? 'Loading matches…' : 'Schedule to be announced',
       loadError ? 'A mérkőzések átmenetileg nem érhetők el' : !publicData ? 'Mérkőzések betöltése…' : 'Időpont hamarosan'));
@@ -290,6 +304,20 @@ function renderUpcomingMatches(matches) {
   }
   block.classList.add('upcoming-match-block');
   layout.querySelector('.match-symbols')?.remove();
+}
+
+function budapestTimestamp(date,time){
+  const [year,month,day]=date.split('-').map(Number),[hour,minute]=time.split(':').map(Number),utcNoon=Date.UTC(year,month-1,day,12);
+  const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date(utcNoon)).map(part=>[part.type,part.value]));
+  const localNoon=Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day),Number(parts.hour),Number(parts.minute),Number(parts.second));
+  return Date.UTC(year,month-1,day,hour,minute)-(localNoon-utcNoon);
+}
+
+function formatCountdown(milliseconds){
+  const total=Math.max(0,Math.floor(milliseconds/1000)),days=Math.floor(total/86400),hours=Math.floor(total%86400/3600),minutes=Math.floor(total%3600/60),seconds=total%60;
+  const clock=[hours,minutes,seconds].map(value=>String(value).padStart(2,'0')).join(':');
+  if(document.documentElement.lang==='hu')return days?`${days} nap ${clock}`:clock;
+  return days?`${days}d ${clock}`:clock;
 }
 
 function resultList(rows, emptyEn, emptyHu) {
@@ -310,6 +338,7 @@ function resultList(rows, emptyEn, emptyHu) {
 
 function render() {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
+  if(route!=='/'&&matchCountdownTimer){clearInterval(matchCountdownTimer);matchCountdownTimer=null;}
   const team = teamRoutes[route];
   if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
   if (!publicData && !loadError) {
@@ -320,6 +349,7 @@ function render() {
   }
   const players = publicData?.players || [];
   const results = publicData?.results || [];
+  renderPublicStaff(route);
   renderPublishedNews(route);
   if (route.startsWith('/players/')) {
     renderProfile(route, players);
@@ -335,6 +365,86 @@ function render() {
   } else if (route === '/') {
     renderPlayers(document.querySelector('#main .players-grid'), players.filter(player => onTeam(player, 'main')), 'main');
   }
+}
+
+function renderPublicStaff(route) {
+  const staff = publicData?.staff;
+  if (!Array.isArray(staff)) return;
+  if (route === '/staff/') {
+    const grid = document.querySelector('#main .staff-grid');
+    if (grid) grid.replaceChildren(...staff.map((person,index) => staffCard(person,index)));
+  }
+  if (route === '/') {
+    const preview = document.querySelector('#main .staff-preview');
+    if (preview) preview.replaceChildren(...staff.slice(0,3).map((person,index) => staffCard(person,index,true)));
+  }
+  if (route.startsWith('/staff/') && route !== '/staff/') {
+    const memberId = route.match(/^\/staff\/member\/([^/]+)\/$/)?.[1];
+    const person = staff.find(item => item.profileUrl === `#${route}` || (memberId && item.id === memberId));
+    if (document.getElementById('public-staff-profile')) renderStaffProfile(person);
+    else if (person) updateStaticStaffBio(person);
+  }
+}
+
+function appendBio(target,bio) {
+  const paragraphs = String(bio || '').split(/\n\s*\n/).map(text=>text.trim()).filter(Boolean);
+  if (!paragraphs.length) paragraphs.push('A personal introduction is coming soon.');
+  for (const text of paragraphs) { const p=document.createElement('p'); p.textContent=text; target.append(p); }
+}
+
+function updateStaticStaffBio(person) {
+  const copy=document.querySelector('#main .staff-profile .profile-copy');
+  if(!copy)return;
+  const title=copy.querySelector('h1'); if(title)title.textContent=person.name;
+  const role=copy.querySelector('.profile-role'); if(role)role.textContent=person.role;
+  const facts=copy.querySelectorAll('.profile-facts > div');const roleFact=facts[facts.length-1]?.querySelector('strong');if(roleFact)roleFact.textContent=person.role;
+  const aboutHeading=[...copy.querySelectorAll('h2')].find(node=>/about the (staff member|player)/i.test(node.textContent));
+  if(aboutHeading){const headingText=aboutHeading.textContent;const old=aboutHeading.nextElementSibling;if(old&&!old.matches('.text-link'))old.remove();const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,person.bio);aboutHeading.after(bio);aboutHeading.textContent=headingText;}
+  document.title=`${person.name} | HoloFyrn Esport`;
+}
+
+function renderStaffProfile(person) {
+  const target=document.getElementById('public-staff-profile');
+  if(!target)return;
+  target.replaceChildren();
+  if(!person){const p=document.createElement('p');p.textContent='Staff profile not found.';target.append(p);return;}
+  document.title=`${person.name} | HoloFyrn Esport`;
+  const crumb=document.createElement('div');crumb.className='breadcrumbs';const back=document.createElement('a');back.href='#/staff/';back.textContent='Staff';crumb.append(back,document.createTextNode(` / ${person.name}`));
+  const grid=document.createElement('div');grid.className='profile-grid';const photo=document.createElement('div');photo.className='profile-photo staff-profile-photo';
+  if(person.imageUrl){photo.style.backgroundImage=`linear-gradient(0deg,#131010,transparent 35%),url('${person.imageUrl}')`;photo.style.backgroundSize='cover';photo.style.backgroundPosition='center top';}
+  const copy=document.createElement('div');copy.className='profile-copy';const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.append(document.createElement('i'),document.createTextNode('STAFF PROFILE'));
+  const heading=document.createElement('h1');heading.textContent=person.name;const role=document.createElement('p');role.className='profile-role';role.textContent=person.role;const divider=document.createElement('div');divider.className='profile-divider';
+  const about=document.createElement('h2');about.textContent='About the staff member';const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,person.bio);
+  const link=document.createElement('a');link.className='text-link';link.href='#/staff/';link.textContent='Back to staff';copy.append(eyebrow,heading,role,divider,about,bio,link);grid.append(photo,copy);target.append(crumb,grid);
+}
+
+function staffCard(person,index,preview=false) {
+  const card = document.createElement(preview || person.profileUrl ? 'a' : 'div');
+  card.className = preview ? 'staff-preview-public' : 'staff-card';
+  if (preview || person.profileUrl) card.href = person.profileUrl || '#/staff/';
+  const number = document.createElement('span');
+  number.className = preview ? '' : 'staff-number';
+  number.textContent = String(index+1).padStart(2,'0');
+  card.append(number);
+  if (person.imageUrl) {
+    const image = document.createElement('img');
+    image.className = preview ? 'staff-preview-artwork' : 'staff-avatar staff-avatar-photo';
+    image.src = person.imageUrl.startsWith('assets/') ? person.imageUrl : person.imageUrl;
+    image.alt = preview ? '' : person.name;
+    image.loading = 'lazy'; image.decoding = 'async';
+    card.append(image);
+  } else {
+    const avatar = document.createElement('span');
+    avatar.className = preview ? 'staff-preview-initial' : 'staff-avatar';
+    avatar.textContent = person.name.slice(0,1).toUpperCase();
+    card.append(avatar);
+  }
+  const name = document.createElement(preview ? 'strong' : 'h2');
+  name.textContent = person.name;
+  const role = document.createElement(preview ? 'small' : 'p');
+  role.textContent = person.role;
+  card.append(name,role);
+  return card;
 }
 
 function renderPublishedNews(route) {

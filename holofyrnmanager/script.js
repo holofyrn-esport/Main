@@ -287,7 +287,7 @@ async function setupFirebase() {
   try {
     const [{ firebaseConfig }, publicData, firebaseAppModule, firebaseFirestoreModule, firebaseAuthModule] = await Promise.all([
       import("./firebaseConfig.js"),
-      import("./public-data.mjs?v=20260928-matches"),
+      import("./public-data.mjs?v=20261008-matches-tab"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),
