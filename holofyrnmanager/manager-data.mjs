@@ -132,6 +132,7 @@ export function validateChanges(changes, user, players) {
       if (!staff) throw new Error('Staff access required to manage matches.');
       if (c.after && (!['league','tournament'].includes(c.after.type) || !c.after.competition?.trim() || !c.after.teamId || !c.after.date || !/^\d{2}:\d{2}$/.test(c.after.time || '') || !c.after.opponent?.trim())) throw new Error('Choose a match type and complete the competition, team, opponent, date and time.');
       if (c.after && (c.after.competition.length > 120 || c.after.opponent.length > 100 || (c.after.notes||'').length > 1000)) throw new Error('Match details exceed the allowed length.');
+      if (c.after?.twitchUrl && (typeof c.after.twitchUrl !== 'string' || c.after.twitchUrl.length > 500 || !/^https:\/\/(?:www\.|m\.)?twitch\.tv\/[A-Za-z0-9_/-]+(?:[?#][^\s<>"']*)?$/i.test(c.after.twitchUrl))) throw new Error('Use a valid HTTPS Twitch link.');
     }
     else if (['results','leagues','leagueGames'].includes(key) && !staff) throw new Error('Staff access required.');
     else if (key === 'goals') {

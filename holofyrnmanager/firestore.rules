@@ -21,8 +21,10 @@ service cloud.firestore {
     }
 
     function isPublisher() {
-      return isMember()
-        && managerProfile().role in ['Admin', 'admin', 'Coach', 'coach', 'Manager', 'manager', 'Captain', 'captain', 'Socials', 'socials'];
+      return isMember() && (managerProfile().role in ['Admin', 'admin', 'Coach', 'coach', 'Manager', 'manager', 'Captain', 'captain', 'Socials', 'socials']
+        || managerProfile().get('canEdit', false) == true
+        || managerProfile().get('coachAccess', false) == true
+        || managerProfile().get('managerAccess', false) == true);
     }
 
     function canManageGoals() {

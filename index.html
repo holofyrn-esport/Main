@@ -598,6 +598,29 @@
       font-size: 14px
     }
 
+    .upcoming-twitch-link {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      color: #a970ff;
+      transition: color .2s ease, transform .2s ease
+    }
+
+    .upcoming-twitch-link:hover,
+    .upcoming-twitch-link:focus-visible {
+      color: #c9a4ff;
+      transform: scale(1.12)
+    }
+
+    .upcoming-twitch-link svg {
+      display: block;
+      width: 18px;
+      height: 18px
+    }
+
     .upcoming-match-detail {
       margin-left: auto;
       color: #a99295;
@@ -4916,7 +4939,7 @@
       route();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261008-matches-tab"></script>
+  <script type="module" src="public-data-v3.js?v=20261008-twitch-matches"></script>
 </body>
 
 </html>

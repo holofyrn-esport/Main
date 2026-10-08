@@ -1,9 +1,21 @@
 import {todayInBudapest} from '../public-matches.mjs';
+import {defaultStaff} from './manager-data.mjs?v=20261008-staff-restore';
 
 // Only these fields are copied into the Firestore document read by the website.
 export function publicHoloFyrnData(data = {}) {
   const rows = value => Array.isArray(value) ? value : [];
   const str = value => typeof value === 'string' ? value.trim() : '';
+  const dateParts = row => {
+    if (row?.startsAtUtc) {
+      const date = new Date(row.startsAtUtc);
+      if (!Number.isNaN(+date)) return {
+        date: new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit'}).format(date),
+        time: new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date),
+      };
+    }
+    const [date, time] = str(row?.dateTime || row?.date).split('T');
+    return {date, time:(time || row?.time || '').slice(0,5)};
+  };
   const publicTeamName = value => str(value).replace(/Noctiq\s+eSports\s+Academy/gi, 'HoloFyrn Academy').replace(/Noctiq\s+Esports/gi, 'HoloFyrn Esports').replace(/Noctiq/gi, 'HoloFyrn');
   const teams = rows(data.managerV8?.teams);
   const knownTeams = [
@@ -47,7 +59,8 @@ export function publicHoloFyrnData(data = {}) {
   for (const item of rows(data.managerV8?.matches)) {
     const date=str(item.date).slice(0,10),home=teamName(str(item.teamId||'main')),away=str(item.opponent),title=publicTeamName(item.competition);
     if(!home||!away||!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<todayInBudapest()||!['league','tournament'].includes(str(item.type).toLowerCase()))continue;
-    upcomingMatches.push({date,time:/^\d{2}:\d{2}$/.test(str(item.time))?str(item.time):'',home:home.slice(0,100),away:away.slice(0,100),title:title.slice(0,100),type:str(item.type).toLowerCase()==='league'?'League':'Tournament'});
+    const twitchUrl=/^https:\/\/(?:www\.|m\.)?twitch\.tv\/[A-Za-z0-9_/-]+(?:[?#][^\s<>"']*)?$/i.test(str(item.twitchUrl))?str(item.twitchUrl):'';
+    upcomingMatches.push({date,time:/^\d{2}:\d{2}$/.test(str(item.time))?str(item.time):'',home:home.slice(0,100),away:away.slice(0,100),title:title.slice(0,100),type:str(item.type).toLowerCase()==='league'?'League':'Tournament',...(twitchUrl?{twitchUrl}: {})});
   }
   for (const game of rows(data.managerV8?.leagueGames)) {
     const home = publicTeamName(game.home), away = publicTeamName(game.away), date = str(game.date).slice(0, 10);
@@ -86,7 +99,8 @@ export function publicHoloFyrnData(data = {}) {
     ctaLabel:str(item.ctaLabel || (item.id === 'site-rocket-league-teams' ? 'Explore Teams' : '')).slice(0,60),
     ctaUrl:/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(str(item.ctaUrl || (item.id === 'site-rocket-league-teams' ? '#/teams/' : ''))) || /^https:\/\/[^\s]+$/i.test(str(item.ctaUrl)) ? str(item.ctaUrl || '#/teams/').slice(0,2048) : '',
   }));
-  const staff = rows(data.managerV8?.staff).filter(item => str(item.name) && str(item.role)).map(item => ({
+  const staffSource = Array.isArray(data.managerV8?.staff) ? data.managerV8.staff : defaultStaff;
+  const staff = rows(staffSource).filter(item => str(item.name) && str(item.role)).map(item => ({
     id:str(item.id).slice(0,100), name:str(item.name).slice(0,80), role:str(item.role).slice(0,120),
     imageUrl:/^(https:\/\/|assets\/)/i.test(str(item.imageUrl)) ? str(item.imageUrl).slice(0,500) : '',
     profileUrl:/^#\/staff\/(?:member\/)?[a-z0-9-]+\/$/i.test(str(item.profileUrl)) ? str(item.profileUrl).slice(0,160) : '',

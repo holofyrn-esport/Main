@@ -285,6 +285,17 @@ function renderUpcomingMatches(matches) {
         time.textContent = match.time;
         row.append(time);
       }
+      if (match.twitchUrl) {
+        const twitch = document.createElement('a');
+        twitch.className = 'upcoming-twitch-link';
+        twitch.href = match.twitchUrl;
+        twitch.target = '_blank';
+        twitch.rel = 'noopener noreferrer';
+        twitch.setAttribute('aria-label', document.documentElement.lang === 'hu' ? 'Meccs élő közvetítése Twitch-en' : 'Watch the match live on Twitch');
+        twitch.title = 'Twitch';
+        twitch.innerHTML = '<svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4.5 0 1.2 3.3v12.1h4v3.3l3.3-3.3h2.6l5.3-5.3V0H4.5zm10.3 9.2-2.7 2.7H9.5l-2.3 2.3v-2.3H4.5V1.6h10.3v7.6zM12.1 3.3h1.6v4.1h-1.6zm-4.3 0h1.6v4.1H7.8z"/></svg>';
+        row.append(twitch);
+      }
       list.append(row);
     }
     const countdown=document.createElement('span');countdown.className='match-countdown';countdown.setAttribute('aria-live','off');
