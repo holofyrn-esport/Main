@@ -120,6 +120,7 @@ export function validateChanges(changes, user, players) {
       if (!(admin || user.role === 'socials')) throw new Error('Administrator or socials access required to manage news.');
       if (c.after && (!c.after.title?.trim() || !c.after.summary?.trim() || !c.after.body?.trim())) throw new Error('News needs a title, summary and article text.');
       if (c.after && ((c.after.imageUrl && (typeof c.after.imageUrl !== 'string' || c.after.imageUrl.length > 2048 || !/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath !== 'string' || !/^news\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(c.after.imagePath))))) throw new Error('News images must use a valid HTTPS storage URL and image path.');
+      if (c.after && ((Boolean(c.after.ctaLabel) !== Boolean(c.after.ctaUrl)) || (c.after.ctaLabel && (typeof c.after.ctaLabel !== 'string' || c.after.ctaLabel.length > 60)) || (c.after.ctaUrl && (typeof c.after.ctaUrl !== 'string' || c.after.ctaUrl.length > 2048 || !(/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(c.after.ctaUrl) || /^https:\/\/[^\s]+$/i.test(c.after.ctaUrl)))))) throw new Error('News buttons need a label and a valid internal page or HTTPS link.');
     }
     else if (key === 'availability') {
       if (!staff && [c.before,c.after].filter(Boolean).some(a=>players.find(p=>str(p.id)===str(a.playerId))?.accountId !== user.id)) throw new Error('You may only edit your own availability.');

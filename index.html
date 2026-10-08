@@ -666,13 +666,22 @@
     }
     button.news-card { width:100%; padding:0; color:inherit; text-align:left; font:inherit; cursor:pointer; }
     .public-news-card .news-body { display:flex; flex-direction:column; gap:10px; }
-    .public-news-card .news-body strong { font-size:19px; }
+    .public-news-card .news-body strong { font:800 clamp(2rem, 2.6vw, 2.6rem)/1.06 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; letter-spacing:.025em; text-transform:uppercase; }
+    .public-news-dialog h2 { font-family:'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; font-weight:800; }
     .public-news-summary { color:var(--muted,#a9b1bd); font-size:14px; line-height:1.55; }
     .public-news-dialog { width:min(720px,calc(100% - 28px)); max-height:85vh; padding:28px; border:1px solid rgba(255,255,255,.15); border-radius:20px; background:#0c1118; color:#f5f7fb; box-shadow:0 30px 100px rgba(0,0,0,.65); }
     .public-news-dialog::backdrop { background:rgba(0,0,0,.75); backdrop-filter:blur(4px); }
     .public-news-dialog form { display:flex; justify-content:flex-end; }
     .public-news-dialog h2 { font-size:clamp(25px,5vw,38px); margin:12px 0; }
     .public-news-body { white-space:pre-wrap; line-height:1.75; color:#d4d9e1; }
+    .public-news-article { max-width:900px; margin:0 auto; }
+    .public-news-article h1 { margin:14px 0; font:900 clamp(2.5rem,6vw,5rem)/.98 'Barlow Condensed','Arial Narrow',Arial,sans-serif; }
+    .public-news-article .article-summary { color:#c6b9b9; font-size:clamp(1rem,2vw,1.25rem); line-height:1.65; }
+    .public-news-article-image { display:block; width:100%; max-height:540px; object-fit:cover; margin:28px 0; border:1px solid #3e3030; }
+    .public-news-article-image-contain { width:min(100%,600px); max-height:400px; margin-inline:auto; object-fit:contain; background:#000; padding:12px; box-sizing:border-box; }
+    .public-news-article-copy { white-space:pre-wrap; color:#d4d9e1; font-size:16px; line-height:1.85; }
+    .public-news-back { display:inline-block; margin-bottom:24px; color:#f1d6d6; font-weight:700; }
+    .public-news-cta { display:inline-block; margin-top:24px; }
 
     .news-card:hover,
     .team-card:hover,
@@ -705,6 +714,9 @@
       object-fit: cover;
       pointer-events: none
     }
+
+    .news-visual-artwork-contained { object-fit:contain; padding:8px; box-sizing:border-box; z-index:1; }
+    .news-visual.news-visual-has-full-logo { background:#000; }
 
     .news-visual-beginnings .news-visual-artwork {
       object-fit: contain
@@ -1294,7 +1306,21 @@
       }
     }
 
-    .footer {
+    .imprint-content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: clamp(22px, 4vw, 42px);
+      background: linear-gradient(145deg, rgba(43, 21, 24, .78), rgba(23, 23, 23, .92));
+      border: 1px solid #54373a;
+      border-radius: 4px;
+      color: #c7b8b8;
+      line-height: 1.75
+    }
+    .imprint-content section + section { margin-top: 30px }
+    .imprint-content h2 { margin: 0 0 10px; color: #f2e9e9; font-size: 1.35rem }
+    .imprint-content p { margin: 0 0 12px }
+    .imprint-content a { color: #ef6b73 }
+    .imprint-updated { margin-top: 30px !important; color: #f2e9e9 }    .footer {
       background: #080808;
       border-top: 1px solid #2e2020
     }
@@ -2602,10 +2628,200 @@
           href="#/news/"><span data-en="News" data-hu="Hírek">News</span></a><a href="#/sponsors/"><span
             data-en="Partners" data-hu="Partner">Partners</span></a><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><a href="#/about/"><span data-en="About" data-hu="Rólunk">About</span></a><a
-          href="#/socials"><span data-en="Socials" data-hu="Közösség">Socials</span></a></nav><span>© 2026 HoloFyrn
+          href="#/socials"><span data-en="Socials" data-hu="Közösség">Socials</span></a><a href="#/impresszum/">Impresszum</a><a href="#/gdpr/">GDPR</a></nav><span>© 2026 HoloFyrn
         Esports</span>
     </div>
   </footer>
+  <template data-route="/impresszum/" data-title="Impresszum | HoloFyrn Esport">
+    <div class="page-intro container">
+      <div class="eyebrow"><i></i><span>HOLOFYRN / JOGI INFORMÁCIÓK</span></div>
+      <h1>Impresszum</h1>
+      <p>A weboldal üzemeltetőjének és a honlap használatának adatai.</p>
+    </div>
+    <section class="section container page-section">
+      <div class="imprint-content">
+        <section><h2>Weboldal adatai</h2>
+          <p><strong>Weboldal neve:</strong> HoloFyrn Esport<br>
+            <strong>Weboldal címe:</strong> <a href="https://holofyrn.eu">https://holofyrn.eu</a></p>
+        </section>
+        <section><h2>Üzemeltető adatai</h2>
+          <p><strong>Üzemeltető neve:</strong> HoloFyrn Esport<br>
+            <strong>Székhely / levelezési cím:</strong> [cím]<br>
+            <strong>Nyilvántartási szám:</strong> [nyilvántartási szám – ha van]<br>
+            <strong>Adószám:</strong> [adószám – ha van]</p>
+          <p><strong>Kapcsolattartó:</strong> [név / tisztség]<br>
+            <strong>E-mail:</strong> <a href="mailto:info@holofyrn.eu">info@holofyrn.eu</a></p>
+        </section>
+        <section><h2>Tárhelyszolgáltató</h2>
+          <p><strong>Szolgáltató neve:</strong> [tárhelyszolgáltató neve]<br>
+            <strong>Székhely:</strong> [szolgáltató címe]<br>
+            <strong>Weboldal:</strong> [szolgáltató weboldala]<br>
+            <strong>E-mail:</strong> [szolgáltató kapcsolattartási e-mail-címe]</p>
+        </section>
+        <section><h2>Domain</h2>
+          <p>A <strong>holofyrn.eu</strong> domain a HoloFyrn Esport hivatalos weboldalának elérhetőségét biztosítja.</p>
+        </section>
+        <section><h2>Szerzői jog</h2>
+          <p>A holofyrn.eu weboldalon megjelenő saját szövegek, grafikák, arculati elemek, logók, képek és egyéb tartalmak – eltérő jelzés hiányában – a HoloFyrn Esport tulajdonát képezik, illetve azok felhasználása a jogosult engedélyével történik.</p>
+          <p>A weboldal tartalmának egészben vagy részben történő másolása, módosítása, terjesztése vagy kereskedelmi célú felhasználása a jogosult előzetes engedélye nélkül nem megengedett.</p>
+          <p>A weboldalon megjelenő külső márkanevek, játéknevek, logók és egyéb védjegyek azok mindenkori jogosultjainak tulajdonát képezik.</p>
+        </section>
+        <section><h2>Felelősség</h2>
+          <p>A HoloFyrn Esport törekszik arra, hogy a weboldalon található információk pontosak és naprakészek legyenek, azonban az esetlegesen előforduló pontatlanságokért vagy elavult információkért nem vállal felelősséget.</p>
+          <p>A weboldalon található külső hivatkozások tartalmáért és működéséért azok üzemeltetői felelnek.</p>
+        </section>
+        <section><h2>Kapcsolat</h2>
+          <p>A weboldallal kapcsolatos kérdésekkel, észrevételekkel vagy jogi megkeresésekkel az alábbi elérhetőségen lehet kapcsolatba lépni velünk:</p>
+          <p><strong>E-mail:</strong> <a href="mailto:info@holofyrn.eu">info@holofyrn.eu</a></p>
+        </section>
+        <p class="imprint-updated"><strong>Utolsó frissítés:</strong> 2026. október</p>
+      </div>
+    </section>
+  </template>
+  <template data-route="/gdpr/" data-title="GDPR | HoloFyrn Esport">
+    <div class="page-intro container">
+      <div class="eyebrow"><i></i><span>HOLOFYRN / ADATVÉDELEM</span></div>
+      <h1>GDPR</h1>
+      <p>Adatkezelési tájékoztató · Hatályos: 2026. október</p>
+    </div>
+    <section class="section container page-section">
+      <article class="imprint-content gdpr-content">
+        <h2>Adatkezelési tájékoztató</h2>
+        <p><strong>Hat&#225;lyos:</strong> 2026. okt&#243;ber</p>
+<p>A HoloFyrn Esport elk&#246;telezett a weboldal l&#225;togat&#243;i &#233;s felhaszn&#225;l&#243;i szem&#233;lyes adatainak v&#233;delme mellett.</p>
+<p>Jelen adatkezel&#233;si t&#225;j&#233;koztat&#243; bemutatja, hogy a <strong>holofyrn.eu</strong> weboldal haszn&#225;lata sor&#225;n milyen szem&#233;lyes adatokat kezel&#252;nk, milyen c&#233;lb&#243;l, mennyi ideig, valamint milyen jogok illetik meg az &#233;rintetteket.</p>
+<h2>1. Az adatkezelő adatai</h2>
+<p><strong>Adatkezelő neve:</strong> HoloFyrn Esport <strong>Weboldal:</strong> https://holofyrn.eu <strong>Sz&#233;khely / levelez&#233;si c&#237;m:</strong> [c&#237;m] <strong>E-mail:</strong> [pl. info@holofyrn.eu] <strong>K&#233;pviselő / kapcsolattart&#243;:</strong> [n&#233;v]</p>
+<p>Amennyiben a HoloFyrn Esport hivatalosan bejegyzett egyes&#252;letk&#233;nt műk&#246;dik:</p>
+<p><strong>Nyilv&#225;ntart&#225;si sz&#225;m:</strong> [nyilv&#225;ntart&#225;si sz&#225;m] <strong>Ad&#243;sz&#225;m:</strong> [ad&#243;sz&#225;m]</p>
+<h2>2. Az adatkezel&#233;s alapelvei</h2>
+<p>A HoloFyrn Esport a szem&#233;lyes adatokat kiz&#225;r&#243;lag meghat&#225;rozott, egy&#233;rtelmű &#233;s jogszerű c&#233;lb&#243;l kezeli.</p>
+<p>Az adatkezel&#233;s sor&#225;n t&#246;reksz&#252;nk arra, hogy:</p>
+<ul>
+<li>csak a sz&#252;ks&#233;ges szem&#233;lyes adatokat kezelj&#252;k;</li>
+<li>az adatokat csak a sz&#252;ks&#233;ges ideig t&#225;roljuk;</li>
+<li>biztos&#237;tsuk az adatok pontoss&#225;g&#225;t;</li>
+<li>megfelelő technikai &#233;s szervez&#233;si int&#233;zked&#233;sekkel v&#233;dj&#252;k az adatokat;</li>
+<li>a szem&#233;lyes adatokat jogosulatlan szem&#233;lyek sz&#225;m&#225;ra ne tegy&#252;k hozz&#225;f&#233;rhetőv&#233;.</li>
+</ul>
+<h2>3. Kapcsolatfelv&#233;tel</h2>
+<p>Amennyiben a felhaszn&#225;l&#243; e-mailben, kapcsolatfelv&#233;teli űrlapon vagy m&#225;s m&#243;don kapcsolatba l&#233;p vel&#252;nk, az al&#225;bbi adatokat kezelhetj&#252;k:</p>
+<ul>
+<li>n&#233;v;</li>
+<li>e-mail-c&#237;m;</li>
+<li>a megkeres&#233;sben &#246;nk&#233;ntesen megadott egy&#233;b szem&#233;lyes adatok;</li>
+<li>az &#252;zenet tartalma.</li>
+</ul>
+<p><strong>Az adatkezel&#233;s c&#233;lja:</strong> kapcsolattart&#225;s, k&#233;rd&#233;sek &#233;s megkeres&#233;sek megv&#225;laszol&#225;sa.</p>
+<p><strong>Az adatkezel&#233;s jogalapja:</strong> az &#233;rintett &#225;ltal kezdem&#233;nyezett kapcsolatfelv&#233;tel, illetve az adatkezelő jogos &#233;rdeke.</p>
+<p><strong>Adatkezel&#233;s időtartama:</strong> a megkeres&#233;s lez&#225;r&#225;s&#225;t k&#246;vetően legfeljebb 1 &#233;v, kiv&#233;ve, ha jogi vagy egy&#233;b indok miatt hosszabb megőrz&#233;s sz&#252;ks&#233;ges.</p>
+<h2>4. Felhaszn&#225;l&#243;i fi&#243;kok</h2>
+<p>Amennyiben a holofyrn.eu oldalon felhaszn&#225;l&#243;i fi&#243;k l&#233;trehoz&#225;s&#225;ra van lehetős&#233;g, az al&#225;bbi adatokat kezelhetj&#252;k:</p>
+<ul>
+<li>felhaszn&#225;l&#243;n&#233;v;</li>
+<li>n&#233;v;</li>
+<li>e-mail-c&#237;m;</li>
+<li>felhaszn&#225;l&#243;i azonos&#237;t&#243;;</li>
+<li>profilk&#233;p;</li>
+<li>felhaszn&#225;l&#243;i szerepk&#246;r;</li>
+<li>a fi&#243;khoz kapcsol&#243;d&#243; egy&#233;b profiladatok.</li>
+</ul>
+<p><strong>Az adatkezel&#233;s c&#233;lja:</strong> a felhaszn&#225;l&#243;i fi&#243;k l&#233;trehoz&#225;sa, azonos&#237;t&#225;sa &#233;s kezel&#233;se, valamint a weboldal egyes funkci&#243;inak biztos&#237;t&#225;sa.</p>
+<p><strong>Adatkezel&#233;s időtartama:</strong> a felhaszn&#225;l&#243;i fi&#243;k fenn&#225;ll&#225;s&#225;ig, illetve annak t&#246;rl&#233;s&#233;t k&#246;vetően addig, ameddig valamely jogi k&#246;telezetts&#233;g vagy jogos &#233;rdek ezt sz&#252;ks&#233;gess&#233; teszi.</p>
+<p>A felhaszn&#225;l&#243; k&#233;rheti fi&#243;kj&#225;nak &#233;s a hozz&#225; kapcsol&#243;d&#243; szem&#233;lyes adatoknak a t&#246;rl&#233;s&#233;t az adatkezelő kapcsolattart&#225;si e-mail-c&#237;m&#233;n.</p>
+<h2>5. J&#225;t&#233;kos- &#233;s csapatprofilok</h2>
+<p>A weboldalon megjelenhetnek a HoloFyrn Esport csapatainak tagjaihoz kapcsol&#243;d&#243; inform&#225;ci&#243;k.</p>
+<p>Ezek lehetnek p&#233;ld&#225;ul:</p>
+<ul>
+<li>j&#225;t&#233;kosn&#233;v / becen&#233;v;</li>
+<li>val&#243;di n&#233;v, amennyiben annak k&#246;zz&#233;t&#233;tel&#233;hez az &#233;rintett hozz&#225;j&#225;rult;</li>
+<li>profilk&#233;p;</li>
+<li>nemzetis&#233;g vagy orsz&#225;g;</li>
+<li>csapatban bet&#246;lt&#246;tt szerepk&#246;r;</li>
+<li>esporteredm&#233;nyek;</li>
+<li>j&#225;t&#233;khoz kapcsol&#243;d&#243; profilok &#233;s k&#246;z&#246;ss&#233;gi m&#233;dia hivatkoz&#225;sok;</li>
+<li>bemutatkoz&#225;s;</li>
+<li>digit&#225;lis al&#225;&#237;r&#225;s.</li>
+</ul>
+<p>Az ilyen szem&#233;lyes adatok k&#246;zz&#233;t&#233;tele kiz&#225;r&#243;lag megfelelő jogalap alapj&#225;n t&#246;rt&#233;nik.</p>
+<p>Az &#233;rintett k&#233;rheti adatainak m&#243;dos&#237;t&#225;s&#225;t vagy – amennyiben nincs m&#225;s jogalap az adat tov&#225;bbi kezel&#233;s&#233;re – elt&#225;vol&#237;t&#225;s&#225;t.</p>
+<h2>6. Technikai adatok</h2>
+<p>A weboldal haszn&#225;lata sor&#225;n a szerverek &#233;s az alkalmazott szolg&#225;ltat&#225;sok automatikusan kezelhetnek bizonyos technikai adatokat, p&#233;ld&#225;ul:</p>
+<ul>
+<li>IP-c&#237;m;</li>
+<li>b&#246;ng&#233;sző t&#237;pusa;</li>
+<li>oper&#225;ci&#243;s rendszer;</li>
+<li>l&#225;togat&#225;s időpontja;</li>
+<li>megl&#225;togatott oldalak;</li>
+<li>technikai napl&#243;adatok.</li>
+</ul>
+<p><strong>Az adatkezel&#233;s c&#233;lja:</strong> a weboldal megfelelő &#233;s biztons&#225;gos műk&#246;d&#233;s&#233;nek biztos&#237;t&#225;sa, hibakeres&#233;s &#233;s vissza&#233;l&#233;sek megelőz&#233;se.</p>
+<p><strong>Jogalap:</strong> az adatkezelő jogos &#233;rdeke.</p>
+<p>A technikai adatokat csak a sz&#252;ks&#233;ges ideig őrizz&#252;k meg.</p>
+<h2>7. S&#252;tik – Cookies</h2>
+<p>A holofyrn.eu a weboldal műk&#246;d&#233;s&#233;hez sz&#252;ks&#233;ges s&#252;tiket haszn&#225;lhat.</p>
+<p>A sz&#252;ks&#233;ges s&#252;tik t&#246;bbek k&#246;z&#246;tt a weboldal biztons&#225;gos műk&#246;d&#233;s&#233;t, a bejelentkez&#233;st vagy a felhaszn&#225;l&#243;i be&#225;ll&#237;t&#225;sok megőrz&#233;s&#233;t szolg&#225;lhatj&#225;k.</p>
+<p>Amennyiben a weboldal a műk&#246;d&#233;shez nem felt&#233;tlen&#252;l sz&#252;ks&#233;ges analitikai, statisztikai vagy marketing c&#233;l&#250; s&#252;tiket haszn&#225;l, azok alkalmaz&#225;sa csak a l&#225;togat&#243; megfelelő hozz&#225;j&#225;rul&#225;s&#225;t k&#246;vetően t&#246;rt&#233;nik.</p>
+<p>A felhaszn&#225;l&#243; a b&#246;ng&#233;szőj&#233;ben is m&#243;dos&#237;thatja vagy t&#246;r&#246;lheti a t&#225;rolt s&#252;tiket.</p>
+<h2>8. Adatfeldolgoz&#243;k &#233;s k&#252;lső szolg&#225;ltat&#243;k</h2>
+<p>A weboldal műk&#246;dtet&#233;se sor&#225;n k&#252;lső szolg&#225;ltat&#243;k ig&#233;nybev&#233;tel&#233;re ker&#252;lhet sor.</p>
+<p>Ilyen szolg&#225;ltat&#243;k lehetnek p&#233;ld&#225;ul:</p>
+<ul>
+<li>t&#225;rhelyszolg&#225;ltat&#243;;</li>
+<li>domain- &#233;s DNS-szolg&#225;ltat&#243;;</li>
+<li>adatb&#225;zis- vagy felhőszolg&#225;ltat&#243;;</li>
+<li>hiteles&#237;t&#233;si szolg&#225;ltat&#243;;</li>
+<li>e-mail-szolg&#225;ltat&#243;;</li>
+<li>webanalitikai szolg&#225;ltat&#243;.</li>
+</ul>
+<p>Az adatfeldolgoz&#243;k a r&#233;sz&#252;kre &#225;tadott szem&#233;lyes adatokat kiz&#225;r&#243;lag a szolg&#225;ltat&#225;s biztos&#237;t&#225;s&#225;hoz sz&#252;ks&#233;ges m&#233;rt&#233;kben kezelhetik.</p>
+<p><strong>Haszn&#225;lt szolg&#225;ltat&#243;k:</strong></p>
+<p><strong>[Szolg&#225;ltat&#243; neve]</strong> Szolg&#225;ltat&#225;s: [pl. t&#225;rhely / adatb&#225;zis / hiteles&#237;t&#233;s] Sz&#233;khely: [c&#237;m] Adatv&#233;delmi t&#225;j&#233;koztat&#243;: [link]</p>
+<p>Ezt a r&#233;szt minden, szem&#233;lyes adatok kezel&#233;s&#233;ben r&#233;szt vevő szolg&#225;ltat&#243;val ki kell eg&#233;sz&#237;teni.</p>
+<h2>9. Adattov&#225;bb&#237;t&#225;s harmadik orsz&#225;gba</h2>
+<p>Amennyiben valamely ig&#233;nybe vett szolg&#225;ltat&#243; az Eur&#243;pai Gazdas&#225;gi T&#233;rs&#233;gen k&#237;v&#252;l kezel szem&#233;lyes adatokat, az adattov&#225;bb&#237;t&#225;s kiz&#225;r&#243;lag a GDPR rendelkez&#233;seinek megfelelő garanci&#225;k mellett t&#246;rt&#233;nhet.</p>
+<p>Az alkalmazott szolg&#225;ltat&#243;kr&#243;l &#233;s az esetleges nemzetk&#246;zi adattov&#225;bb&#237;t&#225;sokr&#243;l jelen t&#225;j&#233;koztat&#243;ban adunk t&#225;j&#233;koztat&#225;st.</p>
+<h2>10. Az &#233;rintettek jogai</h2>
+<p>Az &#233;rintett jogosult:</p>
+<ul>
+<li>t&#225;j&#233;koztat&#225;st k&#233;rni szem&#233;lyes adatainak kezel&#233;s&#233;ről;</li>
+<li>hozz&#225;f&#233;r&#233;st k&#233;rni a r&#243;la kezelt szem&#233;lyes adatokhoz;</li>
+<li>k&#233;rni pontatlan adatainak helyesb&#237;t&#233;s&#233;t;</li>
+<li>k&#233;rni szem&#233;lyes adatainak t&#246;rl&#233;s&#233;t;</li>
+<li>k&#233;rni az adatkezel&#233;s korl&#225;toz&#225;s&#225;t;</li>
+<li>meghat&#225;rozott esetekben tiltakozni szem&#233;lyes adatainak kezel&#233;se ellen;</li>
+<li>meghat&#225;rozott esetekben k&#233;rni adatainak hordoz&#225;s&#225;t;</li>
+<li>hozz&#225;j&#225;rul&#225;son alapul&#243; adatkezel&#233;s eset&#233;n hozz&#225;j&#225;rul&#225;s&#225;t b&#225;rmikor visszavonni.</li>
+</ul>
+<p>A hozz&#225;j&#225;rul&#225;s visszavon&#225;sa nem &#233;rinti a visszavon&#225;s előtt v&#233;gzett adatkezel&#233;s jogszerűs&#233;g&#233;t.</p>
+<p>Az adatv&#233;delmi k&#233;relmeket az al&#225;bbi e-mail-c&#237;mre lehet elk&#252;ldeni:</p>
+<p><strong>[pl. privacy@holofyrn.eu vagy info@holofyrn.eu]</strong></p>
+<p>Az adatkezelő az &#233;rintetti k&#233;relmekre a GDPR &#225;ltal meghat&#225;rozott hat&#225;ridőn bel&#252;l v&#225;laszol.</p>
+<h2>11. Panasz beny&#250;jt&#225;sa</h2>
+<p>Amennyiben az &#233;rintett &#250;gy v&#233;li, hogy szem&#233;lyes adatainak kezel&#233;se s&#233;rti a vonatkoz&#243; adatv&#233;delmi jogszab&#225;lyokat, jogosult panaszt beny&#250;jtani a Nemzeti Adatv&#233;delmi &#233;s Inform&#225;ci&#243;szabads&#225;g Hat&#243;s&#225;ghoz.</p>
+<p><strong>Nemzeti Adatv&#233;delmi &#233;s Inform&#225;ci&#243;szabads&#225;g Hat&#243;s&#225;g (NAIH)</strong></p>
+<p>C&#237;m: 1055 Budapest, Falk Miksa utca 9–11. Levelez&#233;si c&#237;m: 1363 Budapest, Pf. 9. E-mail: ugyfelszolgalat@naih.hu Telefon: +36 (1) 391-1400</p>
+<p>Az &#233;rintett jogosult tov&#225;bb&#225; b&#237;r&#243;s&#225;ghoz fordulni.</p>
+<h2>12. Adatbiztons&#225;g</h2>
+<p>A HoloFyrn Esport megfelelő technikai &#233;s szervez&#233;si int&#233;zked&#233;seket alkalmaz annak &#233;rdek&#233;ben, hogy a szem&#233;lyes adatokat megv&#233;dje t&#246;bbek k&#246;z&#246;tt:</p>
+<ul>
+<li>jogosulatlan hozz&#225;f&#233;r&#233;stől;</li>
+<li>jogosulatlan m&#243;dos&#237;t&#225;st&#243;l;</li>
+<li>nyilv&#225;noss&#225;gra hozatalt&#243;l;</li>
+<li>t&#246;rl&#233;stől;</li>
+<li>s&#233;r&#252;l&#233;stől vagy elveszt&#233;stől.</li>
+</ul>
+<p>A szem&#233;lyes adatokhoz kiz&#225;r&#243;lag azok a szem&#233;lyek f&#233;rhetnek hozz&#225;, akik sz&#225;m&#225;ra ez feladataik ell&#225;t&#225;s&#225;hoz sz&#252;ks&#233;ges.</p>
+<h2>13. K&#252;lső hivatkoz&#225;sok</h2>
+<p>A holofyrn.eu tartalmazhat harmadik felek weboldalaira, k&#246;z&#246;ss&#233;gi m&#233;dia fel&#252;leteire vagy m&#225;s online szolg&#225;ltat&#225;sokra mutat&#243; hivatkoz&#225;sokat.</p>
+<p>Ezen k&#252;lső szolg&#225;ltat&#225;sok adatkezel&#233;s&#233;&#233;rt a HoloFyrn Esport nem felel. Az ilyen weboldalak haszn&#225;lata előtt javasolt megismerni az adott szolg&#225;ltat&#243; saj&#225;t adatkezel&#233;si t&#225;j&#233;koztat&#243;j&#225;t.</p>
+<h2>14. A t&#225;j&#233;koztat&#243; m&#243;dos&#237;t&#225;sa</h2>
+<p>A HoloFyrn Esport fenntartja a jogot jelen adatkezel&#233;si t&#225;j&#233;koztat&#243; m&#243;dos&#237;t&#225;s&#225;ra.</p>
+<p>A m&#243;dos&#237;tott t&#225;j&#233;koztat&#243; a holofyrn.eu weboldalon t&#246;rt&#233;nő k&#246;zz&#233;t&#233;tellel v&#225;lik el&#233;rhetőv&#233;.</p>
+<p><strong>Utols&#243; friss&#237;t&#233;s: 2026. okt&#243;ber</strong></p>
+      </article>
+    </section>
+  </template>
   <template data-route="/about/" data-title="About | HoloFyrn Esport">
     <div class="page-intro container">
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / ABOUT HOLOFYRN" data-hu="HOLOFYRN / A HOLOFYRNRŐL">HOLOFYRN
@@ -2953,6 +3169,9 @@
       </div>
     </section>
   </template>
+  <template data-route="/news-article/" data-title="News | HoloFyrn Esport">
+    <section class="section container page-section public-news-article" id="public-news-article" aria-live="polite"></section>
+  </template>
   <template data-route="/news/" data-title="News | HoloFyrn Esport">
     <div class="page-intro container">
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / NEWS" data-hu="HOLOFYRN / HÍREK">HOLOFYRN / NEWS</span>
@@ -3205,7 +3424,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff" data-hu="Stáb">Staff</span></a><span>/</span>Qex
       </div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="assets/QexStaff.png" alt="Qex"></div>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/QexStaff.png" alt="Qex"><img class="profile-signature" src="assets/qex-signature.png" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Qex</h1>
@@ -3309,7 +3528,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>BigV</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="assets/bigv.webp" alt="BigV"></div>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/BigVStaff.png" alt="BigV"><img class="profile-signature" src="assets/bigv-signature.png" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>BigV</h1>
@@ -3393,7 +3612,7 @@
           <p><span data-en="Social Media Manager" data-hu="Közösségimédia-menedzser">Social Media Manager</span> <span
               aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/bigv/"><span class="staff-number">07</span>
-          <span class="staff-avatar staff-avatar-bigv"><img src="assets/bigv.webp" alt="BigV" loading="lazy" decoding="async"></span>
+          <img class="staff-avatar staff-avatar-photo" src="assets/BigVStaff.png" alt="BigV" loading="lazy" decoding="async">
           <h2>BigV</h2>
           <p><span data-en="Secretary" data-hu="Titkár">Secretary</span> <span aria-hidden="true">↗</span></p>
         </a><a class="staff-card" href="#/staff/vortex/"><span class="staff-number">08</span>
@@ -4630,11 +4849,11 @@
         }
         const socials = hash === '/socials';
         const requested = socials ? '/' : hash || '/';
-        const page = pages.get(requested) || (requested.startsWith('/players/') ? pages.get('/players/') : pages.get('/'));
+        const page = pages.get(requested) || (requested.startsWith('/players/') ? pages.get('/players/') : requested.startsWith('/news/') ? pages.get('/news-article/') : pages.get('/'));
         main.replaceChildren(page.content.cloneNode(true));
         setupTicker();
         document.title = page.dataset.title;
-        const activeRoute = page.dataset.route.startsWith('/teams/') || page.dataset.route.startsWith('/players/') ? '/teams/' : page.dataset.route.startsWith('/staff/') ? '/staff/' : page.dataset.route;
+        const activeRoute = page.dataset.route.startsWith('/teams/') || page.dataset.route.startsWith('/players/') ? '/teams/' : page.dataset.route.startsWith('/staff/') ? '/staff/' : page.dataset.route === '/news-article/' ? '/news/' : page.dataset.route;
         document.querySelectorAll('.main-nav a').forEach(link => {
           const active = link.getAttribute('href') === '#' + activeRoute || (socials && link.getAttribute('href') === '#/socials');
           link.classList.toggle('active', active);
@@ -4672,7 +4891,7 @@
       route();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261006-no-pic-player"></script>
+  <script type="module" src="public-data-v3.js?v=20261008-news-black-logo-bg"></script>
 </body>
 
 </html>

@@ -17,7 +17,7 @@ const teamNames = {
   shadows: 'HoloFyrn Shadows',
   vanguards: 'Holofyrn Vanguards',
 };
-const portraits = {kenz: 'Kenz.webp', eggy: 'eggy.webp', interz: 'interz.webp'};
+const portraits = {kenz: 'Kenz-profile.webp', eggy: 'eggy.webp', interz: 'interz.webp'};
 let publicData = null;
 let loadError = false;
 
@@ -41,6 +41,7 @@ function playerLink(player) {
 
 function portrait(player) {
   const name = player.name.trim().toLowerCase();
+  if (name === 'kenz') return 'assets/Kenz-profile.webp';
   if (name === 'zemsta') return 'assets/zemsta-1200.webp';
   if (name === 'qex') return 'Ppic/Qex.webp';
   return player.team === 'main' && portraits[name] ? `assets/${portraits[name]}` : 'assets/NoPicPlayer.webp';
@@ -337,22 +338,39 @@ function render() {
 }
 
 function renderPublishedNews(route) {
+  if (route.startsWith('/news/') && route !== '/news/') {
+    renderPublicNewsArticle(route);
+    return;
+  }
   const grids = [...document.querySelectorAll(route === '/news/' ? '#main .news-grid' : '#news .news-grid')];
   const articles = publicData?.news || [];
   if (!articles.length) return;
   grids.forEach(grid => {
     const visible = route === '/news/' ? articles : articles.slice(0, 3);
     grid.replaceChildren(...visible.map(article => {
-      const card = document.createElement('button');
-      card.type = 'button'; card.className = 'news-card public-news-card';
+      const card = document.createElement('a');
+      card.href = `#${newsArticlePath(article)}`; card.className = 'news-card public-news-card';
       const visual = document.createElement('span'); visual.className = 'news-visual news-visual-lines';
+      if (typeof article.imageUrl === 'string' && /^(https:\/\/|\/assets\/)/i.test(article.imageUrl)) {
+        const image = document.createElement('img');
+        image.className = 'news-visual-artwork';
+        if (/Rllogo-960\.webp(?:[?#]|$)/i.test(article.imageUrl)) {
+          image.classList.add('news-visual-artwork-contained');
+          visual.classList.add('news-visual-has-full-logo');
+        }
+        image.src = article.imageUrl;
+        image.alt = '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        image.addEventListener('error', () => image.remove(), {once:true});
+        visual.append(image);
+      }
       const body = document.createElement('span'); body.className = 'news-body';
       const category = document.createElement('span'); category.className = 'pill'; category.textContent = article.category;
       const title = document.createElement('strong'); title.textContent = article.title;
       const summary = document.createElement('span'); summary.className = 'public-news-summary'; summary.textContent = article.summary;
       const action = document.createElement('span'); action.className = 'card-action'; action.textContent = document.documentElement.lang === 'hu' ? 'Olvasd el ↗' : 'Read article ↗';
       body.append(category, title, summary, action); card.append(visual, body);
-      card.addEventListener('click', () => showPublicArticle(article));
       return card;
     }));
   });
@@ -370,6 +388,49 @@ function showPublicArticle(article) {
   dialog.querySelector('.page-sub').textContent = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : '';
   dialog.querySelector('.public-news-body').textContent = article.body;
   if (!dialog.open) dialog.showModal();
+}
+
+function newsArticlePath(article) {
+  const slug = String(article.title || 'news').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'news';
+  const id = String(article.id || slug).replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 100);
+  return `/news/${slug}-${id}/`;
+}
+
+function renderPublicNewsArticle(route) {
+  const article = (publicData?.news || []).find(item => newsArticlePath(item) === route);
+  const page = document.getElementById('public-news-article');
+  if (!page) return;
+  page.replaceChildren();
+  if (!article) {
+    const back = document.createElement('a'); back.className = 'public-news-back'; back.href = '#/news/';
+    back.textContent = document.documentElement.lang === 'hu' ? '← Vissza a hírekhez' : '← Back to news';
+    const message = document.createElement('p'); message.textContent = document.documentElement.lang === 'hu' ? 'Ez a hír nem található.' : 'This article could not be found.';
+    page.append(back, message);
+    return;
+  }
+  document.title = `${article.title} | HoloFyrn Esport`;
+  const back = document.createElement('a'); back.className = 'public-news-back'; back.href = '#/news/';
+  back.textContent = document.documentElement.lang === 'hu' ? '← Vissza a hírekhez' : '← Back to news';
+  const category = document.createElement('div'); category.className = 'eyebrow'; category.textContent = article.category || 'NEWS';
+  const title = document.createElement('h1'); title.textContent = article.title;
+  const summary = document.createElement('p'); summary.className = 'article-summary'; summary.textContent = article.summary;
+  page.append(back, category, title, summary);
+  if (article.imageUrl && /^(https:\/\/|\/assets\/)/i.test(article.imageUrl)) {
+    const image = document.createElement('img'); image.className = 'public-news-article-image';
+    if (/Rllogo-960\.webp(?:[?#]|$)/i.test(article.imageUrl)) image.classList.add('public-news-article-image-contain');
+    image.src = article.imageUrl; image.alt = article.title; image.decoding = 'async';
+    image.addEventListener('error', () => image.remove(), {once:true}); page.append(image);
+  }
+  if (article.publishedAt) {
+    const date = document.createElement('p'); date.className = 'page-sub';
+    date.textContent = new Date(article.publishedAt).toLocaleDateString(document.documentElement.lang === 'hu' ? 'hu-HU' : 'en-GB'); page.append(date);
+  }
+  const copy = document.createElement('div'); copy.className = 'public-news-article-copy'; copy.textContent = article.body; page.append(copy);
+  if (article.ctaLabel && article.ctaUrl) {
+    const link = document.createElement('a'); link.className = 'button public-news-cta'; link.href = article.ctaUrl; link.textContent = article.ctaLabel;
+    if (/^https:\/\//i.test(article.ctaUrl)) { link.target = '_blank'; link.rel = 'noopener noreferrer'; }
+    page.append(link);
+  }
 }
 
 document.addEventListener('holofyrn:route', render);

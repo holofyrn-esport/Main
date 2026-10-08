@@ -58,6 +58,8 @@ export function publicHoloFyrnData(data = {}) {
   const news = rows(data.managerV8?.news).filter(item => item.status === 'published' && str(item.title) && str(item.summary)).map(item => ({
     id:str(item.id).slice(0,100), title:str(item.title).slice(0,140), category:str(item.category || 'NEWS').slice(0,40),
     summary:str(item.summary).slice(0,280), body:str(item.body).slice(0,8000), imageUrl:/^(https:\/\/|\/assets\/)/i.test(str(item.imageUrl)) ? str(item.imageUrl).slice(0,2048) : '', publishedAt:str(item.publishedAt).slice(0,32),
+    ctaLabel:str(item.ctaLabel || (item.id === 'site-rocket-league-teams' ? 'Explore Teams' : '')).slice(0,60),
+    ctaUrl:/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(str(item.ctaUrl || (item.id === 'site-rocket-league-teams' ? '#/teams/' : ''))) || /^https:\/\/[^\s]+$/i.test(str(item.ctaUrl)) ? str(item.ctaUrl || '#/teams/').slice(0,2048) : '',
   }));
   return {players,results,upcomingMatches,news};
 }
