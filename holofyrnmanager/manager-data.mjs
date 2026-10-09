@@ -15,7 +15,7 @@ export const defaultStaff = [
   {id:'qex',name:'Qex',role:'General Vice-President',imageUrl:'assets/QexStaff.png',profileUrl:'#/staff/qex/'},
   {id:'metalhub',name:'Metalhub',role:'Event Manager and Organizer',imageUrl:'assets/MetalStaff.png',profileUrl:'#/staff/metalhub/'},
   {id:'bensai',name:'Bensai',role:'Financial Manager',imageUrl:'assets/BensaiStaff.png',profileUrl:'#/staff/bensai/'},
-  {id:'tobba',name:'Tobba',role:'Social Media Manager',imageUrl:'',profileUrl:'#/staff/tobba/'},
+  {id:'tobba',name:'Tobba',role:'Social Media Manager',imageUrl:'assets/TobaStaff.png',profileUrl:'#/staff/tobba/'},
   {id:'bigv',name:'BigV',role:'Secretary',imageUrl:'assets/BigVStaff.png',profileUrl:'#/staff/bigv/'},
   {id:'vortex',name:'Vortex',role:'Head of Design',imageUrl:'assets/VortexStaff.png',profileUrl:'#/staff/vortex/'},
 ];
