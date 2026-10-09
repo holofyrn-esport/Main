@@ -713,14 +713,28 @@
     .public-news-dialog form { display:flex; justify-content:flex-end; }
     .public-news-dialog h2 { font-size:clamp(25px,5vw,38px); margin:12px 0; }
     .public-news-body { white-space:pre-wrap; line-height:1.75; color:#d4d9e1; }
-    .public-news-article { max-width:900px; margin:0 auto; }
+    .public-news-article { max-width:1180px; margin:0 auto; }
+    .public-news-header { max-width:900px; margin:0 auto 42px; text-align:center; }
+    .public-news-header .eyebrow { justify-content:center; }
     .public-news-article h1 { margin:14px 0; font:900 clamp(2.5rem,6vw,5rem)/.98 'Barlow Condensed','Arial Narrow',Arial,sans-serif; }
-    .public-news-article .article-summary { color:#c6b9b9; font-size:clamp(1rem,2vw,1.25rem); line-height:1.65; }
-    .public-news-article-image { display:block; width:100%; max-height:540px; object-fit:cover; margin:28px 0; border:1px solid #3e3030; }
-    .public-news-article-image-contain { width:min(100%,600px); max-height:400px; margin-inline:auto; object-fit:contain; background:#000; padding:12px; box-sizing:border-box; }
-    .public-news-article-copy { white-space:pre-wrap; color:#d4d9e1; font-size:16px; line-height:1.85; }
+    .public-news-article .article-summary { max-width:760px; margin:0 auto; color:#c6b9b9; font-size:clamp(1rem,2vw,1.25rem); line-height:1.65; }
+    .article-date { margin:14px 0 0; color:#9ba6b4; font-size:13px; }
+    .public-news-layout { display:grid; grid-template-columns:minmax(0, .9fr) minmax(0, 1.1fr); gap:clamp(24px,4vw,56px); align-items:start; }
+    .public-news-layout:not(.has-image) { grid-template-columns:minmax(0,1fr); max-width:900px; margin-inline:auto; }
+    .public-news-visual { min-width:0; }
+    .public-news-article-image { display:block; width:100%; max-height:680px; aspect-ratio:4 / 3; object-fit:cover; margin:0; border:1px solid #3e3030; }
+    .public-news-article-image-contain { width:100%; max-height:500px; margin:0; object-fit:contain; background:#000; padding:12px; box-sizing:border-box; }
+    .public-news-content { min-width:0; }
+    .public-news-article-copy { white-space:pre-wrap; color:#d4d9e1; font-size:16px; line-height:1.85; overflow-wrap:anywhere; }
     .public-news-back { display:inline-block; margin-bottom:24px; color:#f1d6d6; font-weight:700; }
     .public-news-cta { display:inline-block; margin-top:24px; }
+
+    @media (max-width: 760px) {
+      .public-news-header { margin-bottom:28px; }
+      .public-news-layout { grid-template-columns:minmax(0,1fr); gap:22px; }
+      .public-news-visual { position:static; }
+      .public-news-article-image { max-height:480px; aspect-ratio:16 / 10; }
+    }
 
     .news-card:hover,
     .team-card:hover,
@@ -2672,7 +2686,7 @@
         Esports</span>
     </div>
   </footer>
-  <template data-route="/impresszum/" data-title="Impresszum | HoloFyrn Esport">
+  <template data-route="/impresszum/" data-title="Impresszum | HoloFyrn Esports">
     <div class="page-intro container">
       <div class="eyebrow"><i></i><span>HOLOFYRN / JOGI INFORMÁCIÓK</span></div>
       <h1>Impresszum</h1>
@@ -2681,40 +2695,39 @@
     <section class="section container page-section">
       <div class="imprint-content">
         <section><h2>Weboldal adatai</h2>
-          <p><strong>Weboldal neve:</strong> HoloFyrn Esport<br>
-            <strong>Weboldal címe:</strong> <a href="https://holofyrn.eu">https://holofyrn.eu</a></p>
+          <p><strong>Weboldal neve:</strong> HoloFyrn Esports<br>
+            <strong>Weboldal címe:</strong> <a href="https://holofyrn.eu/">https://holofyrn.eu/</a></p>
         </section>
         <section><h2>Üzemeltető adatai</h2>
-          <p><strong>Üzemeltető neve:</strong> HoloFyrn Esport<br>
-            <strong>Székhely / levelezési cím:</strong> [cím]<br>
-            <strong>Nyilvántartási szám:</strong> [nyilvántartási szám – ha van]<br>
-            <strong>Adószám:</strong> [adószám – ha van]</p>
-          <p><strong>Kapcsolattartó:</strong> [név / tisztség]<br>
+          <p><strong>Üzemeltető neve:</strong> HoloFyrn Esports<br>
+            <strong>Székhely / levelezési cím:</strong> 4251 Hajdúsámson, Szatmári u 60.<br>
+            <strong>Adószám:</strong> [MAJD LESZ?]</p>
+          <p><strong>Kapcsolattartó:</strong> Korhán Eliot / elnök<br>
             <strong>E-mail:</strong> <a href="mailto:info@holofyrn.eu">info@holofyrn.eu</a></p>
         </section>
         <section><h2>Tárhelyszolgáltató</h2>
-          <p><strong>Szolgáltató neve:</strong> [tárhelyszolgáltató neve]<br>
-            <strong>Székhely:</strong> [szolgáltató címe]<br>
-            <strong>Weboldal:</strong> [szolgáltató weboldala]<br>
-            <strong>E-mail:</strong> [szolgáltató kapcsolattartási e-mail-címe]</p>
+          <p><strong>Szolgáltató neve:</strong> Rackhost Zrt.<br>
+            <strong>Székhely:</strong> 6722 Szeged, Tisza Lajos körút 41.<br>
+            <strong>Weboldal:</strong> <a href="https://rackhost.hu/">rackhost.hu</a><br>
+            <strong>E-mail:</strong> <a href="mailto:info@rackhost.hu">info@rackhost.hu</a></p>
         </section>
         <section><h2>Domain</h2>
-          <p>A <strong>holofyrn.eu</strong> domain a HoloFyrn Esport hivatalos weboldalának elérhetőségét biztosítja.</p>
+          <p>A holofyrn.eu domain a HoloFyrn Esports hivatalos weboldalának elérhetőségét biztosítja.</p>
         </section>
         <section><h2>Szerzői jog</h2>
-          <p>A holofyrn.eu weboldalon megjelenő saját szövegek, grafikák, arculati elemek, logók, képek és egyéb tartalmak – eltérő jelzés hiányában – a HoloFyrn Esport tulajdonát képezik, illetve azok felhasználása a jogosult engedélyével történik.</p>
+          <p>A holofyrn.eu weboldalon megjelenő saját szövegek, grafikák, arculati elemek, logók, képek és egyéb tartalmak, eltérő jelzés hiányában, a HoloFyrn Esports tulajdonát képezik, illetve azok felhasználása a jogosult engedélyével történik.</p>
           <p>A weboldal tartalmának egészben vagy részben történő másolása, módosítása, terjesztése vagy kereskedelmi célú felhasználása a jogosult előzetes engedélye nélkül nem megengedett.</p>
           <p>A weboldalon megjelenő külső márkanevek, játéknevek, logók és egyéb védjegyek azok mindenkori jogosultjainak tulajdonát képezik.</p>
         </section>
         <section><h2>Felelősség</h2>
-          <p>A HoloFyrn Esport törekszik arra, hogy a weboldalon található információk pontosak és naprakészek legyenek, azonban az esetlegesen előforduló pontatlanságokért vagy elavult információkért nem vállal felelősséget.</p>
+          <p>A HoloFyrn Esports törekszik arra, hogy a weboldalon található információk pontosak és naprakészek legyenek, azonban az esetlegesen előforduló pontatlanságokért vagy elavult információkért nem vállal felelősséget.</p>
           <p>A weboldalon található külső hivatkozások tartalmáért és működéséért azok üzemeltetői felelnek.</p>
         </section>
         <section><h2>Kapcsolat</h2>
           <p>A weboldallal kapcsolatos kérdésekkel, észrevételekkel vagy jogi megkeresésekkel az alábbi elérhetőségen lehet kapcsolatba lépni velünk:</p>
           <p><strong>E-mail:</strong> <a href="mailto:info@holofyrn.eu">info@holofyrn.eu</a></p>
         </section>
-        <p class="imprint-updated"><strong>Utolsó frissítés:</strong> 2026. október</p>
+        <p class="imprint-updated"><strong>Utolsó frissítés:</strong> 2026. október 7.</p>
       </div>
     </section>
   </template>
@@ -4943,7 +4956,7 @@
       route();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261008-twitch-matches"></script>
+  <script type="module" src="public-data-v3.js?v=20261009-news-layout"></script>
 </body>
 
 </html>

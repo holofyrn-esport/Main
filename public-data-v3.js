@@ -532,28 +532,37 @@ function renderPublicNewsArticle(route) {
   document.title = `${article.title} | HoloFyrn Esport`;
   const back = document.createElement('a'); back.className = 'public-news-back'; back.href = '#/news/';
   back.textContent = document.documentElement.lang === 'hu' ? '← Vissza a hírekhez' : '← Back to news';
+
+  const header = document.createElement('header'); header.className = 'public-news-header';
   const category = document.createElement('div'); category.className = 'eyebrow'; category.textContent = article.category || 'NEWS';
   const title = document.createElement('h1'); title.textContent = article.title;
   const summary = document.createElement('p'); summary.className = 'article-summary'; summary.textContent = article.summary;
-  page.append(back, category, title, summary);
+  header.append(category, title, summary);
+  if (article.publishedAt) {
+    const date = document.createElement('p'); date.className = 'article-date';
+    date.textContent = new Date(article.publishedAt).toLocaleDateString(document.documentElement.lang === 'hu' ? 'hu-HU' : 'en-GB');
+    header.append(date);
+  }
+
+  const layout = document.createElement('div'); layout.className = 'public-news-layout';
   if (article.imageUrl && /^(https:\/\/|\/assets\/)/i.test(article.imageUrl)) {
+    layout.classList.add('has-image');
+    const visual = document.createElement('div'); visual.className = 'public-news-visual';
     const image = document.createElement('img'); image.className = 'public-news-article-image';
     if (/Rllogo-960\.webp(?:[?#]|$)/i.test(article.imageUrl)) image.classList.add('public-news-article-image-contain');
     image.src = article.imageUrl; image.alt = article.title; image.decoding = 'async';
-    image.addEventListener('error', () => image.remove(), {once:true}); page.append(image);
+    image.addEventListener('error', () => { visual.remove(); layout.classList.remove('has-image'); }, {once:true}); visual.append(image); layout.append(visual);
   }
-  if (article.publishedAt) {
-    const date = document.createElement('p'); date.className = 'page-sub';
-    date.textContent = new Date(article.publishedAt).toLocaleDateString(document.documentElement.lang === 'hu' ? 'hu-HU' : 'en-GB'); page.append(date);
-  }
-  const copy = document.createElement('div'); copy.className = 'public-news-article-copy'; copy.textContent = article.body; page.append(copy);
+  const content = document.createElement('div'); content.className = 'public-news-content';
+  const copy = document.createElement('div'); copy.className = 'public-news-article-copy'; copy.textContent = article.body; content.append(copy);
   if (article.ctaLabel && article.ctaUrl) {
     const link = document.createElement('a'); link.className = 'button public-news-cta'; link.href = article.ctaUrl; link.textContent = article.ctaLabel;
     if (/^https:\/\//i.test(article.ctaUrl)) { link.target = '_blank'; link.rel = 'noopener noreferrer'; }
-    page.append(link);
+    content.append(link);
   }
+  layout.append(content);
+  page.append(back, header, layout);
 }
-
 document.addEventListener('holofyrn:route', render);
 document.querySelector('.language-toggle')?.addEventListener('click', () => {
   if ((decodeURIComponent(location.hash.slice(1)) || '/') === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);

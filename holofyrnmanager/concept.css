@@ -349,3 +349,31 @@ body::before,body::after{display:none!important}
 @media(max-width:520px){.goal-card{gap:10px;padding:13px}.goal-ring{width:48px;height:48px;flex-basis:48px}.goal-empty{align-items:flex-start;flex-wrap:wrap}.goal-empty button{margin-left:58px}}
 .team-option{justify-content:flex-start}.team-option-logo{width:34px;height:34px;flex:0 0 34px;object-fit:contain;padding:3px;border-radius:8px;background:rgba(255,255,255,.08)}.team-option-copy{min-width:0;flex:1}
 .staff-manager-card{display:flex;flex-direction:column;justify-content:space-between;gap:18px;min-width:0}.staff-manager-card .roster-identity-text>b{display:block;overflow-wrap:anywhere}.staff-manager-card .roster-avatar{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border-radius:50%}.staff-initials{display:grid;place-items:center;font-weight:900;background:var(--panel3);color:#fff}
+
+/* Responsive safeguards for narrow phones and long dynamic content. */
+html{ -webkit-text-size-adjust:100%;text-size-adjust:100%; }
+body,.app-shell,.main,.content,.topbar,.top-actions{min-width:0;max-width:100%}
+body{overflow-x:hidden}
+.app-shell>* ,.content>* ,.grid>*,.form-grid>*,.form-grid.three>*,.form-grid.four>*,.topbar>*{min-width:0}
+.page-title,.page-sub,.card,.metric,.fixture-card,.league-card,.mailbox-reader,.mailbox-list{overflow-wrap:anywhere}
+@media(max-width:760px){
+  .grid-2,.grid-bottom,.mailbox,.predictor-layout,.standings-config{grid-template-columns:minmax(0,1fr)}
+  .mailbox{min-height:0}
+  .mailbox-list,.mailbox-reader{min-width:0}
+}
+@media(max-width:540px){
+  .content{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));padding-bottom:max(28px,env(safe-area-inset-bottom))}
+  .page-head,.section-head{align-items:stretch;flex-wrap:wrap}
+  .page-head .page-head-actions,.page-head .card-actions{width:100%;flex-wrap:wrap}
+  .page-head .page-head-actions>.btn,.page-head .card-actions>.btn{flex:1 1 auto}
+  .top-actions>*{min-width:0;max-width:100%}
+  .modal-backdrop{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .public-news-dialog{width:calc(100% - 20px);max-height:calc(100dvh - 20px);padding:20px}
+  .login-screen{min-height:100svh}
+}
+@media(max-width:360px){
+  .stats-grid,.kpis,.goal-summary{grid-template-columns:minmax(0,1fr)}
+  .stats-grid .fixture-metric,.stats-grid .metric:nth-child(2){grid-column:auto}
+  .page-title{overflow-wrap:anywhere}
+  .user-chip{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+}
