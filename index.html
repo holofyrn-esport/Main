@@ -355,7 +355,8 @@
     .button-small {
       font-size: 14px;
       padding: 12px 18px;
-      min-height: 42px;
+      width: 42px;
+      height: 42px;
       white-space: nowrap;
       gap: 0
     }
@@ -719,12 +720,12 @@
     .public-news-article h1 { margin:14px 0; font:900 clamp(2.5rem,6vw,5rem)/.98 'Barlow Condensed','Arial Narrow',Arial,sans-serif; }
     .public-news-article .article-summary { max-width:760px; margin:0 auto; color:#c6b9b9; font-size:clamp(1rem,2vw,1.25rem); line-height:1.65; }
     .article-date { margin:14px 0 0; color:#9ba6b4; font-size:13px; }
-    .public-news-layout { display:grid; grid-template-columns:minmax(0, .9fr) minmax(0, 1.1fr); gap:clamp(24px,4vw,56px); align-items:start; }
+    .public-news-layout { display:grid; grid-template-columns:minmax(0, .9fr) minmax(0, 1.1fr); gap:clamp(24px,4vw,56px); align-items:center; }
     .public-news-layout:not(.has-image) { grid-template-columns:minmax(0,1fr); max-width:900px; margin-inline:auto; }
     .public-news-visual { min-width:0; }
-    .public-news-article-image { display:block; width:100%; max-height:680px; aspect-ratio:4 / 3; object-fit:cover; margin:0; border:1px solid #3e3030; }
-    .public-news-article-image-contain { width:100%; max-height:500px; margin:0; object-fit:contain; background:#000; padding:12px; box-sizing:border-box; }
-    .public-news-content { min-width:0; }
+    .public-news-article-image { display:block; width:100%; height:auto; max-height:none; aspect-ratio:auto; object-fit:contain; margin:0; border:1px solid #514446; border-radius:10px; }
+    .public-news-article-image-contain { width:100%; height:auto; max-height:none; object-fit:contain; background:transparent; padding:0; box-sizing:border-box; }
+    .public-news-content { min-width:0; align-self:center; }
     .public-news-article-copy { white-space:pre-wrap; color:#d4d9e1; font-size:16px; line-height:1.85; overflow-wrap:anywhere; }
     .public-news-back { display:inline-block; margin-bottom:24px; color:#f1d6d6; font-weight:700; }
     .public-news-cta { display:inline-block; margin-top:24px; }
@@ -733,7 +734,7 @@
       .public-news-header { margin-bottom:28px; }
       .public-news-layout { grid-template-columns:minmax(0,1fr); gap:22px; }
       .public-news-visual { position:static; }
-      .public-news-article-image { max-height:480px; aspect-ratio:16 / 10; }
+      .public-news-article-image { max-height:none; aspect-ratio:auto; }
     }
 
     .news-card:hover,
@@ -2391,9 +2392,8 @@
             data-hu="Stáb">Staff</span></a><a href="#/about/" class=""><span data-en="About"
             data-hu="Rólunk">About</span></a><a href="#/socials" class=""><span data-en="Socials"
             data-hu="Közösség">Socials</span></a></nav>
-      <div class="header-actions"><button class="language-toggle" type="button" aria-label="Switch language"
-          title="Switch language"><span class="lang-active">EN</span><span
-            class="lang-divider">/</span><span>HU</span></button><a href="#/join/" class="button button-small header-join-button"><span
+      <div class="header-actions"><div class="language-picker"><button class="language-toggle" type="button" aria-label="Language: English"
+          aria-haspopup="menu" aria-expanded="false" aria-controls="language-menu"><svg class="language-current-flag flag-en" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="flag-en-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#flag-en-clip)"><path fill="#173568" d="M0 0h28v28H0z"></path><path stroke="#fff" stroke-width="6" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#c8102e" stroke-width="2.4" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#fff" stroke-width="10" d="M14 0v28M0 14h28"></path><path stroke="#c8102e" stroke-width="5.5" d="M14 0v28M0 14h28"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><svg class="language-current-flag flag-hu" viewBox="0 0 28 28" aria-hidden="true" hidden><defs><clipPath id="flag-hu-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#flag-hu-clip)"><path fill="#fff" d="M0 0h28v28H0z"></path><path fill="#ce2939" d="M0 0h28v9.34H0z"></path><path fill="#477050" d="M0 18.66h28V28H0z"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><span class="language-current-label">English</span><svg class="language-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button><div class="language-menu" id="language-menu" role="menu" hidden><button type="button" class="language-option" role="menuitemradio" data-language="hu" aria-checked="false"><svg class="language-option-flag" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="menu-flag-hu-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#menu-flag-hu-clip)"><path fill="#fff" d="M0 0h28v28H0z"></path><path fill="#ce2939" d="M0 0h28v9.34H0z"></path><path fill="#477050" d="M0 18.66h28V28H0z"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><span>Magyar</span></button><button type="button" class="language-option" role="menuitemradio" data-language="en" aria-checked="true"><svg class="language-option-flag" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="menu-flag-en-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#menu-flag-en-clip)"><path fill="#173568" d="M0 0h28v28H0z"></path><path stroke="#fff" stroke-width="6" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#c8102e" stroke-width="2.4" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#fff" stroke-width="10" d="M14 0v28M0 14h28"></path><path stroke="#c8102e" stroke-width="5.5" d="M14 0v28M0 14h28"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><span>English</span></button></div></div><a href="#/join/" class="button button-small header-join-button"><span
             data-en="Join HoloFyrn" data-hu="Csatlakozz">Join HoloFyrn</span></a></div>
     </div>
   </header>
@@ -2667,7 +2667,7 @@
     </div>
   </main>
   <footer class="footer">
-    <div class="container footer-top"><a class="brand" href="#/"><img src="assets/brand-logo-64.webp" srcset="assets/brand-logo-64.webp 64w, assets/brand-logo-128.webp 128w" sizes="(max-width: 380px) 38px, (max-width: 700px) 44px, 64px" width="64" height="64" alt=""><span
+    <div class="container footer-top"><a class="brand" href="#/"><img src="assets/HoloSmall.png" width="1254" height="1254" alt=""><span
           class="brand-type">HOLOFYRN<small>ESPORTS</small></span></a>
             <nav class="footer-socials" aria-label="HoloFyrn social media">
         <a href="https://discord.gg/3xE5bmsMJ" target="_blank" rel="noopener noreferrer" aria-label="HoloFyrn on Discord" title="Discord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.7 5.3A18.7 18.7 0 0 0 15.1 4l-.6 1.2a17 17 0 0 0-5 0L8.9 4a18.7 18.7 0 0 0-4.6 1.3C1.4 9.6.6 13.8 1 18a18.8 18.8 0 0 0 5.7 2.9l1.2-2a12 12 0 0 1-1.9-.9l.5-.4a13.4 13.4 0 0 0 11 0l.5.4a12 12 0 0 1-1.9.9l1.2 2A18.8 18.8 0 0 0 23 18c.5-4.9-.8-9-3.3-12.7ZM8.8 14.8c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Zm6.4 0c-1.1 0-2-1-2-2.2s.9-2.2 2-2.2 2 1 2 2.2-.9 2.2-2 2.2Z"/></svg></a>
@@ -3506,7 +3506,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Staff"
             data-hu="Stáb">Staff</span></a><span>/</span>Metalhub</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo"><img src="assets/MetalStaff.png" alt="Metalhub, HoloFyrn Esport staff member" loading="lazy" decoding="async"></div>
+        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/MetalStaff.png" alt="Metalhub, HoloFyrn Esport staff member" loading="lazy" decoding="async"><img class="profile-signature" src="assets/MetalSign.png" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Metalhub</h1>
@@ -4855,6 +4855,480 @@
         animation: none;
       }
     }
+
+    /* Site-wide responsive refinements */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      width: 100%;
+      overflow-x: clip
+    }
+
+    img,
+    video,
+    canvas,
+    iframe {
+      max-width: 100%
+    }
+
+    img {
+      height: auto
+    }
+
+    #main,
+    #main > *,
+    #main :is(section, article, div, a, figure) {
+      min-width: 0
+    }
+
+    #main :is(h1, h2, h3, h4, p, a, strong, small, span) {
+      overflow-wrap: anywhere
+    }
+
+    #main :is(h1, h2, h3) {
+      text-wrap: balance
+    }
+
+    #main :is(button, .button, .text-link, .social-card, .sponsor-links a) {
+      max-width: 100%;
+      min-height: 44px
+    }
+
+    #main :is(input, select, textarea) {
+      max-width: 100%;
+      min-width: 0
+    }
+
+    #main table {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch
+    }
+
+    @media (min-width: 1600px) {
+      .container,
+      .header-inner {
+        width: min(calc(100% - 96px), 1500px)
+      }
+
+      .section {
+        padding-block: clamp(90px, 8vw, 140px)
+      }
+    }
+
+    @media (max-width: 900px) {
+      .about-layout,
+      .partners-layout,
+      .sponsor-feature,
+      .partner-feature,
+      .about-story {
+        grid-template-columns: minmax(0, 1fr)
+      }
+
+      .about-layout,
+      .partners-layout {
+        gap: clamp(24px, 5vw, 42px)
+      }
+
+      .profile-grid {
+        grid-template-columns: minmax(0, 1fr)
+      }
+
+      .profile-photo {
+        height: clamp(320px, 58vw, 520px)
+      }
+
+      .profile-copy {
+        padding-top: 0
+      }
+
+      .sponsor-mark {
+        min-height: clamp(240px, 42vw, 340px)
+      }
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        width: calc(100% - 36px)
+      }
+
+      .section {
+        padding-block: clamp(48px, 12vw, 68px)
+      }
+
+      .page-intro {
+        padding-top: clamp(54px, 13vw, 76px);
+        padding-bottom: 30px
+      }
+
+      .hero {
+        min-height: max(590px, calc(100svh - 70px))
+      }
+
+      .hero-content {
+        padding-top: clamp(76px, 15vh, 112px)
+      }
+
+      .hero h1 {
+        max-width: 100%;
+        font-size: clamp(3.1rem, 14vw, 5.5rem);
+        line-height: .9
+      }
+
+      .hero-buttons {
+        width: min(100%, 360px);
+        align-items: stretch
+      }
+
+      .hero-buttons .button {
+        width: 100%;
+        min-width: 0
+      }
+
+      .match-layout {
+        flex-wrap: wrap;
+        gap: 12px
+      }
+
+      .match-layout > div:first-child {
+        width: auto;
+        flex: 1 1 150px
+      }
+
+      .match-symbols {
+        flex: 0 0 auto
+      }
+
+      .match-end {
+        display: none !important
+      }
+
+      .news-grid,
+      .division-grid,
+      .team-grid,
+      .players-grid,
+      .two-column,
+      .social-grid {
+        grid-template-columns: minmax(0, 1fr)
+      }
+
+      .news-card-feature {
+        grid-column: auto
+      }
+
+      .news-visual,
+      .news-card-feature .news-visual {
+        height: clamp(190px, 58vw, 280px)
+      }
+
+      .division-card {
+        height: clamp(270px, 82vw, 350px)
+      }
+
+      .division-card h3 {
+        font-size: clamp(3rem, 13vw, 4.6rem)
+      }
+
+      .team-card {
+        min-height: clamp(270px, 78vw, 315px);
+        padding: 18px
+      }
+
+      .team-card-center {
+        height: clamp(175px, 52vw, 220px)
+      }
+
+      .team-card-center img {
+        max-width: 100%
+      }
+
+      .player-image {
+        height: clamp(290px, 92vw, 420px)
+      }
+
+      .staff-preview {
+        grid-template-columns: minmax(0, 1fr)
+      }
+
+      .staff-preview a {
+        min-height: clamp(200px, 62vw, 260px)
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .footer-top,
+      .footer-bottom {
+        gap: 22px
+      }
+
+      .footer-socials,
+      .footer-bottom nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px
+      }
+
+      .footer-socials a {
+        width: 44px;
+        height: 44px
+      }
+    }
+
+    @media (max-width: 420px) {
+      .container {
+        width: calc(100% - 28px)
+      }
+
+      .header-inner {
+        width: calc(100% - 24px)
+      }
+
+      .site-header {
+        min-height: 64px
+      }
+
+      .brand {
+        gap: 5px
+      }
+
+      .brand img {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px
+      }
+
+      .brand-type {
+        font-size: 13px
+      }
+
+      .brand-type small {
+        font-size: 7px
+      }
+
+      .header-inner {
+        gap: 5px
+      }
+
+      .header-actions {
+        gap: 3px
+      }
+
+      .language-toggle {
+        font-size: 11px
+      }
+
+      .menu-toggle {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px
+      }
+
+      .hero h1 {
+        font-size: clamp(2.8rem, 13.5vw, 3.6rem)
+      }
+
+      .stats div:last-child {
+        grid-column: 1 / -1
+      }
+
+      .profile-photo {
+        height: clamp(280px, 92vw, 390px)
+      }
+
+      .staff-card {
+        min-height: 260px
+      }
+
+      .partner-feature,
+      .info-panel {
+        padding: 20px
+      }
+    }
+
+    @media (min-width: 1281px) {
+      .header-inner {
+        position: relative;
+        justify-content: space-between;
+        gap: 18px
+      }
+
+      .main-nav {
+        position: absolute;
+        left: 50%;
+        margin-left: 0;
+        transform: translateX(-50%);
+        gap: clamp(14px, 1.5vw, 25px)
+      }
+
+      .header-actions {
+        margin-left: 0
+      }
+    }
+
+    .language-picker {
+      position: relative;
+      flex: 0 0 auto
+    }
+
+    .language-toggle {
+      width: 30px;
+      height: 30px;
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid #514446;
+      border-radius: 999px;
+      background: #141112;
+      color: #f4eded;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease
+    }
+
+    .language-toggle:hover,
+    .language-toggle[aria-expanded="true"] {
+      border-color: #a24a51;
+      background: #211719
+    }
+
+    .language-toggle:focus-visible,
+    .language-option:focus-visible {
+      outline: 2px solid #ef5c68;
+      outline-offset: 3px
+    }
+
+    .language-current-flag,
+    .language-option-flag {
+      display: block;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px
+    }
+
+    .language-toggle .language-current-flag[hidden] { display: none }
+    .language-toggle { overflow: hidden }
+    .language-current-label,
+    .language-chevron { display: none }
+
+    .language-menu {
+      position: absolute;
+      z-index: 100;
+      top: calc(100% + 9px);
+      right: 0;
+      width: 150px;
+      padding: 6px;
+      border: 1px solid #514446;
+      border-radius: 13px;
+      background: #111;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, .55)
+    }
+
+    .language-menu[hidden] {
+      display: none
+    }
+
+    .language-option {
+      width: 100%;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #d7cece;
+      font: inherit;
+      text-align: left;
+      cursor: pointer
+    }
+
+    .language-option:hover,
+    .language-option[aria-checked="true"] {
+      background: #281a1c;
+      color: #fff
+    }
+
+    @media (max-width: 1280px) {
+      .header-inner {
+        display: flex;
+        position: relative;
+        justify-content: flex-start;
+        gap: 10px
+      }
+
+      .main-nav {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        transform: none;
+        margin: 0;
+        max-height: calc(100svh - 70px);
+        overflow-y: auto;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 14px 18px 25px;
+        border-bottom: 1px solid #543639;
+        background: #0c0909
+      }
+
+      .main-nav.open {
+        display: flex
+      }
+
+      .main-nav a {
+        padding: 13px 0;
+        font-size: 18px
+      }
+
+      .menu-toggle {
+        display: flex;
+        order: 3;
+        margin-left: 8px;
+        flex: 0 0 44px;
+        width: 44px;
+        height: 44px
+      }
+
+      .header-actions {
+        margin-left: auto;
+        flex: 0 0 auto
+      }
+
+      .header-actions .button {
+        display: none
+      }
+    }
+
+    @media (max-width: 420px) {
+      .language-toggle {
+        width: 30px;
+        height: 30px;
+        min-height: 30px
+      }
+
+      .language-current-flag {
+        width: 28px;
+        height: 28px;
+        flex-basis: 28px
+      }
+
+      .menu-toggle {
+        margin-left: 3px
+      }
+    }
   </style>
   <template data-route="/players/" data-title="Player | HoloFyrn Esport">
     <section class="player-profile container" id="public-player-profile">
@@ -4879,13 +5353,17 @@
 
       function setLanguage(lang) {
         language = lang;
+        langButton.dataset.language = lang;
         document.documentElement.lang = lang;
+        document.dispatchEvent(new Event('holofyrn:language'));
         document.querySelectorAll('[data-en][data-hu]').forEach(element => {
           element.textContent = element.dataset[lang];
         });
-        langButton.innerHTML = lang === 'en'
-          ? '<span class="lang-active">EN</span><span class="lang-divider">/</span><span>HU</span>'
-          : '<span>EN</span><span class="lang-divider">/</span><span class="lang-active">HU</span>';
+        langButton.querySelector('.flag-en').toggleAttribute('hidden', lang !== 'en');
+        langButton.querySelector('.flag-hu').toggleAttribute('hidden', lang !== 'hu');
+        document.querySelectorAll('.language-option').forEach(option => {
+          option.setAttribute('aria-checked', String(option.dataset.language === lang));
+        });
         langButton.setAttribute('aria-label', lang === 'en' ? 'Switch to Hungarian' : 'Váltás angolra');
         try { localStorage.setItem('holofyrn-lang', lang); } catch { }
       }
@@ -4936,7 +5414,29 @@
         });
       }
 
-      langButton.addEventListener('click', () => setLanguage(language === 'en' ? 'hu' : 'en'));
+      const languageMenu = document.getElementById('language-menu');
+      langButton.addEventListener('click', () => {
+        const open = langButton.getAttribute('aria-expanded') !== 'true';
+        langButton.setAttribute('aria-expanded', String(open));
+        languageMenu.hidden = !open;
+      });
+      document.querySelectorAll('.language-option').forEach(option => option.addEventListener('click', () => {
+        setLanguage(option.dataset.language);
+        languageMenu.hidden = true;
+        langButton.setAttribute('aria-expanded', 'false');
+      }));
+      document.addEventListener('click', event => {
+        if (!event.target.closest('.language-picker')) {
+          languageMenu.hidden = true;
+          langButton.setAttribute('aria-expanded', 'false');
+        }
+      });
+      langButton.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+          languageMenu.hidden = true;
+          langButton.setAttribute('aria-expanded', 'false');
+        }
+      });
       menuButton.addEventListener('click', () => {
         const open = menu.classList.toggle('open');
         menuButton.setAttribute('aria-expanded', String(open));

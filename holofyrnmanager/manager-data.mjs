@@ -126,7 +126,7 @@ export function validateChanges(changes, user, players) {
       if (c.after && (!c.after.name?.trim() || !c.after.role?.trim())) throw new Error('Staff needs a name and role.');
       if (c.after && (c.after.imageUrl && !(/^(https:\/\/|assets\/)[^\s<>"']{1,500}$/i.test(c.after.imageUrl)))) throw new Error('Use an HTTPS image URL or a site assets path.');
       if (c.after && (c.after.profileUrl && !/^#\/staff\/(?:member\/)?[a-z0-9-]+\/$/i.test(c.after.profileUrl))) throw new Error('Staff profile links must use a valid staff page path.');
-      if (c.after && (c.after.bio && (typeof c.after.bio !== 'string' || c.after.bio.length > 2000))) throw new Error('Staff introductions must be 2,000 characters or fewer.');
+      if (c.after && ['bio','bioEn','bioHu'].some(field => c.after[field] && (typeof c.after[field] !== 'string' || c.after[field].length > 2000))) throw new Error('Staff introductions must be 2,000 characters or fewer.');
     }
     else if (key === 'matches') {
       if (!staff) throw new Error('Staff access required to manage matches.');
@@ -141,7 +141,7 @@ export function validateChanges(changes, user, players) {
     }
     else if (key === 'news') {
       if (!(admin || user.role === 'socials')) throw new Error('Administrator or socials access required to manage news.');
-      if (c.after && (!c.after.title?.trim() || !c.after.summary?.trim() || !c.after.body?.trim())) throw new Error('News needs a title, summary and article text.');
+      if (c.after?.status === 'published' && !['titleEn','summaryEn','bodyEn','titleHu','summaryHu','bodyHu'].every(field => typeof c.after[field] === 'string' && c.after[field].trim())) throw new Error('Published news needs English and Hungarian titles, summaries and article text.');
       if (c.after && ((c.after.imageUrl && (typeof c.after.imageUrl !== 'string' || c.after.imageUrl.length > 2048 || !/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath !== 'string' || !/^news\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(c.after.imagePath))))) throw new Error('News images must use a valid HTTPS storage URL and image path.');
       if (c.after && ((Boolean(c.after.ctaLabel) !== Boolean(c.after.ctaUrl)) || (c.after.ctaLabel && (typeof c.after.ctaLabel !== 'string' || c.after.ctaLabel.length > 60)) || (c.after.ctaUrl && (typeof c.after.ctaUrl !== 'string' || c.after.ctaUrl.length > 2048 || !(/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(c.after.ctaUrl) || /^https:\/\/[^\s]+$/i.test(c.after.ctaUrl)))))) throw new Error('News buttons need a label and a valid internal page or HTTPS link.');
     }

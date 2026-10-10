@@ -93,18 +93,19 @@ export function publicHoloFyrnData(data = {}) {
     const home=teamName(str(item.teamId||item.team||'main'));
     upcomingMatches.push({date,time:/^\d{2}:\d{2}$/.test(str(item.dateTime).slice(11,16))?str(item.dateTime).slice(11,16):'',home:home.slice(0,100),away:opponent.slice(0,100),title:title.slice(0,100),type:/league/i.test(type)?'League':'Tournament'});
   }
-  const news = rows(data.managerV8?.news).filter(item => item.status === 'published' && str(item.title) && str(item.summary)).map(item => ({
-    id:str(item.id).slice(0,100), title:str(item.title).slice(0,140), category:str(item.category || 'NEWS').slice(0,40),
-    summary:str(item.summary).slice(0,280), body:str(item.body).slice(0,8000), imageUrl:/^(https:\/\/|\/assets\/)/i.test(str(item.imageUrl)) ? str(item.imageUrl).slice(0,2048) : '', publishedAt:str(item.publishedAt).slice(0,32),
+  const news = rows(data.managerV8?.news).filter(item => item.status === 'published' && str(item.titleEn || item.title) && str(item.summaryEn || item.summary)).map(item => ({
+    id:str(item.id).slice(0,100), titleEn:str(item.titleEn || item.title).slice(0,140), titleHu:str(item.titleHu || item.titleEn || item.title).slice(0,140), category:str(item.category || 'NEWS').slice(0,40),
+    summaryEn:str(item.summaryEn || item.summary).slice(0,280), summaryHu:str(item.summaryHu || item.summaryEn || item.summary).slice(0,280), bodyEn:str(item.bodyEn || item.body).slice(0,8000), bodyHu:str(item.bodyHu || item.bodyEn || item.body).slice(0,8000), imageUrl:/^(https:\/\/|\/assets\/)/i.test(str(item.imageUrl)) ? str(item.imageUrl).slice(0,2048) : '', publishedAt:str(item.publishedAt).slice(0,32),
     ctaLabel:str(item.ctaLabel || (item.id === 'site-rocket-league-teams' ? 'Explore Teams' : '')).slice(0,60),
     ctaUrl:/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(str(item.ctaUrl || (item.id === 'site-rocket-league-teams' ? '#/teams/' : ''))) || /^https:\/\/[^\s]+$/i.test(str(item.ctaUrl)) ? str(item.ctaUrl || '#/teams/').slice(0,2048) : '',
   }));
   const staffSource = Array.isArray(data.managerV8?.staff) ? data.managerV8.staff : defaultStaff;
   const staff = rows(staffSource).filter(item => str(item.name) && str(item.role)).map(item => ({
-    id:str(item.id).slice(0,100), name:str(item.name).slice(0,80), role:str(item.role).slice(0,120),
+    id:str(item.id).slice(0,100), name:str(item.name).slice(0,80), role:str(item.roleEn || item.role).slice(0,120),
+    roleEn:str(item.roleEn || item.role).slice(0,120), roleHu:str(item.roleHu).slice(0,120),
     imageUrl:/^(https:\/\/|assets\/)/i.test(str(item.imageUrl)) ? str(item.imageUrl).slice(0,500) : '',
     profileUrl:/^#\/staff\/(?:member\/)?[a-z0-9-]+\/$/i.test(str(item.profileUrl)) ? str(item.profileUrl).slice(0,160) : '',
-    bio:str(item.bio).slice(0,2000),
+    bio:str(item.bioEn || item.bio).slice(0,2000), bioEn:str(item.bioEn || item.bio).slice(0,2000), bioHu:str(item.bioHu).slice(0,2000),
   }));
   return {players,results,upcomingMatches,news,staff};
 }

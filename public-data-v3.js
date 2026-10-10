@@ -399,18 +399,26 @@ function renderPublicStaff(route) {
 
 function appendBio(target,bio) {
   const paragraphs = String(bio || '').split(/\n\s*\n/).map(text=>text.trim()).filter(Boolean);
-  if (!paragraphs.length) paragraphs.push('A personal introduction is coming soon.');
+  if (!paragraphs.length) paragraphs.push(document.documentElement.lang === 'hu' ? 'A bemutatkozás hamarosan érkezik.' : 'A personal introduction is coming soon.');
   for (const text of paragraphs) { const p=document.createElement('p'); p.textContent=text; target.append(p); }
+}
+
+function staffText(person, field) {
+  const hu = document.documentElement.lang === 'hu';
+  const primary = hu ? `${field}Hu` : `${field}En`;
+  const fallback = hu ? `${field}En` : `${field}Hu`;
+  return person[primary] || person[fallback] || (field === 'role' ? person.role : person.bio) || '';
 }
 
 function updateStaticStaffBio(person) {
   const copy=document.querySelector('#main .staff-profile .profile-copy');
   if(!copy)return;
   const title=copy.querySelector('h1'); if(title)title.textContent=person.name;
-  const role=copy.querySelector('.profile-role'); if(role)role.textContent=person.role;
-  const facts=copy.querySelectorAll('.profile-facts > div');const roleFact=facts[facts.length-1]?.querySelector('strong');if(roleFact)roleFact.textContent=person.role;
+  const localizedRole=staffText(person,'role');
+  const role=copy.querySelector('.profile-role'); if(role)role.textContent=localizedRole;
+  const facts=copy.querySelectorAll('.profile-facts > div');const roleFact=facts[facts.length-1]?.querySelector('strong');if(roleFact)roleFact.textContent=localizedRole;
   const aboutHeading=[...copy.querySelectorAll('h2')].find(node=>/about the (staff member|player)/i.test(node.textContent));
-  if(aboutHeading){const headingText=aboutHeading.textContent;const old=aboutHeading.nextElementSibling;if(old&&!old.matches('.text-link'))old.remove();const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,person.bio);aboutHeading.after(bio);aboutHeading.textContent=headingText;}
+  if(aboutHeading){const old=aboutHeading.nextElementSibling;if(old&&!old.matches('.text-link'))old.remove();const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,staffText(person,'bio'));aboutHeading.after(bio);}
   document.title=`${person.name} | HoloFyrn Esport`;
 }
 
@@ -420,13 +428,15 @@ function renderStaffProfile(person) {
   target.replaceChildren();
   if(!person){const p=document.createElement('p');p.textContent='Staff profile not found.';target.append(p);return;}
   document.title=`${person.name} | HoloFyrn Esport`;
-  const crumb=document.createElement('div');crumb.className='breadcrumbs';const back=document.createElement('a');back.href='#/staff/';back.textContent='Staff';crumb.append(back,document.createTextNode(` / ${person.name}`));
+  const hu=document.documentElement.lang==='hu';
+  const crumb=document.createElement('div');crumb.className='breadcrumbs';const back=document.createElement('a');back.href='#/staff/';back.textContent=hu?'Stáb':'Staff';crumb.append(back,document.createTextNode(` / ${person.name}`));
   const grid=document.createElement('div');grid.className='profile-grid';const photo=document.createElement('div');photo.className='profile-photo staff-profile-photo';
   if(person.imageUrl){photo.style.backgroundImage=`linear-gradient(0deg,#131010,transparent 35%),url('${person.imageUrl}')`;photo.style.backgroundSize='cover';photo.style.backgroundPosition='center top';}
-  const copy=document.createElement('div');copy.className='profile-copy';const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.append(document.createElement('i'),document.createTextNode('STAFF PROFILE'));
-  const heading=document.createElement('h1');heading.textContent=person.name;const role=document.createElement('p');role.className='profile-role';role.textContent=person.role;const divider=document.createElement('div');divider.className='profile-divider';
-  const about=document.createElement('h2');about.textContent='About the staff member';const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,person.bio);
-  const link=document.createElement('a');link.className='text-link';link.href='#/staff/';link.textContent='Back to staff';copy.append(eyebrow,heading,role,divider,about,bio,link);grid.append(photo,copy);target.append(crumb,grid);
+  if(String(person.id).toLowerCase()==='metalhub'||String(person.name).toLowerCase()==='metalhub'){photo.classList.add('signed-profile-photo');const signature=document.createElement('img');signature.className='profile-signature';signature.src='assets/MetalSign.png';signature.alt='';signature.setAttribute('aria-hidden','true');photo.append(signature);}
+  const copy=document.createElement('div');copy.className='profile-copy';const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.append(document.createElement('i'),document.createTextNode(hu?'STÁB':'STAFF PROFILE'));
+  const heading=document.createElement('h1');heading.textContent=person.name;const role=document.createElement('p');role.className='profile-role';role.textContent=staffText(person,'role');const divider=document.createElement('div');divider.className='profile-divider';
+  const about=document.createElement('h2');about.textContent=hu?'Bemutatkozás':'About the staff member';const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,staffText(person,'bio'));
+  const link=document.createElement('a');link.className='text-link';link.href='#/staff/';link.textContent=hu?'Vissza a stábhoz':'Back to staff';copy.append(eyebrow,heading,role,divider,about,bio,link);grid.append(photo,copy);target.append(crumb,grid);
 }
 
 function staffCard(person,index,preview=false) {
@@ -453,7 +463,7 @@ function staffCard(person,index,preview=false) {
   const name = document.createElement(preview ? 'strong' : 'h2');
   name.textContent = person.name;
   const role = document.createElement(preview ? 'small' : 'p');
-  role.textContent = person.role;
+  role.textContent = staffText(person,'role');
   card.append(name,role);
   return card;
 }
@@ -468,7 +478,8 @@ function renderPublishedNews(route) {
   if (!articles.length) return;
   grids.forEach(grid => {
     const visible = route === '/news/' ? articles : articles.slice(0, 3);
-    grid.replaceChildren(...visible.map(article => {
+    grid.replaceChildren(...visible.map(source => {
+      const article = localizedNews(source);
       const card = document.createElement('a');
       card.href = `#${newsArticlePath(article)}`; card.className = 'news-card public-news-card';
       const visual = document.createElement('span'); visual.className = 'news-visual news-visual-lines';
@@ -512,13 +523,24 @@ function showPublicArticle(article) {
 }
 
 function newsArticlePath(article) {
-  const slug = String(article.title || 'news').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'news';
+  const slug = String(article.titleEn || article.title || 'news').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'news';
   const id = String(article.id || slug).replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 100);
   return `/news/${slug}-${id}/`;
 }
 
+function localizedNews(article) {
+  const hu = document.documentElement.lang === 'hu';
+  return {...article,
+    title: (hu ? article.titleHu : article.titleEn) || article.title || article.titleEn || article.titleHu || '',
+    summary: (hu ? article.summaryHu : article.summaryEn) || article.summary || article.summaryEn || article.summaryHu || '',
+    body: (hu ? article.bodyHu : article.bodyEn) || article.body || article.bodyEn || article.bodyHu || '',
+    ctaLabel: (hu ? article.ctaLabelHu : article.ctaLabelEn) || article.ctaLabel || ''
+  };
+}
+
 function renderPublicNewsArticle(route) {
-  const article = (publicData?.news || []).find(item => newsArticlePath(item) === route);
+  const source = (publicData?.news || []).find(item => newsArticlePath(item) === route);
+  const article = source ? localizedNews(source) : null;
   const page = document.getElementById('public-news-article');
   if (!page) return;
   page.replaceChildren();
@@ -565,7 +587,14 @@ function renderPublicNewsArticle(route) {
 }
 document.addEventListener('holofyrn:route', render);
 document.querySelector('.language-toggle')?.addEventListener('click', () => {
-  if ((decodeURIComponent(location.hash.slice(1)) || '/') === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
+  const route = decodeURIComponent(location.hash.slice(1)) || '/';
+  if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
+  renderPublicStaff(route);
+  renderPublishedNews(route);
+});
+document.addEventListener('holofyrn:language', () => {
+  const route = decodeURIComponent(location.hash.slice(1)) || '/';
+  renderPublishedNews(route);
 });
 render();
 try {
