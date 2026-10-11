@@ -1352,7 +1352,8 @@
       padding-right: 2.5rem;
       font-size: 22px;
       font-weight: 800;
-      letter-spacing: .23em
+      letter-spacing: .23em;
+      text-transform: uppercase
     }
 
     @keyframes tick {
@@ -1762,6 +1763,15 @@
       filter: brightness(0) invert(1) drop-shadow(0 3px 9px rgba(0, 0, 0, .85));
       pointer-events: none;
       user-select: none
+    }
+
+    /* Staff signatures share Zemsta's placement and a fixed visual frame. */
+    .staff-profile-photo.signed-profile-photo .profile-signature {
+      right: -6%;
+      bottom: -20px;
+      width: min(80%, 440px);
+      height: 30%;
+      object-fit: contain
     }
 
     .signed-profile-photo .kenz-signature {
@@ -2392,7 +2402,7 @@
             data-hu="Stáb">Staff</span></a><a href="#/about/" class=""><span data-en="About"
             data-hu="Rólunk">About</span></a><a href="#/socials" class=""><span data-en="Socials"
             data-hu="Közösség">Socials</span></a></nav>
-      <div class="header-actions"><div class="language-picker"><button class="language-toggle" type="button" aria-label="Language: English"
+      <div class="header-actions"><button class="theme-toggle" type="button" aria-label="Switch to light mode" aria-pressed="false"><svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" hidden><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path></svg><svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.9 13A8.5 8.5 0 0 1 11 3.1 8.5 8.5 0 1 0 20.9 13Z"></path></svg></button><div class="language-picker"><button class="language-toggle" type="button" aria-label="Language: English"
           aria-haspopup="menu" aria-expanded="false" aria-controls="language-menu"><svg class="language-current-flag flag-en" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="flag-en-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#flag-en-clip)"><path fill="#173568" d="M0 0h28v28H0z"></path><path stroke="#fff" stroke-width="6" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#c8102e" stroke-width="2.4" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#fff" stroke-width="10" d="M14 0v28M0 14h28"></path><path stroke="#c8102e" stroke-width="5.5" d="M14 0v28M0 14h28"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><svg class="language-current-flag flag-hu" viewBox="0 0 28 28" aria-hidden="true" hidden><defs><clipPath id="flag-hu-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#flag-hu-clip)"><path fill="#fff" d="M0 0h28v28H0z"></path><path fill="#ce2939" d="M0 0h28v9.34H0z"></path><path fill="#477050" d="M0 18.66h28V28H0z"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><span class="language-current-label">English</span><svg class="language-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 6 4.5 4 4.5-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg></button><div class="language-menu" id="language-menu" role="menu" hidden><button type="button" class="language-option" role="menuitemradio" data-language="hu" aria-checked="false"><svg class="language-option-flag" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="menu-flag-hu-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#menu-flag-hu-clip)"><path fill="#fff" d="M0 0h28v28H0z"></path><path fill="#ce2939" d="M0 0h28v9.34H0z"></path><path fill="#477050" d="M0 18.66h28V28H0z"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><span>Magyar</span></button><button type="button" class="language-option" role="menuitemradio" data-language="en" aria-checked="true"><svg class="language-option-flag" viewBox="0 0 28 28" aria-hidden="true"><defs><clipPath id="menu-flag-en-clip"><circle cx="14" cy="14" r="12.5"></circle></clipPath></defs><g clip-path="url(#menu-flag-en-clip)"><path fill="#173568" d="M0 0h28v28H0z"></path><path stroke="#fff" stroke-width="6" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#c8102e" stroke-width="2.4" d="m-2 0 32 28M30 0-2 28"></path><path stroke="#fff" stroke-width="10" d="M14 0v28M0 14h28"></path><path stroke="#c8102e" stroke-width="5.5" d="M14 0v28M0 14h28"></path></g><circle cx="14" cy="14" r="12.5" fill="none" stroke="#b7a6a6" stroke-width="1"></circle></svg><span>English</span></button></div></div><a href="#/join/" class="button button-small header-join-button"><span
             data-en="Join HoloFyrn" data-hu="Csatlakozz">Join HoloFyrn</span></a></div>
     </div>
@@ -2690,8 +2700,7 @@
     <div class="page-intro container">
       <div class="eyebrow"><i></i><span>HOLOFYRN / JOGI INFORMÁCIÓK</span></div>
       <h1>Impresszum</h1>
-      <p>A weboldal üzemeltetőjének és a honlap használatának adatai.</p>
-    </div>
+</div>
     <section class="section container page-section">
       <div class="imprint-content">
         <section><h2>Weboldal adatai</h2>
@@ -2735,8 +2744,7 @@
     <div class="page-intro container">
       <div class="eyebrow"><i></i><span>HOLOFYRN / ADATVÉDELEM</span></div>
       <h1>GDPR</h1>
-      <p>Adatkezelési tájékoztató · Hatályos: 2026. október</p>
-    </div>
+</div>
     <section class="section container page-section">
       <article class="imprint-content gdpr-content">
         <h2>Adatkezelési tájékoztató</h2>
@@ -2880,10 +2888,7 @@
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / ABOUT HOLOFYRN" data-hu="HOLOFYRN / A HOLOFYRNRŐL">HOLOFYRN
           / ABOUT HOLOFYRN</span></div>
       <h1><span data-en="About HoloFyrn" data-hu="A HoloFyrnről">About HoloFyrn</span></h1>
-      <p><span data-en="One identity. Seven teams. A shared drive to improve."
-          data-hu="Egy identitás. H?t csapat. Közös vágy a fejlődésre.">One identity. Seven teams. A shared drive to
-          improve.</span></p>
-    </div>
+</div>
     <section class="section container page-section about-story">
       <div><img class="about-story-photo" src="assets/Elnokseg-800.webp" srcset="assets/Elnokseg-800.webp 800w, assets/Elnokseg-1200.webp 1200w" sizes="(max-width: 700px) calc(100vw - 40px), 50vw" width="800" height="450" loading="lazy" decoding="async" alt="HoloFyrn leadership team"></div>
       <div>
@@ -2908,9 +2913,7 @@
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / DIVISIONS" data-hu="HOLOFYRN / SZAKOSZTÁLYOK">HOLOFYRN /
           DIVISIONS</span></div>
       <h1><span data-en="Divisions" data-hu="Szakosztályok">Divisions</span></h1>
-      <p><span data-en="One active arena. More to come." data-hu="Egy aktív szakosztály. A folytatás érkezik.">One
-          active arena. More to come.</span></p>
-    </div>
+</div>
     <section class="section container page-section">
       <div class="division-grid"><a href="#/teams/" class="division-card division-live">
           <img class="division-bg" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960">
@@ -3204,9 +3207,7 @@
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / JOIN HOLOFYRN"
           data-hu="HOLOFYRN / CSATLAKOZZ A HOLOFYRNHÖZ">HOLOFYRN / JOIN HOLOFYRN</span></div>
       <h1><span data-en="Join HoloFyrn" data-hu="Csatlakozz a HoloFyrnhöz">Join HoloFyrn</span></h1>
-      <p><span data-en="Interested in being part of what comes next?"
-          data-hu="Szeretnél részese lenni a folytatásnak?">Interested in being part of what comes next?</span></p>
-    </div>
+</div>
     <section class="section container page-section">
       <div class="join-panel">
         <div class="eyebrow"><i></i><span data-en="JOIN THE FYRN" data-hu="CSATLAKOZZ A FYRNHÖZ">JOIN THE FYRN</span>
@@ -3230,9 +3231,7 @@
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / NEWS" data-hu="HOLOFYRN / HÍREK">HOLOFYRN / NEWS</span>
       </div>
       <h1><span data-en="News" data-hu="Hírek">News</span></h1>
-      <p><span data-en="Updates from the HoloFyrn world." data-hu="Újdonságok a HoloFyrn világából.">Updates from the
-          HoloFyrn world.</span></p>
-    </div>
+</div>
     <section class="section container page-section">
       <div class="news-grid"><a class="news-card news-card-feature" href="#/teams/">
           <div class="news-visual news-visual-beginnings"><img class="news-visual-artwork" src="assets/Rllogo-960.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" width="720" height="960"></div>
@@ -3379,10 +3378,7 @@
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / PARTNERS" data-hu="HOLOFYRN / TÁMOGATÓINK">HOLOFYRN /
           PARTNERS</span></div>
       <h1><span data-en="Partners" data-hu="Partner">Partners</span></h1>
-      <p><span data-en="Meet the organisations supporting HoloFyrn Esport."
-          data-hu="Ismerd meg a HoloFyrn Esport támogatóit.">Meet the organisations supporting HoloFyrn Esport.</span>
-      </p>
-    </div>
+</div>
     <section class="section container page-section">
       <div class="partner-feature sponsor-feature">
         <div class="sponsor-mark"><img src="assets/86-esport.webp" width="600" height="550" alt="86 Esport logo"></div>
@@ -3428,14 +3424,10 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Kenz</h1>
-          <p class="profile-role"><span data-en="President" data-hu="Elnök">President</span></p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
-            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="President"
-                  data-hu="Elnök">President</span></strong></div>
-          </div>
-          <h2><span data-en="About the player" data-hu="A játékosról">About the player</span></h2>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
+            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="President" data-hu="Elnök">President</span></strong></div>
+          </div><h2><span data-en="About the player" data-hu="A játékosról">About the player</span></h2>
           <div class="profile-bio">
             <p>Hi, I’m Qex, a 19 year old Rocket League player from Hungary. I’ve been playing Rocket League for around 5 years, but for the past year I’ve been taking the game more seriously and focusing on the competitive side of it.</p>
             <p>I’m currently playing just below Bubble level, with the goal of continuing to improve and eventually reaching the highest level I’m capable of. Over the past year, I’ve become much more dedicated to improving my mechanics, game sense, consistency, and overall performance.</p>
@@ -3458,15 +3450,10 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Zemsta</h1>
-          <p class="profile-role"><span data-en="Vice President of IT" data-hu="IT-alelnök">Vice President of IT</span>
-          </p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
-            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Vice President of IT"
-                  data-hu="IT-alelnök">Vice President of IT</span></strong></div>
-          </div>
-          <h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
+            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Vice President of IT" data-hu="IT-alelnök">Vice President of IT</span></strong></div>
+          </div><h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
           <p><span data-en="A personal introduction is coming soon."
               data-hu="A személyes bemutatkozás hamarosan érkezik.">A personal introduction is coming soon.</span></p><a
             class="text-link" href="#/staff/"><span data-en="Back to staff" data-hu="Vissza a stábhoz">Back to
@@ -3484,15 +3471,11 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Qex</h1>
-          <p class="profile-role"><span data-en="General Vice-President" data-hu="Általános alelnök">General
-              Vice-President</span></p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
-            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="General Vice-President"
-                  data-hu="Általános alelnök">General Vice-President</span></strong></div>
-          </div>
-          <h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
+            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="General Vice-President" data-hu="Általános alelnök">General
+              Vice-President</span></strong></div>
+          </div><h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
           <p><span data-en="A personal introduction is coming soon."
               data-hu="A személyes bemutatkozás hamarosan érkezik.">A personal introduction is coming soon.</span></p><a
             class="text-link" href="#/staff/"><span data-en="Back to staff" data-hu="Vissza a stábhoz">Back to
@@ -3510,15 +3493,11 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Metalhub</h1>
-          <p class="profile-role"><span data-en="Event Manager and Organizer"
-              data-hu="Eseménymenedzser és szervező">Event Manager and Organizer</span></p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
             <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Event Manager and Organizer"
-                  data-hu="Eseménymenedzser és szervező">Event Manager and Organizer</span></strong></div>
-          </div>
-          <h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
+              data-hu="Eseménymenedzser és szervező">Event Manager and Organizer</span></strong></div>
+          </div><h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
           <p><span data-en="A personal introduction is coming soon."
               data-hu="A személyes bemutatkozás hamarosan érkezik.">A personal introduction is coming soon.</span></p><a
             class="text-link" href="#/staff/"><span data-en="Back to staff" data-hu="Vissza a stábhoz">Back to
@@ -3536,15 +3515,11 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Bensai</h1>
-          <p class="profile-role"><span data-en="Financial Manager" data-hu="Pénzügyi menedzser">Financial
-              Manager</span></p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
-            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Financial Manager"
-                  data-hu="Pénzügyi menedzser">Financial Manager</span></strong></div>
-          </div>
-          <h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
+            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Financial Manager" data-hu="Pénzügyi menedzser">Financial
+              Manager</span></strong></div>
+          </div><h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
           <p><span data-en="A personal introduction is coming soon."
               data-hu="A személyes bemutatkozás hamarosan érkezik.">A personal introduction is coming soon.</span></p><a
             class="text-link" href="#/staff/"><span data-en="Back to staff" data-hu="Vissza a stábhoz">Back to
@@ -3562,15 +3537,11 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Tobba</h1>
-          <p class="profile-role"><span data-en="Social Media Manager" data-hu="Közösségimédia-menedzser">Social Media
-              Manager</span></p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
-            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Social Media Manager"
-                  data-hu="Közösségimédia-menedzser">Social Media Manager</span></strong></div>
-          </div>
-          <h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
+            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Social Media Manager" data-hu="Közösségimédia-menedzser">Social Media
+              Manager</span></strong></div>
+          </div><h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
           <div class="profile-bio">
             <p>I'm Tobba, a 18 year old Norwegian competitive Rocket League player representing HoloFyrn Esports.</p>
             <p>With years of experience in Rocket League, I've developed a strong competitive foundation, reaching the upper 1800s MMR in 2v2 while also gaining extensive experience in 1v1, competing at the upper 1200s MMR level.</p>
@@ -3592,14 +3563,10 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>BigV</h1>
-          <p class="profile-role"><span data-en="Secretary" data-hu="Titkár">Secretary</span></p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
-            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Secretary"
-                  data-hu="Titkár">Secretary</span></strong></div>
-          </div>
-          <h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
+            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Secretary" data-hu="Titkár">Secretary</span></strong></div>
+          </div><h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
           <p><span data-en="I’m BigV, a 20-year-old Latvian Rocket League player and FIFAe representative. I’ve peaked at 1930 SSL, reached top 2 in Latvia, and regularly compete at the highest tiers of competitive leagues, just below the bubble and RLCS level. My playstyle is heavily mechanics-focused, backed by strong game sense, decision-making and adaptability. I aim to be a player who can take over individually when needed while still understanding how to create space and opportunities for the team around me. Representing Latvia in FIFAe has been one of my biggest achievements so far, but my ambitions go much further. I’m constantly competing against stronger opposition, developing my game and working toward establishing myself within the Rocket League bubble scene and eventually taking the next step beyond it."
               data-hu="BigV vagyok, 20 éves lettországi Rocket League-játékos és FIFAe-képviselő. A legmagasabb elért rangom az SSL 1930 MMR-rel, Lettországban pedig a 2. helyig jutottam. Rendszeresen a versenyszerű ligák legmagasabb szintjein játszom, közvetlenül a bubble és az RLCS szintje alatt. Játékstílusom középpontjában a mechanikai tudás áll, amelyet erős játékismeret, jó döntéshozatal és alkalmazkodóképesség egészít ki. Arra törekszem, hogy szükség esetén egyénileg is képes legyek eldönteni a játékot, miközben teret és lehetőségeket teremtek a csapattársaimnak. Lettország képviselete a FIFAe-ben eddigi egyik legnagyobb eredményem, de ennél jóval nagyobb céljaim vannak. Folyamatosan erősebb ellenfelek ellen versenyzem, fejlesztem a játékomat, és azon dolgozom, hogy megálljam a helyem a Rocket League bubble mezőnyében, majd később továbblépjek a következő szintre.">I’m BigV, a 20-year-old Latvian Rocket League player and FIFAe representative. I’ve peaked at 1930 SSL, reached top 2 in Latvia, and regularly compete at the highest tiers of competitive leagues, just below the bubble and RLCS level. My playstyle is heavily mechanics-focused, backed by strong game sense, decision-making and adaptability. I aim to be a player who can take over individually when needed while still understanding how to create space and opportunities for the team around me. Representing Latvia in FIFAe has been one of my biggest achievements so far, but my ambitions go much further. I’m constantly competing against stronger opposition, developing my game and working toward establishing myself within the Rocket League bubble scene and eventually taking the next step beyond it.</span></p><a
             class="text-link" href="#/staff/"><span data-en="Back to staff" data-hu="Vissza a stábhoz">Back to
@@ -3617,14 +3584,10 @@
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="STAFF PROFILE" data-hu="STÁBPROFIL">STAFF PROFILE</span></div>
           <h1>Vortex</h1>
-          <p class="profile-role"><span data-en="Head of Design" data-hu="Vezető grafikus">Head of Design</span></p>
-          <div class="profile-divider"></div>
-          <div class="profile-facts">
-            <div><span data-en="TEAM" data-hu="CSAPAT">TEAM</span><strong>HoloFyrn Esport</strong></div>
-            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Head of Design"
-                  data-hu="Vezető grafikus">Head of Design</span></strong></div>
-          </div>
-          <h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
+          
+          <div class="profile-divider"></div><div class="profile-facts">
+            <div><span data-en="ROLE" data-hu="SZEREPKÖR">ROLE</span><strong><span data-en="Head of Design" data-hu="Vezető grafikus">Head of Design</span></strong></div>
+          </div><h2><span data-en="About the staff member" data-hu="A stábtagról">About the staff member</span></h2>
           <p><span data-en="A personal introduction is coming soon."
               data-hu="A személyes bemutatkozás hamarosan érkezik.">A personal introduction is coming soon.</span></p><a
             class="text-link" href="#/staff/"><span data-en="Back to staff" data-hu="Vissza a stábhoz">Back to
@@ -3638,9 +3601,7 @@
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / STAFF" data-hu="HOLOFYRN / STÁB">HOLOFYRN / STAFF</span>
       </div>
       <h1><span data-en="Staff" data-hu="Stáb">Staff</span></h1>
-      <p><span data-en="The people behind the team." data-hu="A csapat mögött álló emberek.">The people behind the
-          team.</span></p>
-    </div>
+</div>
     <section class="section container page-section">
       <div class="staff-grid"><a class="staff-card" href="#/staff/kenz/"><span class="staff-number">01</span><img
             class="staff-avatar staff-avatar-photo" src="assets/KenzStaff-1200.webp" alt="Kenz" loading="lazy" decoding="async">
@@ -3917,11 +3878,7 @@
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / OUR TEAMS" data-hu="HOLOFYRN / CSAPATAINK">HOLOFYRN / OUR
           TEAMS</span></div>
       <h1><span data-en="Our teams" data-hu="Csapataink">Our teams</span></h1>
-      <p><span data-en="Seven teams united by one identity. Explore every HoloFyrn lineup."
-          data-hu="H?t csapat, egy közös identitás. Ismerd meg a HoloFyrn csapatait.">Seven teams united by one
-          identity.
-          Explore every HoloFyrn lineup.</span></p>
-    </div>
+</div>
     <section class="section container page-section">
       <div class="team-grid"><a class="team-card" style="--team-accent:#e91d39" href="#/teams/holofyrn-esport/"><img class="team-card-background" src="assets/HolofyrnMainBG-480.webp" srcset="assets/HolofyrnMainBG-480.webp 480w, assets/HolofyrnMainBG-960.webp 960w" sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1100px) 50vw, 33vw" alt="" aria-hidden="true" loading="lazy" decoding="async" width="480" height="270">
           <div class="team-card-center"><img src="assets/HoloFyrn_Esports_main.png" width="1254" height="1254" alt=""
@@ -4505,6 +4462,13 @@
         width: 74%
       }
 
+      .staff-profile-photo.signed-profile-photo .profile-signature {
+        right: -6%;
+        bottom: -20px;
+        width: 80%;
+        height: 30%
+      }
+
       .profile-copy {
         padding-top: 0
       }
@@ -4573,6 +4537,12 @@
         width: 105px;
         height: 105px;
         font-size: 65px
+      }
+
+      .staff-avatar-photo {
+        width: 125px;
+        height: 125px;
+        transform: scale(1.08)
       }
 
       .staff-card h2 {
@@ -5178,6 +5148,145 @@
       flex: 0 0 auto
     }
 
+    .theme-toggle {
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid #514446;
+      border-radius: 50%;
+      background: #141112;
+      color: #f4eded;
+      transition: background .18s ease, border-color .18s ease, color .18s ease
+    }
+
+    .theme-toggle:hover { border-color: #a24a51; background: #211719 }
+    .theme-toggle svg { width: 17px; height: 17px }
+    .theme-toggle svg[hidden] { display: none }
+
+    html[data-theme="light"] { color-scheme: light }
+    html[data-theme="dark"] { color-scheme: dark }
+    html[data-theme="light"] body { --black: #f4f1ed; --ink: #211a1a; --muted: #625858; --panel: #fff; --panel2: #eee8e5; --line: #d7ceca; }
+    html[data-theme="light"] .site-header { background: rgba(250,248,246,.96); border-color: #ddd4d0 }
+    html[data-theme="light"] .brand-type,
+    html[data-theme="light"] .main-nav a,
+    html[data-theme="light"] .section-heading h2,
+    html[data-theme="light"] .page-intro h1,
+    html[data-theme="light"] .profile-copy h1 { color: #211a1a }
+    html[data-theme="light"] .section,
+    html[data-theme="light"] .page-intro,
+    html[data-theme="light"] .staff-card,
+    html[data-theme="light"] .news-card,
+    html[data-theme="light"] .info-panel,
+    html[data-theme="light"] .join-panel,
+    html[data-theme="light"] .social-card,
+    html[data-theme="light"] .partner-card,
+    html[data-theme="light"] .profile-facts { color: #211a1a; background-color: #fff; border-color: #ded5d1 }
+    html[data-theme="light"] .staff-card h2,
+    html[data-theme="light"] .staff-card p,
+    html[data-theme="light"] .page-intro p,
+    html[data-theme="light"] .profile-copy p,
+    html[data-theme="light"] .news-body p { color: #514747 }
+    html[data-theme="light"] .language-toggle,
+    html[data-theme="light"] .theme-toggle { background: #fff; color: #302525; border-color: #c9bfbb }
+    html[data-theme="light"] .language-menu { background: #fff; border-color: #c9bfbb; color: #211a1a }
+    html[data-theme="light"] #main { color: #211a1a }
+    html[data-theme="light"] #main> :is(.section.container, .player-profile.container)::before { background: rgba(248, 245, 242, .92) }
+    html[data-theme="light"] #main>.page-intro.container::before { background: rgba(248, 245, 242, .88) }
+    html[data-theme="light"] .match-strip,
+    html[data-theme="light"] .ticker,
+    html[data-theme="light"] .footer { color: #211a1a; background: #ebe5e1; border-color: #d8ceca }
+    html[data-theme="light"] .footer-top p,
+    html[data-theme="light"] .footer-bottom,
+    html[data-theme="light"] .breadcrumbs,
+    html[data-theme="light"] .breadcrumbs a,
+    html[data-theme="light"] .profile-role,
+    html[data-theme="light"] .profile-copy h2,
+    html[data-theme="light"] .about-layout p,
+    html[data-theme="light"] .partners-layout p,
+    html[data-theme="light"] .info-panel p,
+    html[data-theme="light"] .division-card p,
+    html[data-theme="light"] .news-body p,
+    html[data-theme="light"] .player-info>span,
+    html[data-theme="light"] .staff-preview small,
+    html[data-theme="light"] .ticker-copy { color: #514747 }
+    html[data-theme="light"] .news-card,
+    html[data-theme="light"] .division-card,
+    html[data-theme="light"] .team-card,
+    html[data-theme="light"] .player-card,
+    html[data-theme="light"] .empty-panel,
+    html[data-theme="light"] .partner-feature,
+    html[data-theme="light"] .staff-card,
+    html[data-theme="light"] .info-panel,
+    html[data-theme="light"] .social-card,
+    html[data-theme="light"] .profile-facts,
+    html[data-theme="light"] .footer-socials a { color: #211a1a; background: #fff; border-color: #ded5d1 }
+    html[data-theme="light"] .news-body h3,
+    html[data-theme="light"] .division-card h3,
+    html[data-theme="light"] .team-card h3,
+    html[data-theme="light"] .player-info h3,
+    html[data-theme="light"] .info-panel h2,
+    html[data-theme="light"] .about-layout h2,
+    html[data-theme="light"] .partners-layout h2,
+    html[data-theme="light"] .staff-preview strong,
+    html[data-theme="light"] .imprint-content h2,
+    html[data-theme="light"] .imprint-updated { color: #211a1a }
+    html[data-theme="light"] .imprint-content { color: #352d2d; background: #fff; border-color: #ded5d1 }
+    html[data-theme="light"] .imprint-content a,
+    html[data-theme="light"] .text-link { color: #a71924 }
+    html[data-theme="light"] .footer-socials a:hover,
+    html[data-theme="light"] .footer-socials a:focus-visible { color: #fff; background: linear-gradient(145deg, #7d1721, #351014); border-color: #e32636 }
+    html[data-theme="light"] .hero-art::after { background-image: linear-gradient(90deg, rgba(244,241,237,.88), rgba(244,241,237,.42) 45%, rgba(244,241,237,.06) 78%), linear-gradient(0deg, rgba(244,241,237,.7), transparent 28%) }
+    html[data-theme="light"] .hero h1,
+    html[data-theme="light"] .hero-tag,
+    html[data-theme="light"] .hero-bottom,
+    html[data-theme="light"] .match-layout strong,
+    html[data-theme="light"] .match-symbols { color: #211a1a }
+    html[data-theme="light"] .hero-grid { background-image: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), rgba(60, 35, 35, .08) calc(25% - 1px), rgba(60, 35, 35, .08) 25%) }
+    html[data-theme="light"] .public-news-dialog { color: #211a1a; background: #fff; border-color: #ded5d1 }
+    html[data-theme="light"] .public-news-body,
+    html[data-theme="light"] .public-news-article-copy { color: #352d2d }
+    html[data-theme="light"] .public-news-article .article-summary,
+    html[data-theme="light"] .public-news-back { color: #514747 }
+    html[data-theme="light"] .team-hero { color: #211a1a; background: linear-gradient(90deg, rgba(244,241,237,.94) 8%, rgba(244,241,237,.78) 48%, rgba(244,241,237,.5)), var(--hero-image) center / cover; border-color: #ded5d1 }
+    html[data-theme="light"] .team-hero h1,
+    html[data-theme="light"] .team-hero p { color: #211a1a }
+    html[data-theme="light"] .team-hero .breadcrumbs { color: #514747 }
+    html[data-theme="light"] .team-hero .breadcrumbs a { color: #a71924 }
+    /* Keep text over artwork white; the dark gradients are part of those image panels. */
+    html[data-theme="light"] .hero-art::after { background-image: linear-gradient(90deg, rgba(3,3,3,.94) 0%, rgba(3,3,3,.76) 25%, rgba(3,3,3,.12) 65%), linear-gradient(0deg, #030303 0%, transparent 25%) }
+    html[data-theme="light"] .hero h1,
+    html[data-theme="light"] .hero-tag,
+    html[data-theme="light"] .hero-bottom,
+    html[data-theme="light"] .match-layout strong,
+    html[data-theme="light"] .match-symbols { color: #fff }
+    html[data-theme="light"] .team-hero { color: #fff; background: linear-gradient(90deg, rgba(3,3,3,.94) 8%, rgba(3,3,3,.78) 48%, rgba(3,3,3,.5)), var(--hero-image) center / cover; border-color: #3b2223 }
+    html[data-theme="light"] .team-hero h1,
+    html[data-theme="light"] .team-hero p,
+    html[data-theme="light"] .team-hero .breadcrumbs { color: #fff }
+    html[data-theme="light"] .team-hero .breadcrumbs a { color: #ffc4c7 }
+    html[data-theme="light"] .division-card { color: #fff; background: #151515; border-color: #554345 }
+    html[data-theme="light"] .division-card h3,
+    html[data-theme="light"] .division-card p,
+    html[data-theme="light"] .division-number,
+    html[data-theme="light"] .division-soon h3 { color: #fff }
+    html[data-theme="light"] .division-live::before { background-image: linear-gradient(90deg, rgba(3,3,3,.9) 0%, rgba(3,3,3,.6) 42%, transparent 85%), linear-gradient(0deg, rgba(3,3,3,.88), transparent 48%) }
+    html[data-theme="light"] .division-soon::before { background: linear-gradient(0deg, rgba(0,0,0,.78), rgba(0,0,0,.25)) }
+    html[data-theme="light"] .staff-preview strong,
+    html[data-theme="light"] .staff-preview small,
+    html[data-theme="light"] .staff-preview a>span:first-child,
+    html[data-theme="light"] .player-index,
+    html[data-theme="light"] .profile-photo span { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.9) }
+    html[data-theme="light"] .text-link,
+    html[data-theme="light"] .text-link span:last-child { color: #fff }
+    html[data-theme="light"] .team-card { background: #121010; border-color: #4b3838 }
+    html[data-theme="light"] .team-card::after { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.78)) }
+    html[data-theme="light"] .team-card-center,
+    html[data-theme="light"] .team-card-top { position: relative; z-index: 1 }
+    html[data-theme="light"] .team-card h3 { position: relative; z-index: 1; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.8) }
+
     .language-toggle {
       width: 30px;
       height: 30px;
@@ -5346,6 +5455,24 @@
       const menu = document.getElementById('main-nav');
       const menuButton = document.querySelector('.menu-toggle');
       const langButton = document.querySelector('.language-toggle');
+      const themeButton = document.querySelector('.theme-toggle');
+      const themeSun = themeButton.querySelector('.theme-icon-sun');
+      const themeMoon = themeButton.querySelector('.theme-icon-moon');
+      let theme;
+      try { theme = localStorage.getItem('holofyrn-theme') === 'light' ? 'light' : 'dark'; }
+      catch { theme = 'dark'; }
+      function setTheme(nextTheme) {
+        theme = nextTheme;
+        document.documentElement.dataset.theme = theme;
+        themeButton.setAttribute('aria-pressed', String(theme === 'light'));
+        themeButton.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        themeSun.toggleAttribute('hidden', theme !== 'light');
+        themeMoon.toggleAttribute('hidden', theme !== 'dark');
+        document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#f4f1ed' : '#030303';
+        try { localStorage.setItem('holofyrn-theme', theme); } catch { }
+      }
+      setTheme(theme);
+      themeButton.addEventListener('click', () => setTheme(theme === 'dark' ? 'light' : 'dark'));
       const pages = new Map([...document.querySelectorAll('template[data-route]')].map(template => [template.dataset.route, template]));
       let language;
       try { language = localStorage.getItem('holofyrn-lang') === 'hu' ? 'hu' : 'en'; }
