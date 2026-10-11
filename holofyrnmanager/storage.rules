@@ -9,9 +9,26 @@ service firebase.storage {
         && firestore.get(profilePath).data.role in ['Admin', 'admin', 'Socials', 'socials'];
     }
 
+    function canManageTeams() {
+      let profilePath = /databases/(default)/documents/users/$(request.auth.uid);
+      return request.auth != null
+        && firestore.exists(profilePath)
+        && firestore.get(profilePath).data.get('approved', true) == true
+        && firestore.get(profilePath).data.role in ['Admin', 'admin'];
+    }
+
     match /news/{userId}/{articleId}/{fileName} {
       allow read: if true;
       allow write: if canManageNews()
+        && userId == request.auth.uid
+        && (request.resource == null
+          || (request.resource.size <= 8 * 1024 * 1024
+            && request.resource.contentType.matches('image/(jpeg|png|webp)')));
+    }
+
+    match /team-logos/{userId}/{teamId}/{fileName} {
+      allow read: if true;
+      allow write: if canManageTeams()
         && userId == request.auth.uid
         && (request.resource == null
           || (request.resource.size <= 8 * 1024 * 1024

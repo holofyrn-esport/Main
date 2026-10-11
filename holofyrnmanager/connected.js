@@ -21,6 +21,15 @@ async function uploadNewsImage(file,articleId){
   await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
   return {imageUrl:await storageApi.getDownloadURL(target),imagePath:path};
 }
+async function uploadManagerTeamLogo(file,teamId){
+  if(!file||!storageApi||!services?.storage||!authenticatedUser)throw new Error('Image storage is unavailable. Reload the manager and try again.');
+  const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'},extension=extensions[file.type];
+  if(!extension)throw new Error('Choose a JPG, PNG or WebP image.');
+  if(file.size>8*1024*1024)throw new Error('The image must be smaller than 8 MB.');
+  const path=`team-logos/${authenticatedUser.uid}/${teamId}/${crypto.randomUUID()}.${extension}`,target=storageApi.ref(services.storage,path);
+  await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
+  return {logoUrl:await storageApi.getDownloadURL(target),logoPath:path};
+}
 function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],goals:[],news:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
 function safeUrl(input, image=false){

@@ -351,6 +351,7 @@ body::before,body::after{display:none!important}
 @media(max-width:520px){.goal-card{gap:10px;padding:13px}.goal-ring{width:48px;height:48px;flex-basis:48px}.goal-empty{align-items:flex-start;flex-wrap:wrap}.goal-empty button{margin-left:58px}}
 .team-option{justify-content:flex-start}.team-option-logo{width:34px;height:34px;flex:0 0 34px;object-fit:contain;padding:3px;border-radius:8px;background:rgba(255,255,255,.08)}.team-option-copy{min-width:0;flex:1}
 .staff-manager-card{display:flex;flex-direction:column;justify-content:space-between;gap:18px;min-width:0}.staff-manager-card .roster-identity-text>b{display:block;overflow-wrap:anywhere}.staff-manager-card .roster-avatar{width:48px;height:48px;flex:0 0 48px;object-fit:cover;border-radius:50%}.staff-initials{display:grid;place-items:center;font-weight:900;background:var(--panel3);color:#fff}
+.manager-team-logo{width:58px;height:58px;flex:0 0 58px;object-fit:contain;padding:5px;border-radius:12px;background:rgba(255,255,255,.07)}.manager-team-logo-preview{display:flex;justify-content:center;padding:14px}.manager-team-logo-preview[hidden]{display:none}.manager-team-logo-preview img{width:96px;height:96px;object-fit:contain;border-radius:14px;background:rgba(255,255,255,.07);padding:8px}
 
 /* Responsive safeguards for narrow phones and long dynamic content. */
 html{ -webkit-text-size-adjust:100%;text-size-adjust:100%; }
