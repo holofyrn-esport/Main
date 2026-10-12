@@ -69,7 +69,7 @@ export function fromDatabase(data = {}, profiles = [], uid = '') {
     teams: Array.isArray(extension.teams) ? extension.teams.map(rebrand) : structuredClone(defaultTeams), users, players, events, staff: Array.isArray(extension.staff) ? extension.staff : structuredClone(defaultStaff), matches: list(extension.matches),
     results: list(data.results).map(r=>({id:str(r.id), team:r.teamId || 'main', type:r.managerType || (r.type === 'League match' ? 'league' : 'tournament'), date:dateParts(r).date, event:r.title || r.event || '', stage:r.stage || '', placement:r.placement || r.score || '', prizeMoney:Number(r.prizeEur || r.prizeMoney || 0), result:r.result || 'pending', ...(r.leagueId != null ? {leagueId:r.leagueId} : {})})),
     availability: list(data.availability).map(a=>({id:str(a.id), playerId:str(a.playerId), date:a.date || '', from:a.startTime || a.from || '', until:a.endTime || a.until || '', status:a.status || 'Available'})),
-    leagues: rebrand(list(extension.leagues).map(l=>({...l,playoffs:l.playoffs||{rounds:[]}}))), leagueGames: rebrand(list(extension.leagueGames)), goals: list(extension.goals).map(g=>({...g,progress:Math.max(0,Math.min(100,Number(g.progress)||0)),mode:g.mode||'percent',status:g.status||'active'})), news: list(extension.news), notifications: list(extension.notifications),
+    leagues: rebrand(list(extension.leagues).map(l=>({...l,playoffs:l.playoffs||{rounds:[]}}))), leagueGames: rebrand(list(extension.leagueGames)), goals: list(extension.goals).map(g=>({...g,progress:Math.max(0,Math.min(100,Number(g.progress)||0)),mode:g.mode||'percent',status:g.status||'active',priority:['low','normal','high','urgent'].includes(g.priority)?g.priority:'normal'})), news: list(extension.news), notifications: list(extension.notifications),
   };
 }
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
@@ -141,6 +141,7 @@ export function validateChanges(changes, user, players) {
     else if (key === 'goals') {
       if (!(admin || ['coach','manager'].includes(user.role) || user.coachAccess || user.managerAccess)) throw new Error('Admin, coach or manager access required.');
       if (c.after && (!c.after.title?.trim() || !c.after.teamId || !c.after.dueDate)) throw new Error('A goal needs a title, team and target date.');
+      if (c.after && !['low','normal','high','urgent'].includes(c.after.priority || 'normal')) throw new Error('Choose a valid goal priority.');
     }
     else if (key === 'news') {
       if (!(admin || user.role === 'socials')) throw new Error('Administrator or socials access required to manage news.');
