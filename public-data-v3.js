@@ -403,8 +403,8 @@ function appendBio(target,bio) {
   for (const text of paragraphs) { const p=document.createElement('p'); p.textContent=text; target.append(p); }
 }
 
-function staffText(person, field) {
-  const hu = document.documentElement.lang === 'hu';
+function staffText(person, field, language = document.documentElement.lang) {
+  const hu = language === 'hu';
   const primary = hu ? `${field}Hu` : `${field}En`;
   const fallback = hu ? `${field}En` : `${field}Hu`;
   return person[primary] || person[fallback] || (field === 'role' ? person.role : person.bio) || '';
@@ -416,9 +416,15 @@ function updateStaticStaffBio(person) {
   const title=copy.querySelector('h1'); if(title)title.textContent=person.name;
   const localizedRole=staffText(person,'role');
   const role=copy.querySelector('.profile-role'); if(role)role.textContent=localizedRole;
-  const facts=copy.querySelectorAll('.profile-facts > div');const roleFact=facts[facts.length-1]?.querySelector('strong');if(roleFact)roleFact.textContent=localizedRole;
-  const aboutHeading=[...copy.querySelectorAll('h2')].find(node=>/about the (staff member|player)/i.test(node.textContent));
-  if(aboutHeading){const old=aboutHeading.nextElementSibling;if(old&&!old.matches('.text-link'))old.remove();const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,staffText(person,'bio'));aboutHeading.after(bio);}
+  const facts=copy.querySelectorAll('.profile-facts > div');const roleFact=facts[facts.length-1]?.querySelector('strong');
+  if(roleFact){
+    let localized=roleFact.querySelector('[data-en][data-hu]');
+    if(!localized){localized=document.createElement('span');roleFact.replaceChildren(localized);}
+    localized.dataset.en=staffText(person,'role','en');localized.dataset.hu=staffText(person,'role','hu');
+    localized.textContent=localized.dataset[document.documentElement.lang]||localized.dataset.en;
+  }
+  const aboutHeading=copy.querySelector('h2');
+  if(aboutHeading){copy.querySelector('.profile-bio')?.remove();const old=aboutHeading.nextElementSibling;if(old&&!old.matches('.text-link'))old.remove();const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,staffText(person,'bio'));aboutHeading.after(bio);}
   document.title=`${person.name} | HoloFyrn Esport`;
 }
 
@@ -426,17 +432,17 @@ function renderStaffProfile(person) {
   const target=document.getElementById('public-staff-profile');
   if(!target)return;
   target.replaceChildren();
-  if(!person){const p=document.createElement('p');p.textContent='Staff profile not found.';target.append(p);return;}
+  if(!person){const p=document.createElement('p');p.textContent=document.documentElement.lang==='hu'?'A menedzser nem található.':'Manager profile not found.';target.append(p);return;}
   document.title=`${person.name} | HoloFyrn Esport`;
   const hu=document.documentElement.lang==='hu';
-  const crumb=document.createElement('div');crumb.className='breadcrumbs';const back=document.createElement('a');back.href='#/staff/';back.textContent=hu?'Stáb':'Staff';crumb.append(back,document.createTextNode(` / ${person.name}`));
+  const crumb=document.createElement('div');crumb.className='breadcrumbs';const back=document.createElement('a');back.href='#/staff/';back.textContent=hu?'Vezetőség':'Management';crumb.append(back,document.createTextNode(` / ${person.name}`));
   const grid=document.createElement('div');grid.className='profile-grid';const photo=document.createElement('div');photo.className='profile-photo staff-profile-photo';
   if(person.imageUrl){photo.style.backgroundImage=`linear-gradient(0deg,#131010,transparent 35%),url('${person.imageUrl}')`;photo.style.backgroundSize='cover';photo.style.backgroundPosition='center top';}
   if(String(person.id).toLowerCase()==='metalhub'||String(person.name).toLowerCase()==='metalhub'){photo.classList.add('signed-profile-photo');const signature=document.createElement('img');signature.className='profile-signature';signature.src='assets/MetalSign.png';signature.alt='';signature.setAttribute('aria-hidden','true');photo.append(signature);}
-  const copy=document.createElement('div');copy.className='profile-copy';const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.append(document.createElement('i'),document.createTextNode(hu?'STÁB':'STAFF PROFILE'));
+  const copy=document.createElement('div');copy.className='profile-copy';const eyebrow=document.createElement('div');eyebrow.className='eyebrow';eyebrow.append(document.createElement('i'),document.createTextNode(hu?'MENEDZSER':'MANAGER'));
   const heading=document.createElement('h1');heading.textContent=person.name;const role=document.createElement('p');role.className='profile-role';role.textContent=staffText(person,'role');const divider=document.createElement('div');divider.className='profile-divider';
-  const about=document.createElement('h2');about.textContent=hu?'Bemutatkozás':'About the staff member';const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,staffText(person,'bio'));
-  const link=document.createElement('a');link.className='text-link';link.href='#/staff/';link.textContent=hu?'Vissza a stábhoz':'Back to staff';copy.append(eyebrow,heading,role,divider,about,bio,link);grid.append(photo,copy);target.append(crumb,grid);
+  const about=document.createElement('h2');about.textContent=hu?'A menedzserről':'About the manager';const bio=document.createElement('div');bio.className='profile-bio';appendBio(bio,staffText(person,'bio'));
+  const link=document.createElement('a');link.className='text-link';link.href='#/staff/';link.textContent=hu?'Vissza a vezetőséghez':'Back to management';copy.append(eyebrow,heading,role,divider,about,bio,link);grid.append(photo,copy);target.append(crumb,grid);
 }
 
 function staffCard(person,index,preview=false) {
@@ -594,6 +600,7 @@ document.querySelector('.language-toggle')?.addEventListener('click', () => {
 });
 document.addEventListener('holofyrn:language', () => {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
+  renderPublicStaff(route);
   renderPublishedNews(route);
 });
 render();
