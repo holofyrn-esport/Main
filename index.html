@@ -3533,7 +3533,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Management"
             data-hu="Vezetőség">Management</span></a><span>/</span>Tobba</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/TobaStaff.png" alt="Tobba, HoloFyrn Esport manager" loading="lazy" decoding="async"><img class="profile-signature" src="assets/TobbaSign.png" alt="" aria-hidden="true"></div>
+        <div class="profile-photo staff-profile-photo staff-portrait-photo signed-profile-photo"><img src="assets/TobaStaff.png" alt="Tobba, HoloFyrn Esport manager" loading="lazy" decoding="async"><img class="profile-signature" src="assets/TobbaSign.png" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="MANAGER PROFILE" data-hu="MENEDZSER">MANAGER PROFILE</span></div>
           <h1>Tobba</h1>
@@ -3559,7 +3559,7 @@
       <div class="breadcrumbs"><a href="#/staff/"><span data-en="Management"
             data-hu="Vezetőség">Management</span></a><span>/</span>BigV</div>
       <div class="profile-grid">
-        <div class="profile-photo staff-profile-photo signed-profile-photo"><img src="assets/BigVStaff.png" alt="BigV"><img class="profile-signature" src="assets/bigv-signature.png" alt="" aria-hidden="true"></div>
+        <div class="profile-photo staff-profile-photo staff-portrait-photo signed-profile-photo"><img src="assets/BigVStaff.png" alt="BigV"><img class="profile-signature" src="assets/bigv-signature.png" alt="" aria-hidden="true"></div>
         <div class="profile-copy">
           <div class="eyebrow"><i></i><span data-en="MANAGER PROFILE" data-hu="MENEDZSER">MANAGER PROFILE</span></div>
           <h1>BigV</h1>
@@ -5120,6 +5120,17 @@
       .partner-feature,
       .info-panel {
         padding: 20px
+      }
+    }
+
+    @media (max-width: 700px) {
+      .staff-profile-photo {
+        height: auto;
+        aspect-ratio: 16 / 9
+      }
+
+      .staff-profile-photo.staff-portrait-photo {
+        aspect-ratio: 3 / 4
       }
     }
 
