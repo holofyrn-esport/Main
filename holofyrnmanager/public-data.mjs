@@ -99,6 +99,11 @@ export function publicHoloFyrnData(data = {}) {
     ctaLabel:str(item.ctaLabel || (item.id === 'site-rocket-league-teams' ? 'Explore Teams' : '')).slice(0,60),
     ctaUrl:/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(str(item.ctaUrl || (item.id === 'site-rocket-league-teams' ? '#/teams/' : ''))) || /^https:\/\/[^\s]+$/i.test(str(item.ctaUrl)) ? str(item.ctaUrl || '#/teams/').slice(0,2048) : '',
   }));
+  const competitions = rows(data.managerV8?.competitions).filter(item => item.status === 'published' && str(item.titleEn) && str(item.titleHu) && /^\d{4}-\d{2}-\d{2}$/.test(str(item.date))).map(item => ({
+    id:str(item.id).slice(0,100), titleEn:str(item.titleEn).slice(0,160), titleHu:str(item.titleHu).slice(0,160), date:str(item.date),
+    locationEn:str(item.locationEn).slice(0,160), locationHu:str(item.locationHu).slice(0,160), descriptionEn:str(item.descriptionEn).slice(0,1200), descriptionHu:str(item.descriptionHu).slice(0,1200),
+    url:/^https:\/\/[^\s]+$/i.test(str(item.url))?str(item.url).slice(0,2048):'',
+  }));
   const staffSource = Array.isArray(data.managerV8?.staff) ? data.managerV8.staff : defaultStaff;
   const staff = rows(staffSource).filter(item => str(item.name) && str(item.role)).map(item => ({
     id:str(item.id).slice(0,100), name:str(item.name).slice(0,80), role:str(item.roleEn || item.role).slice(0,120),
@@ -107,5 +112,5 @@ export function publicHoloFyrnData(data = {}) {
     profileUrl:/^#\/staff\/(?:member\/)?[a-z0-9-]+\/$/i.test(str(item.profileUrl)) ? str(item.profileUrl).slice(0,160) : '',
     bio:str(item.bioEn || item.bio).slice(0,2000), bioEn:str(item.bioEn || item.bio).slice(0,2000), bioHu:str(item.bioHu).slice(0,2000),
   }));
-  return {players,results,upcomingMatches,news,staff};
+  return {players,results,upcomingMatches,news,competitions,staff};
 }

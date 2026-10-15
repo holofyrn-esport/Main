@@ -362,6 +362,7 @@ function render() {
   const results = publicData?.results || [];
   renderPublicStaff(route);
   renderPublishedNews(route);
+  renderPublicCompetitions(route);
   if (route.startsWith('/players/')) {
     renderProfile(route, players);
     return;
@@ -514,6 +515,32 @@ function renderPublishedNews(route) {
   });
 }
 
+function renderPublicCompetitions(route) {
+  if (route !== '/competitions/') return;
+  const container = document.querySelector('#main .compact-section');
+  if (!container) return;
+  const competitions = (publicData?.competitions || []).filter(item => item && item.titleEn && item.titleHu && /^\d{4}-\d{2}-\d{2}$/.test(item.date));
+  if (!competitions.length) return;
+  const hu = document.documentElement.lang === 'hu';
+  const cards = competitions.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(item => {
+    const card = document.createElement('article');
+    card.className = 'card card-pad';
+    const date = document.createElement('span');
+    date.className = 'eyebrow';
+    date.textContent = new Intl.DateTimeFormat(hu ? 'hu-HU' : 'en-GB', {year:'numeric',month:'long',day:'numeric'}).format(new Date(`${item.date}T12:00:00`));
+    const title = document.createElement('h3');
+    title.textContent = hu ? item.titleHu : item.titleEn;
+    card.append(date,title);
+    const location = hu ? item.locationHu : item.locationEn;
+    const description = hu ? item.descriptionHu : item.descriptionEn;
+    if (location) { const place=document.createElement('p'); place.textContent=location; card.append(place); }
+    if (description) { const copy=document.createElement('p'); copy.textContent=description; card.append(copy); }
+    if (item.url && /^https:\/\/[^\s]+$/i.test(item.url)) { const link=document.createElement('a'); link.className='button button-outline'; link.href=item.url; link.target='_blank'; link.rel='noopener noreferrer'; link.textContent=hu?'Részletek és nevezés ↗':'Details and registration ↗'; card.append(link); }
+    return card;
+  });
+  container.replaceChildren(...cards);
+}
+
 function showPublicArticle(article) {
   let dialog = document.getElementById('public-news-dialog');
   if (!dialog) {
@@ -597,11 +624,13 @@ document.querySelector('.language-toggle')?.addEventListener('click', () => {
   if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
   renderPublicStaff(route);
   renderPublishedNews(route);
+  renderPublicCompetitions(route);
 });
 document.addEventListener('holofyrn:language', () => {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
   renderPublicStaff(route);
   renderPublishedNews(route);
+  renderPublicCompetitions(route);
 });
 render();
 try {

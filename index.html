@@ -2397,7 +2397,8 @@
       <nav id="main-nav" class="main-nav" aria-label="Main navigation"><a href="#/teams/" class=""><span data-en="Teams"
             data-hu="Csapatok">Teams</span></a><a href="#/divisions/" class=""><span data-en="Divisions"
             data-hu="Szakosztályok">Divisions</span></a><a href="#/news/" class=""><span data-en="News"
-            data-hu="Hírek">News</span></a><a href="#/sponsors/" class=""><span data-en="Partners"
+            data-hu="Hírek">News</span></a><a href="#/competitions/" class=""><span data-en="Competitions"
+            data-hu="Versenyek">Competitions</span></a><a href="#/sponsors/" class=""><span data-en="Partners"
             data-hu="Partner">Partners</span></a><a href="#/staff/" class=""><span data-en="Management"
             data-hu="Vezetőség">Management</span></a><a href="#/about/" class=""><span data-en="About"
             data-hu="Rólunk">About</span></a><a href="#/socials" class=""><span data-en="Socials"
@@ -2689,6 +2690,7 @@
     <div class="container footer-bottom">
       <nav aria-label="Footer navigation"><a href="#/teams/"><span data-en="Teams" data-hu="Csapatok">Teams</span></a><a
           href="#/divisions/"><span data-en="Divisions" data-hu="Szakosztályok">Divisions</span></a><a
+          href="#/competitions/"><span data-en="Competitions" data-hu="Versenyek">Competitions</span></a><a
           href="#/news/"><span data-en="News" data-hu="Hírek">News</span></a><a href="#/sponsors/"><span
             data-en="Partners" data-hu="Partner">Partners</span></a><a href="#/staff/"><span data-en="Management"
             data-hu="Vezetőség">Management</span></a><a href="#/about/"><span data-en="About" data-hu="Rólunk">About</span></a><a
@@ -3225,6 +3227,17 @@
   </template>
   <template data-route="/news-article/" data-title="News | HoloFyrn Esport">
     <section class="section container page-section public-news-article" id="public-news-article" aria-live="polite"></section>
+  </template>
+  <template data-route="/competitions/" data-title="Versenyek | HoloFyrn Esports">
+    <div class="page-intro container">
+      <div class="eyebrow"><i></i><span data-en="HOLOFYRN / COMPETITIONS" data-hu="HOLOFYRN / VERSENYEK">HOLOFYRN / COMPETITIONS</span></div>
+      <h1><span data-en="Our competitions" data-hu="Versenyeink">Our competitions</span></h1>
+      <p data-en="Follow the tournaments organized by HoloFyrn Esports. Details and registration information will appear here." data-hu="Kövesd a HoloFyrn Esports által szervezett versenyeket. A részletek és a nevezési információk itt jelennek majd meg.">Follow the tournaments organized by HoloFyrn Esports. Details and registration information will appear here.</p>
+    </div>
+    <section class="section container page-section">
+      <div class="section-heading"><div><span class="eyebrow"><i></i><span data-en="UPCOMING &amp; PAST EVENTS" data-hu="KÖVETKEZŐ ÉS KORÁBBI ESEMÉNYEK">UPCOMING &amp; PAST EVENTS</span></span><h2><span data-en="HoloFyrn tournaments" data-hu="HoloFyrn versenyek">HoloFyrn tournaments</span></h2></div></div>
+      <div class="compact-section"><p data-en="No competitions have been announced yet. Check back soon for updates." data-hu="Még nincs meghirdetett verseny. Hamarosan új információkkal jelentkezünk.">No competitions have been announced yet. Check back soon for updates.</p></div>
+    </section>
   </template>
   <template data-route="/news/" data-title="News | HoloFyrn Esport">
     <div class="page-intro container">
@@ -5594,7 +5607,7 @@
       route();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261014-management-terms-2"></script>
+  <script type="module" src="public-data-v3.js?v=20261015-website-competitions"></script>
 </body>
 
 </html>

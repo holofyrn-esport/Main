@@ -96,11 +96,12 @@ service cloud.firestore {
     match /holofyrnPublic/main {
       allow read: if request.auth != null;
       allow create, update: if isPublisher()
-        && request.resource.data.keys().hasOnly(['players', 'results', 'upcomingMatches', 'news', 'staff', 'publishedAt'])
+        && request.resource.data.keys().hasOnly(['players', 'results', 'upcomingMatches', 'news', 'competitions', 'staff', 'publishedAt'])
         && request.resource.data.players is list
         && request.resource.data.results is list
         && request.resource.data.upcomingMatches is list
         && request.resource.data.get('news', []) is list
+        && request.resource.data.get('competitions', []) is list
         && request.resource.data.get('staff', []) is list;
       allow delete: if false;
     }

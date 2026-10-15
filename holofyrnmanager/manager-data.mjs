@@ -26,7 +26,7 @@ function rebrand(value) {
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [rebrand(key), rebrand(item)]));
   return value;
 }
-export const sharedKeys = ['teams', 'players', 'results', 'events', 'availability', 'leagues', 'leagueGames', 'goals', 'news', 'notifications', 'users', 'staff', 'matches'];
+export const sharedKeys = ['teams', 'players', 'results', 'events', 'availability', 'leagues', 'leagueGames', 'goals', 'news', 'competitions', 'notifications', 'users', 'staff', 'matches'];
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
@@ -69,7 +69,7 @@ export function fromDatabase(data = {}, profiles = [], uid = '') {
     teams: Array.isArray(extension.teams) ? extension.teams.map(rebrand) : structuredClone(defaultTeams), users, players, events, staff: Array.isArray(extension.staff) ? extension.staff : structuredClone(defaultStaff), matches: list(extension.matches),
     results: list(data.results).map(r=>({id:str(r.id), team:r.teamId || 'main', type:r.managerType || (r.type === 'League match' ? 'league' : 'tournament'), date:dateParts(r).date, event:r.title || r.event || '', stage:r.stage || '', placement:r.placement || r.score || '', prizeMoney:Number(r.prizeEur || r.prizeMoney || 0), result:r.result || 'pending', ...(r.leagueId != null ? {leagueId:r.leagueId} : {})})),
     availability: list(data.availability).map(a=>({id:str(a.id), playerId:str(a.playerId), date:a.date || '', from:a.startTime || a.from || '', until:a.endTime || a.until || '', status:a.status || 'Available'})),
-    leagues: rebrand(list(extension.leagues).map(l=>({...l,playoffs:l.playoffs||{rounds:[]}}))), leagueGames: rebrand(list(extension.leagueGames)), goals: list(extension.goals).map(g=>({...g,progress:Math.max(0,Math.min(100,Number(g.progress)||0)),mode:g.mode||'percent',status:g.status||'active',priority:['low','normal','high','urgent'].includes(g.priority)?g.priority:'normal'})), news: list(extension.news), notifications: list(extension.notifications),
+    leagues: rebrand(list(extension.leagues).map(l=>({...l,playoffs:l.playoffs||{rounds:[]}}))), leagueGames: rebrand(list(extension.leagueGames)), goals: list(extension.goals).map(g=>({...g,progress:Math.max(0,Math.min(100,Number(g.progress)||0)),mode:g.mode||'percent',status:g.status||'active',priority:['low','normal','high','urgent'].includes(g.priority)?g.priority:'normal'})), news: list(extension.news), competitions:list(extension.competitions), notifications: list(extension.notifications),
   };
 }
 const equal = (a,b) => JSON.stringify(a) === JSON.stringify(b);
@@ -149,6 +149,12 @@ export function validateChanges(changes, user, players) {
       if (c.after && ((c.after.imageUrl && (typeof c.after.imageUrl !== 'string' || c.after.imageUrl.length > 2048 || !/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath !== 'string' || !/^news\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(c.after.imagePath))))) throw new Error('News images must use a valid HTTPS storage URL and image path.');
       if (c.after && ((Boolean(c.after.ctaLabel) !== Boolean(c.after.ctaUrl)) || (c.after.ctaLabel && (typeof c.after.ctaLabel !== 'string' || c.after.ctaLabel.length > 60)) || (c.after.ctaUrl && (typeof c.after.ctaUrl !== 'string' || c.after.ctaUrl.length > 2048 || !(/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(c.after.ctaUrl) || /^https:\/\/[^\s]+$/i.test(c.after.ctaUrl)))))) throw new Error('News buttons need a label and a valid internal page or HTTPS link.');
     }
+    else if (key === 'competitions') {
+      if (!admin) throw new Error('Administrator access required to manage website competitions.');
+      if (c.after && (!c.after.titleEn?.trim() || !c.after.titleHu?.trim() || !c.after.date || !['draft','published'].includes(c.after.status))) throw new Error('A competition needs English and Hungarian titles, a date and a valid status.');
+      if (c.after && ['titleEn','titleHu','locationEn','locationHu','descriptionEn','descriptionHu'].some(field => typeof (c.after[field]||'') !== 'string' || (c.after[field]||'').length > (field.startsWith('description') ? 1200 : 160))) throw new Error('Competition text exceeds the allowed length.');
+      if (c.after?.url && (typeof c.after.url !== 'string' || c.after.url.length > 2048 || !/^https:\/\/[^\s]+$/i.test(c.after.url))) throw new Error('Use a valid HTTPS competition link.');
+    }
     else if (key === 'availability') {
       if (!staff && [c.before,c.after].filter(Boolean).some(a=>players.find(p=>str(p.id)===str(a.playerId))?.accountId !== user.id)) throw new Error('You may only edit your own availability.');
       if (c.after && (!row.playerId || !row.date || !row.from || row.from>=row.until)) throw new Error('Check the availability date and time range.');
@@ -179,7 +185,7 @@ export function toDatabase(data, profiles, uid, changes) {
   if (changes.results || deletedLeagues.size) patch.results = preserve('results',next.results,r=>({id:r.id,teamId:r.team,managerType:r.type,type:list(data.results).find(x=>str(x.id)===r.id)?.type || (r.type==='league'?'Match':'Tournament'),dateTime:r.date+'T12:00',title:r.event,stage:r.stage,placement:r.placement,prizeEur:r.prizeMoney,result:r.result,...(r.leagueId!=null?{leagueId:r.leagueId}:{})}));
   if (changes.availability) patch.availability = preserve('availability',next.availability,a=>({id:a.id,playerId:a.playerId,teamId:next.players.find(p=>p.id===a.playerId)?.team || 'main',date:a.date,startTime:a.from,endTime:a.until,status:a.status || 'Available'}));
   if (changes.events) patch.events = preserve('events',next.events.filter(e=>!e.source),e=>({id:e.id,title:e.title,dateTime:`${e.date}T${e.time}`,startsAtUtc:new Date(`${e.date}T${e.time}`).toISOString(),durationMinutes:e.duration,type:e.type,priority:e.priority || 'normal',creatorUserId:e.creatorUserId,invitedTeamIds:e.invitedTeamIds,invitedUserIds:e.invitedUserIds,directInvitedUserIds:e.directInvitedUserIds || [],hiddenFromAdmins:e.hiddenFromAdmins,teamId:e.invitedTeamIds[0] || '',targetType:e.invitedTeamIds.length?'team':'player'}));
-  if (['teams','leagues','leagueGames','goals','news','notifications','staff','matches'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, ...Object.fromEntries(['teams','leagues','leagueGames','goals','news','notifications','staff','matches'].filter(k=>changes[k]).map(k=>[k,next[k]])), ...(changes.news ? {newsInitialized:true} : {})};
+  if (['teams','leagues','leagueGames','goals','news','competitions','notifications','staff','matches'].some(k=>changes[k])) patch.managerV8 = {...data.managerV8, ...Object.fromEntries(['teams','leagues','leagueGames','goals','news','competitions','notifications','staff','matches'].filter(k=>changes[k]).map(k=>[k,next[k]])), ...(changes.news ? {newsInitialized:true} : {})};
   const userWrites = [];
   const affectedUserIds = new Set([...(changes.users || []).map(c=>c.id), ...(changes.players || []).flatMap(c=>[c.before?.accountId,c.after?.accountId]).filter(Boolean)]);
   for (const id of affectedUserIds) {
