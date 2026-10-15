@@ -1,7 +1,7 @@
 
 // Loaded before concept.js. The imported UI calls these production services.
 let services, model, publicModel, authenticatedUser, baseline, remoteData = {}, remoteProfiles = [];
-let subscriptions = [], pendingWrites = 0, writeQueue = Promise.resolve(), syncMessage = '';
+let subscriptions = [], pendingWrites = 0, writeQueue = Promise.resolve(), syncMessage = '', initialSnapshotTimer = null;
 let availabilityOffset = 0, connectionEpoch = 0, liveReady = false, refreshDeferred = false, publicPublishStarted = false, coachingProfilesSynced = false;
 let storageApi;
 const EXISTING_SITE_NEWS = [
@@ -30,7 +30,7 @@ async function uploadManagerTeamLogo(file,teamId){
   await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
   return {logoUrl:await storageApi.getDownloadURL(target),logoPath:path};
 }
-function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],leagues:[],leagueGames:[],goals:[],news:[],competitions:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
+function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',resultFolderFilter:'',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],resultFolders:[],leagues:[],leagueGames:[],goals:[],news:[],competitions:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
 function safeUrl(input, image=false){
   if(image && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(input))return input;
@@ -38,6 +38,7 @@ function safeUrl(input, image=false){
 }
 function availabilityWeekStart(){const date=new Date();date.setDate(date.getDate()-((date.getDay()+6)%7)+availabilityOffset*7);return model.localDate(date);}
 function updateSyncStatus(){const el=document.getElementById('sync-status');if(el){el.textContent=syncMessage || (pendingWrites?'Saving…':liveReady?'Connected':'Connecting…');el.dataset.error=syncMessage?'true':'false';}}
+function withTimeout(promise,milliseconds,message){let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(message)),milliseconds);})]).finally(()=>clearTimeout(timer));}
 function savePreferences(){try{localStorage.setItem('noctiq-manager-view',JSON.stringify(Object.fromEntries(['activeTeam','view','resultTab','selectedLeagueId','leagueTab','calendarCursor','sidebarOpen'].map(k=>[k,state[k]]))));}catch{/* View preferences are optional. */}}
 function queueSave(){
   savePreferences();
@@ -195,24 +196,26 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261015-website-competitions'),import('./public-data.mjs?v=20261015-website-competitions'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261016-league-result-folders'),import('./public-data.mjs?v=20261015-website-competitions'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     storageApi=storage;services={appApi,fire,authApi,storageApi:storage,storage:storage.getStorage(app),db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};
     authApi.onAuthStateChanged(auth,async user=>{
+      clearTimeout(initialSnapshotTimer);initialSnapshotTimer=null;
       const epoch=++connectionEpoch;subscriptions.forEach(fn=>fn());subscriptions=[];
       liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];baseline=null;state=emptyState();publicPublishStarted=false;coachingProfilesSynced=false;resetCoachingCache();
       document.getElementById('modal-root').innerHTML='';
       if(!user){showLogin();return;}
       document.getElementById('app').innerHTML='<main class="login-screen"><section class="card login-card" role="status">Loading team data…</section></main>';
       try{
-        const ownRef=fire.doc(db,'users',user.uid),own=await fire.getDoc(ownRef);
+        const ownRef=fire.doc(db,'users',user.uid),own=await withTimeout(fire.getDoc(ownRef),20000,'Timed out while loading your manager profile. Check that Firebase is reachable, then retry.');
         if(epoch!==connectionEpoch)return;
         if(!own.exists()){showAccessError('No team profile is linked to this login. Ask an administrator to create the account.');return;}
         try{const prefs=JSON.parse(localStorage.getItem('noctiq-manager-view') || '{}');for(const key of ['activeTeam','view','resultTab','selectedLeagueId','leagueTab','calendarCursor','sidebarOpen'])if(key in prefs && key!=='sidebarOpen')state[key]=prefs[key];}catch{/* Ignore invalid preferences. */}
         let gotData=false,gotUsers=false;
-        const ready=()=>{if(epoch!==connectionEpoch || syncMessage==='Not saved')return;if(gotData&&gotUsers){liveReady=true;applyDatabase();}};
-        const fail=error=>{if(epoch===connectionEpoch){console.error(error);showAccessError('The database could not be loaded. Check your connection and Firestore access.');}};
+        const ready=()=>{if(epoch!==connectionEpoch || syncMessage==='Not saved')return;if(gotData&&gotUsers){clearTimeout(initialSnapshotTimer);initialSnapshotTimer=null;liveReady=true;try{applyDatabase();}catch(error){console.error('Manager data could not be rendered.',error);liveReady=false;showAccessError(`Team data loaded but could not be displayed: ${error.message||'Unknown error'}`);}}};
+        const fail=error=>{if(epoch===connectionEpoch){clearTimeout(initialSnapshotTimer);initialSnapshotTimer=null;console.error(error);showAccessError('The database could not be loaded. Check your connection and Firestore access.');}};
+        initialSnapshotTimer=setTimeout(()=>{if(epoch===connectionEpoch&&!liveReady){subscriptions.forEach(unsubscribe=>unsubscribe());subscriptions=[];showAccessError('Timed out while loading team data. Check your connection and Firebase/Firestore access, then retry.');}},20000);
         subscriptions.push(fire.onSnapshot(services.storeRef,snap=>{if(epoch!==connectionEpoch)return;remoteData=snap.exists()?snap.data():{};gotData=true;ready();},fail));
         subscriptions.push(fire.onSnapshot(fire.collection(db,'users'),snap=>{if(epoch!==connectionEpoch)return;remoteProfiles=snap.docs.map(d=>({...d.data(),id:d.id}));gotUsers=true;ready();},fail));
       }catch(error){if(epoch===connectionEpoch)showAccessError(error.code==='permission-denied'?'This login has no approved team profile or Firestore access. Ask an administrator to check the account.':error.message);}
@@ -225,7 +228,7 @@ function bindConnectedActions(){
   document.getElementById('availability-prev')?.addEventListener('click',()=>{availabilityOffset--;render();});
   document.getElementById('availability-next')?.addEventListener('click',()=>{availabilityOffset++;render();});
   const search=document.querySelector('.searchbar input');
-  if(search){search.setAttribute('aria-label','Search players, events and leagues');search.onkeydown=event=>{if(event.key!=='Enter')return;event.preventDefault();const q=search.value.trim().toLowerCase();if(!q)return;const players=state.players.filter(p=>`${p.name} ${p.rl}`.toLowerCase().includes(q));const events=visibleEventsForCurrentUser().filter(e=>e.title.toLowerCase().includes(q));const leagues=state.leagues.filter(l=>l.name.toLowerCase().includes(q));openModal('Search results',`<div class="search-results">${players.map(p=>`<button class="btn" data-found-player="${esc(p.id)}">Player · ${esc(p.name)}</button>`).join('')}${events.map(e=>`<button class="btn" data-found-event="${esc(e.id)}">Calendar · ${esc(e.title)}</button>`).join('')}${leagues.map(l=>`<button class="btn" data-found-league="${esc(l.id)}">League · ${esc(l.name)}</button>`).join('')}${!players.length&&!events.length&&!leagues.length?'<p class="empty">No results.</p>':''}</div>`,null);document.querySelectorAll('[data-found-player]').forEach(b=>b.onclick=()=>viewPlayer(playerById(b.dataset.foundPlayer)));document.querySelectorAll('[data-found-event]').forEach(b=>b.onclick=()=>eventDetailModal(state.events.find(e=>String(e.id)===b.dataset.foundEvent)));document.querySelectorAll('[data-found-league]').forEach(b=>b.onclick=()=>{state.selectedLeagueId=state.leagues.find(l=>String(l.id)===b.dataset.foundLeague).id;state.view='league';closeModal();render();});};}
+  if(search){search.setAttribute('aria-label','Search players, events and leagues');search.onkeydown=event=>{if(event.key!=='Enter')return;event.preventDefault();const q=search.value.trim().toLowerCase();if(!q)return;const players=state.players.filter(p=>`${p.name} ${p.rl}`.toLowerCase().includes(q));const events=visibleEventsForCurrentUser().filter(e=>e.title.toLowerCase().includes(q));const leagues=state.leagues.filter(l=>l.name.toLowerCase().includes(q));const total=players.length+events.length+leagues.length;const resultGroup=(label,kind,items,makeButton)=>items.length?`<section class="search-result-group"><div class="search-result-group-head"><span>${label}</span><b>${items.length}</b></div><div class="search-result-list">${items.map(makeButton).join('')}</div></section>`:'';openModal('Search results',`<div class="search-results"><div class="search-results-summary"><span class="search-results-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4.2 4.2"/></svg></span><div><small>SEARCH MATCHES FOR</small><strong>“${esc(q)}”</strong></div><span class="search-results-total">${total} ${total===1?'result':'results'}</span></div>${resultGroup('Players','player',players,p=>`<button class="search-result-item" data-found-player="${esc(p.id)}"><span class="search-result-type player">Player</span><span class="search-result-name">${esc(p.name)}</span><span class="search-result-arrow" aria-hidden="true">↗</span></button>`)}${resultGroup('Calendar events','event',events,e=>`<button class="search-result-item" data-found-event="${esc(e.id)}"><span class="search-result-type event">Calendar</span><span class="search-result-name">${esc(e.title)}</span><span class="search-result-arrow" aria-hidden="true">↗</span></button>`)}${resultGroup('Leagues','league',leagues,l=>`<button class="search-result-item" data-found-league="${esc(l.id)}"><span class="search-result-type league">League</span><span class="search-result-name">${esc(l.name)}</span><span class="search-result-arrow" aria-hidden="true">↗</span></button>`)}${!total?'<div class="search-results-empty"><span aria-hidden="true">⌕</span><strong>No matches found</strong><p>Try another player, event or league name.</p></div>':''}</div>`,null);document.querySelectorAll('[data-found-player]').forEach(b=>b.onclick=()=>viewPlayer(playerById(b.dataset.foundPlayer)));document.querySelectorAll('[data-found-event]').forEach(b=>b.onclick=()=>eventDetailModal(state.events.find(e=>String(e.id)===b.dataset.foundEvent)));document.querySelectorAll('[data-found-league]').forEach(b=>b.onclick=()=>{state.selectedLeagueId=state.leagues.find(l=>String(l.id)===b.dataset.foundLeague).id;state.view='league';closeModal();render();});};}
 }
 function bindAdmin(){
   if(!isAdmin())return;
