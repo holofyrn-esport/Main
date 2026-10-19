@@ -335,7 +335,9 @@ body::before,body::after{display:none!important}
 .goal-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 18px}
 .goal-team{margin:0 0 18px;border-color:rgba(255,255,255,.09)}
 .goal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.goal-card{display:flex;align-items:flex-start;gap:15px;padding:17px;border-radius:15px;border:1px solid var(--line2);background:rgba(255,255,255,.025);min-width:0}
+.goal-card{display:flex;align-items:flex-start;gap:15px;padding:17px;border-radius:15px;border:1px solid var(--line2);background:rgba(255,255,255,.025);min-width:0;position:relative}
+.player-image-manager-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}.player-image-manager-card{display:flex;align-items:center;gap:14px;min-width:0}.player-image-manager-preview{width:84px;height:96px;flex:0 0 84px;object-fit:cover;object-position:center top;border-radius:12px;background:#0a0d13;border:1px solid var(--line)}.player-image-manager-info{min-width:0}.player-image-manager-info h3{margin:0 0 4px}.player-image-manager-info p{margin:0 0 10px;color:var(--muted);font-size:12px}.player-image-file{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.player-image-manager-card label:focus-within{outline:2px solid #e54663;outline-offset:2px}
+.player-image-manager-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}.player-image-manager-card{display:flex;align-items:center;gap:14px;min-width:0}.player-image-manager-preview{width:84px;height:96px;flex:0 0 84px;object-fit:cover;object-position:center top;border-radius:12px;background:#0a0d13;border:1px solid var(--line)}.player-image-manager-info{min-width:0}.player-image-manager-info h3{margin:0 0 4px}.player-image-manager-info p{margin:0 0 10px;color:var(--muted);font-size:12px}.player-image-file{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.player-image-manager-card label:focus-within{outline:2px solid #e54663;outline-offset:2px}
 .goal-ring{--goal-progress:0deg;width:58px;height:58px;flex:0 0 58px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#df3556 var(--goal-progress),rgba(255,255,255,.10) 0);position:relative}
 .goal-ring:before{content:"";position:absolute;inset:5px;border-radius:50%;background:#10151e}
 .goal-ring span{position:relative;font-size:13px;font-weight:800}
@@ -427,6 +429,11 @@ body{overflow-x:hidden}
 .achievement-completed-check{position:absolute;z-index:2;top:13px;right:13px;display:grid;place-items:center;width:24px;height:24px;color:#fff;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));pointer-events:none}
 .achievement-completed-check svg{width:21px;height:21px;overflow:visible}.achievement-completed-check path{stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 .achievement-card.achievement-completed>*:not(.achievement-completed-check){position:relative;z-index:1}
+.goal-failed-mark,.achievement-failed-mark{position:absolute;z-index:3;top:13px;right:13px;display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#df3556;color:#fff;box-shadow:0 2px 7px rgba(0,0,0,.35);pointer-events:none}
+.goal-failed-mark svg,.achievement-failed-mark svg{width:17px;height:17px;stroke:currentColor;stroke-width:3;stroke-linecap:round}
+.achievement-card.achievement-failed{position:relative;isolation:isolate;overflow:hidden}
+.achievement-card.achievement-failed:before{position:absolute;z-index:-1;top:0;right:0;width:78px;height:78px;background:linear-gradient(145deg,rgba(223,53,86,.35),rgba(178,32,57,.12));clip-path:polygon(0 0,100% 0,100% 100%);content:"";pointer-events:none}
+.achievement-card.achievement-failed>*:not(.achievement-failed-mark){position:relative;z-index:1}
 .nav-ico{width:22px;height:22px;flex:0 0 22px}
 .nav-ico svg{display:block;width:19px;height:19px;overflow:visible;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:transform .16s ease,color .16s ease}
 .nav-btn:hover .nav-ico svg{transform:scale(1.08)}

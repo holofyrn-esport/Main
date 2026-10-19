@@ -41,6 +41,7 @@ function playerLink(player) {
 }
 
 function portrait(player) {
+  if (typeof player.imageUrl === 'string' && /^https:\/\//i.test(player.imageUrl)) return player.imageUrl;
   const name = player.name.trim().toLowerCase();
   if (name === 'kenz') return 'assets/Kenz-profile.webp';
   if (name === 'zemsta') return 'assets/zemsta-1200.webp';
@@ -138,7 +139,7 @@ function renderProfile(route, players) {
   photo.className = 'profile-photo public-profile-photo';
   const isZemstaAcademy = player.team === 'academy' && player.name.trim().toLowerCase() === 'zemsta';
   const isKenzMain = player.team === 'main' && player.name.trim().toLowerCase() === 'kenz';
-  const photoFile = isZemstaAcademy ? 'assets/zemsta-1200.webp' : portrait(player);
+  const photoFile = player.imageUrl ? portrait(player) : isZemstaAcademy ? 'assets/zemsta-1200.webp' : portrait(player);
   if (photoFile) {
     photo.classList.add('has-portrait');
     photo.style.backgroundImage = `linear-gradient(0deg,#131010,transparent 35%),url('${photoFile}')`;

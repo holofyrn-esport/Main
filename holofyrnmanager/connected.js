@@ -30,6 +30,15 @@ async function uploadManagerTeamLogo(file,teamId){
   await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
   return {logoUrl:await storageApi.getDownloadURL(target),logoPath:path};
 }
+async function uploadPlayerImage(file,playerId){
+  if(!file||!storageApi||!services?.storage||!authenticatedUser)throw new Error('Image storage is unavailable. Reload the manager and try again.');
+  const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'},extension=extensions[file.type];
+  if(!extension)throw new Error('Choose a JPG, PNG or WebP image.');
+  if(file.size>8*1024*1024)throw new Error('The image must be smaller than 8 MB.');
+  const path=`player-images/${authenticatedUser.uid}/${playerId}/${crypto.randomUUID()}.${extension}`,target=storageApi.ref(services.storage,path);
+  await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
+  return {imageUrl:await storageApi.getDownloadURL(target),imagePath:path};
+}
 function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',resultFolderFilter:'',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],resultFolders:[],leagues:[],leagueGames:[],goals:[],news:[],competitions:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
 function safeUrl(input, image=false){
@@ -45,7 +54,7 @@ function queueSave(){
   if(!liveReady || !currentUser() || !baseline)return false;
   const changes=model.changesBetween(baseline,state);
   if(!Object.keys(changes).length)return true;
-  try{model.validateChanges(changes,currentUser(),baseline.players);}catch(error){state={...state,...structuredClone(baseline)};render();toast('Change rejected',error.message);return false;}
+  try{model.validateChanges(changes,currentUser(),baseline.players,baseline.leagues);}catch(error){state={...state,...structuredClone(baseline)};render();toast('Change rejected',error.message);return false;}
   const previous=structuredClone(baseline), epoch=connectionEpoch;
   let latestSnapshot=null, latestProfiles=null;
   let committedSnapshot=null, committedUserWrites=[];
@@ -196,7 +205,7 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261016-league-result-folders'),import('./public-data.mjs?v=20261015-website-competitions'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261019-player-images'),import('./public-data.mjs?v=20261019-player-images'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     storageApi=storage;services={appApi,fire,authApi,storageApi:storage,storage:storage.getStorage(app),db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};

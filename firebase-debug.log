@@ -1,0 +1,104 @@
+[debug] [2026-10-19T21:54:38.887Z] ----------------------------------------------------------------------
+[debug] [2026-10-19T21:54:38.895Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\david\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list --json
+[debug] [2026-10-19T21:54:38.895Z] CLI Version:   15.31.0
+[debug] [2026-10-19T21:54:38.895Z] Platform:      win32
+[debug] [2026-10-19T21:54:38.896Z] Node Version:  v24.16.0
+[debug] [2026-10-19T21:54:38.896Z] Detected Agent: codex_cli
+[debug] [2026-10-19T21:54:38.896Z] Time:          Mon Oct 19 2026 23:54:38 GMT+0200 (közép-európai nyári idő)
+[debug] [2026-10-19T21:54:38.896Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-19T21:54:38.931Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-10-19T21:54:39.280Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-19T21:54:39.280Z] > authorizing via signed-in user (codenest.csapat@gmail.com)
+[debug] [2026-10-19T21:54:39.284Z] Checked if tokens are valid: false, expires at: 1792112502085
+[debug] [2026-10-19T21:54:39.284Z] Checked if tokens are valid: false, expires at: 1792112502085
+[debug] [2026-10-19T21:54:39.284Z] > refreshing access token with scopes: []
+[debug] [2026-10-19T21:54:39.286Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-10-19T21:54:39.286Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-19T21:54:39.513Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-10-19T21:54:39.514Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-19T21:54:39.534Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-10-19T21:54:39.667Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-10-19T21:54:39.667Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-10-19T21:54:40.181Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2026-10-19T21:55:25.418Z] ----------------------------------------------------------------------
+[debug] [2026-10-19T21:55:25.422Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\david\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js auth:export C:\Users\david\AppData\Local\Temp\firebase-auth-zyonikk-59ec847a0bb640df9a03df9dae307df5.json --project noctiq-d1020 --format json
+[debug] [2026-10-19T21:55:25.423Z] CLI Version:   15.31.0
+[debug] [2026-10-19T21:55:25.423Z] Platform:      win32
+[debug] [2026-10-19T21:55:25.423Z] Node Version:  v24.16.0
+[debug] [2026-10-19T21:55:25.424Z] Detected Agent: codex_cli
+[debug] [2026-10-19T21:55:25.424Z] Time:          Mon Oct 19 2026 23:55:25 GMT+0200 (közép-európai nyári idő)
+[debug] [2026-10-19T21:55:25.425Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-19T21:55:25.678Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-19T21:55:25.679Z] > authorizing via signed-in user (codenest.csapat@gmail.com)
+[debug] [2026-10-19T21:55:25.679Z] [iam] checking project noctiq-d1020 for permissions ["firebase.projects.get","firebaseauth.users.get"]
+[debug] [2026-10-19T21:55:25.699Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:55:25.700Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:55:25.701Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions [none]
+[debug] [2026-10-19T21:55:25.702Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions  x-goog-user-project=noctiq-d1020
+[debug] [2026-10-19T21:55:25.702Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions {"permissions":["firebase.projects.get","firebaseauth.users.get"]}
+[debug] [2026-10-19T21:55:26.986Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions 200
+[debug] [2026-10-19T21:55:26.987Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions {"permissions":["firebase.projects.get","firebaseauth.users.get"]}
+[info] Exporting accounts to C:\Users\david\AppData\Local\Temp\firebase-auth-zyonikk-59ec847a0bb640df9a03df9dae307df5.json
+[debug] [2026-10-19T21:55:26.989Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:55:26.989Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:55:26.990Z] >>> [apiv2][query] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount [none]
+[debug] [2026-10-19T21:55:26.990Z] >>> [apiv2][body] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount {"targetProjectId":"noctiq-d1020","maxResults":1000}
+[debug] [2026-10-19T21:55:27.448Z] <<< [apiv2][status] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount 200
+[debug] [2026-10-19T21:55:27.449Z] <<< [apiv2][body] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount [omitted]
+[info] +  Exported 91 account(s) successfully. 
+[debug] [2026-10-19T21:57:53.758Z] ----------------------------------------------------------------------
+[debug] [2026-10-19T21:57:53.762Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\david\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js auth:export C:\Users\david\AppData\Local\Temp\firebase-auth-zyonikk-b4d99dec1d954c9d9b93fdbed325e602.json --project noctiq-d1020 --format json
+[debug] [2026-10-19T21:57:53.763Z] CLI Version:   15.31.0
+[debug] [2026-10-19T21:57:53.763Z] Platform:      win32
+[debug] [2026-10-19T21:57:53.763Z] Node Version:  v24.16.0
+[debug] [2026-10-19T21:57:53.763Z] Detected Agent: codex_cli
+[debug] [2026-10-19T21:57:53.763Z] Time:          Mon Oct 19 2026 23:57:53 GMT+0200 (közép-európai nyári idő)
+[debug] [2026-10-19T21:57:53.763Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-19T21:57:54.041Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-19T21:57:54.042Z] > authorizing via signed-in user (codenest.csapat@gmail.com)
+[debug] [2026-10-19T21:57:54.042Z] [iam] checking project noctiq-d1020 for permissions ["firebase.projects.get","firebaseauth.users.get"]
+[debug] [2026-10-19T21:57:54.065Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:57:54.066Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:57:54.067Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions [none]
+[debug] [2026-10-19T21:57:54.067Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions  x-goog-user-project=noctiq-d1020
+[debug] [2026-10-19T21:57:54.067Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions {"permissions":["firebase.projects.get","firebaseauth.users.get"]}
+[debug] [2026-10-19T21:57:54.584Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions 200
+[debug] [2026-10-19T21:57:54.584Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions {"permissions":["firebase.projects.get","firebaseauth.users.get"]}
+[info] Exporting accounts to C:\Users\david\AppData\Local\Temp\firebase-auth-zyonikk-b4d99dec1d954c9d9b93fdbed325e602.json
+[debug] [2026-10-19T21:57:54.586Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:57:54.586Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:57:54.587Z] >>> [apiv2][query] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount [none]
+[debug] [2026-10-19T21:57:54.587Z] >>> [apiv2][body] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount {"targetProjectId":"noctiq-d1020","maxResults":1000}
+[debug] [2026-10-19T21:57:55.100Z] <<< [apiv2][status] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount 200
+[debug] [2026-10-19T21:57:55.100Z] <<< [apiv2][body] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount [omitted]
+[info] +  Exported 91 account(s) successfully. 
+[debug] [2026-10-19T21:58:27.429Z] ----------------------------------------------------------------------
+[debug] [2026-10-19T21:58:27.434Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\david\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js auth:export C:\Users\david\AppData\Local\Temp\firebase-auth-verify-zyonikk-4519a1822c4c4129a59fb3c02ae1e120.json --project noctiq-d1020 --format json
+[debug] [2026-10-19T21:58:27.434Z] CLI Version:   15.31.0
+[debug] [2026-10-19T21:58:27.435Z] Platform:      win32
+[debug] [2026-10-19T21:58:27.435Z] Node Version:  v24.16.0
+[debug] [2026-10-19T21:58:27.435Z] Detected Agent: codex_cli
+[debug] [2026-10-19T21:58:27.435Z] Time:          Mon Oct 19 2026 23:58:27 GMT+0200 (közép-európai nyári idő)
+[debug] [2026-10-19T21:58:27.436Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-19T21:58:27.745Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-19T21:58:27.746Z] > authorizing via signed-in user (codenest.csapat@gmail.com)
+[debug] [2026-10-19T21:58:27.746Z] [iam] checking project noctiq-d1020 for permissions ["firebase.projects.get","firebaseauth.users.get"]
+[debug] [2026-10-19T21:58:27.767Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:58:27.767Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:58:27.769Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions [none]
+[debug] [2026-10-19T21:58:27.769Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions  x-goog-user-project=noctiq-d1020
+[debug] [2026-10-19T21:58:27.769Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions {"permissions":["firebase.projects.get","firebaseauth.users.get"]}
+[debug] [2026-10-19T21:58:28.911Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions 200
+[debug] [2026-10-19T21:58:28.912Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/noctiq-d1020:testIamPermissions {"permissions":["firebase.projects.get","firebaseauth.users.get"]}
+[info] Exporting accounts to C:\Users\david\AppData\Local\Temp\firebase-auth-verify-zyonikk-4519a1822c4c4129a59fb3c02ae1e120.json
+[debug] [2026-10-19T21:58:28.913Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:58:28.914Z] Checked if tokens are valid: true, expires at: 1792450478514
+[debug] [2026-10-19T21:58:28.914Z] >>> [apiv2][query] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount [none]
+[debug] [2026-10-19T21:58:28.914Z] >>> [apiv2][body] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount {"targetProjectId":"noctiq-d1020","maxResults":1000}
+[debug] [2026-10-19T21:58:29.416Z] <<< [apiv2][status] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount 200
+[debug] [2026-10-19T21:58:29.417Z] <<< [apiv2][body] POST https://www.googleapis.com/identitytoolkit/v3/relyingparty/downloadAccount [omitted]
+[info] +  Exported 90 account(s) successfully. 

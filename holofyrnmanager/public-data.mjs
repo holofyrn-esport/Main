@@ -36,6 +36,7 @@ export function publicHoloFyrnData(data = {}) {
     teamRoles: Object.fromEntries(Object.entries(player.teamRoles || {}).filter(([team, role]) => team.length <= 80 && typeof role === 'string').map(([team, role]) => [team, str(role).slice(0, 80)])),
     role: str(player.position || player.role).slice(0, 80),
     bio: str(player.publicBio || player.bio).slice(0, 1000),
+    imageUrl:/^https:\/\//i.test(str(player.imageUrl))?str(player.imageUrl).slice(0,2048):'',
   }));
   const results = rows(data.results).filter(row => str(row.title || row.event)).map(row => ({
     team: str(row.teamId || row.team || 'main').slice(0, 80),
