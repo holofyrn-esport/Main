@@ -1825,6 +1825,31 @@
       gap: 12px
     }
 
+    .recruitment-shell{max-width:820px;margin:auto;border:1px solid #57272d;border-radius:12px;background:#0c0a0b;padding:clamp(18px,3vw,30px);color:#f4f1f1}
+    .recruitment-topline,.recruitment-step-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .recruitment-topline{font-size:11px;color:#b9aeb0;margin-bottom:20px}
+    .recruitment-topline strong{color:#e43e4b;font-weight:600}
+    .recruitment-shell h2{font-size:clamp(20px,3vw,28px);margin:0 0 18px}
+    .recruitment-progress{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:14px}
+    .recruitment-progress span{height:5px;border-radius:9px;background:#30282a}
+    .recruitment-progress span.active{background:#c33342}
+    .recruitment-card{background:#1a1719;border-radius:10px;padding:20px}
+    .recruitment-card h3{font-size:15px;margin:0 0 15px}
+    .recruitment-auth{display:flex;align-items:center;gap:12px;margin:12px 0 16px}
+    .recruitment-discord-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:9px;background:#292632;color:#aaa2ff;font-size:23px}
+    .recruitment-auth p,.recruitment-note{font-size:12px;color:#bbb2b4;margin:4px 0 0}
+    .recruitment-note{padding:11px;border-radius:7px;background:#35272b;color:#e6d8da;margin:0 0 12px}
+    .recruitment-button{display:flex;align-items:center;justify-content:center;width:100%;min-height:42px;border:0;border-radius:30px;background:#f0eeee;color:#111;font:600 13px inherit;cursor:pointer}
+    .recruitment-button:hover{background:#fff}
+    .recruitment-team{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 14px;margin:0 0 9px;border:1px solid transparent;border-radius:8px;background:#282326;color:#f5f1f2;text-align:left;cursor:pointer}
+    .recruitment-team:hover,.recruitment-team[aria-pressed="true"]{border-color:#cb3543;color:#fff}
+    .recruitment-team span:last-child{color:#e14350;font-size:20px}
+    .recruitment-preview{font-size:12px;color:#aaa1a3;margin:12px 0 0}
+    .recruitment-foot{display:flex;justify-content:space-between;gap:12px;margin-top:14px}
+    .recruitment-back{border:0;background:none;color:#c9bfc1;cursor:pointer}
+    .recruitment-hidden{display:none!important}
+    @media(max-width:600px){.recruitment-card{padding:16px}.recruitment-shell{padding:16px}.recruitment-foot{align-items:flex-start;flex-direction:column}}
+
     @media(max-width:1100px) {
       .header-inner {
         gap: 16px
@@ -3211,7 +3236,32 @@
       <h1><span data-en="Join HoloFyrn" data-hu="Csatlakozz a HoloFyrnhöz">Join HoloFyrn</span></h1>
 </div>
     <section class="section container page-section">
-      <div class="join-panel">
+      <div class="recruitment-shell" data-recruitment>
+        <div class="recruitment-topline"><strong>HOLOFYRN / RECRUITMENT</strong><span data-recruitment-step-label>STEP 1 OF 3</span></div>
+        <h2 data-en="YOUR JOURNEY STARTS HERE." data-hu="ITT KEZDŐDIK AZ UTAD.">YOUR JOURNEY STARTS HERE.</h2>
+        <div class="recruitment-progress" aria-hidden="true"><span class="active"></span><span></span><span></span></div>
+        <div class="recruitment-card" data-recruitment-panel="1">
+          <h3 data-en="Connect your Discord account" data-hu="Csatlakoztasd a Discord-fiókodat">Connect your Discord account</h3>
+          <div class="recruitment-auth"><span class="recruitment-discord-icon" aria-hidden="true">♧</span><div><strong>Discord Authentication</strong><p data-en="No server membership required." data-hu="Nem szükséges szervertagság.">No server membership required.</p></div></div>
+          <p class="recruitment-note" data-en="Your Discord account will be linked to your application automatically." data-hu="A Discord-fiókod automatikusan összekapcsolódik a jelentkezéseddel.">Your Discord account will be linked to your application automatically.</p>
+          <button class="recruitment-button" type="button" data-recruitment-next data-en="Preview next step  →" data-hu="Következő lépés előnézete  →">Preview next step →</button>
+        </div>
+        <div class="recruitment-card recruitment-hidden" data-recruitment-panel="2">
+          <h3 data-en="Select a team" data-hu="Válassz csapatot">Select a team</h3>
+          <button class="recruitment-team" type="button" aria-pressed="false"><span>HoloFyrn Esports</span><span>›</span></button>
+          <button class="recruitment-team" type="button" aria-pressed="false"><span>HoloFyrn Vanguards</span><span>›</span></button>
+          <button class="recruitment-team" type="button" aria-pressed="false"><span>HoloFyrn Esports Academy</span><span>›</span></button>
+          <button class="recruitment-button" type="button" data-recruitment-next data-en="Preview application  →" data-hu="Jelentkezés előnézete  →">Preview application →</button>
+        </div>
+        <div class="recruitment-card recruitment-hidden" data-recruitment-panel="3">
+          <h3 data-en="Your application" data-hu="A jelentkezésed">Your application</h3>
+          <p class="recruitment-note" data-recruitment-selected data-en="Select a team in the previous step." data-hu="Az előző lépésben válassz csapatot.">Select a team in the previous step.</p>
+          <p data-en="Once Discord OAuth and the bot connection are configured, your application will be submitted to the shared recruitment queue for staff review." data-hu="A Discord OAuth és a botkapcsolat beállítása után a jelentkezésed a közös jelentkezési sorba kerül, ahol a stáb elbírálja.">Once Discord OAuth and the bot connection are configured, your application will be submitted to the shared recruitment queue for staff review.</p>
+          <a class="recruitment-button" href="https://discord.gg/3xE5bmsMJ" target="_blank" rel="noopener noreferrer" data-en="Open HoloFyrn Discord  →" data-hu="HoloFyrn Discord megnyitása  →">Open HoloFyrn Discord →</a>
+        </div>
+        <div class="recruitment-foot"><button class="recruitment-back recruitment-hidden" type="button" data-recruitment-back data-en="← Back" data-hu="← Vissza">← Back</button><p class="recruitment-preview" data-en="Interactive interface preview. Discord sign-in and staff review need the bot OAuth connection to be configured." data-hu="Interaktív felületi előnézet. A Discord-belépéshez és a stáb általi elbíráláshoz be kell állítani a bot OAuth-kapcsolatát.">Interactive interface preview. Discord sign-in and staff review need the bot OAuth connection to be configured.</p></div>
+      </div>
+      <div class="join-panel" hidden>
         <div class="eyebrow"><i></i><span data-en="JOIN THE FYRN" data-hu="CSATLAKOZZ A FYRNHÖZ">JOIN THE FYRN</span>
         </div>
         <h2><span data-en="Be there when applications open." data-hu="Légy itt, amikor megnyílik a jelentkezés.">Be
@@ -5620,6 +5670,32 @@
         menu.classList.remove('open');
         menuButton.setAttribute('aria-expanded', 'false');
       }));
+      document.addEventListener('click', event => {
+        const shell = event.target.closest('[data-recruitment]');
+        if (!shell) return;
+        const team = event.target.closest('.recruitment-team');
+        if (team) {
+          shell.querySelectorAll('.recruitment-team').forEach(item => item.setAttribute('aria-pressed', String(item === team)));
+          shell.dataset.selectedTeam = team.querySelector('span').textContent.trim();
+          const selected = shell.querySelector('[data-recruitment-selected]');
+          selected.textContent = language === 'hu' ? `Kiválasztott csapat: ${shell.dataset.selectedTeam}` : `Selected team: ${shell.dataset.selectedTeam}`;
+        }
+        let step = Number(shell.dataset.step || 1);
+        if (event.target.closest('[data-recruitment-next]')) {
+          if (step === 2 && !shell.dataset.selectedTeam) {
+            shell.querySelector('.recruitment-team')?.focus();
+            return;
+          }
+          step = Math.min(3, step + 1);
+        } else if (event.target.closest('[data-recruitment-back]')) {
+          step = Math.max(1, step - 1);
+        } else return;
+        shell.dataset.step = String(step);
+        shell.querySelectorAll('[data-recruitment-panel]').forEach(panel => panel.classList.toggle('recruitment-hidden', Number(panel.dataset.recruitmentPanel) !== step));
+        shell.querySelectorAll('.recruitment-progress span').forEach((bar, index) => bar.classList.toggle('active', index === step - 1));
+        shell.querySelector('[data-recruitment-step-label]').textContent = `STEP ${step} OF 3`;
+        shell.querySelector('[data-recruitment-back]').classList.toggle('recruitment-hidden', step === 1);
+      });
       addEventListener('hashchange', route);
       document.fonts?.ready.then(setupTicker);
       let tickerResizeFrame;
