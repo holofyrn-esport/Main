@@ -17,7 +17,7 @@ const teamNames = {
   shadows: 'HoloFyrn Shadows',
   vanguards: 'Holofyrn Vanguards',
 };
-const portraits = {kenz: 'Kenz-profile.webp', eggy: 'eggy.webp', interz: 'interz.webp'};
+const portraits = {kenz: 'Kenz-profile.webp', eggy: 'NoPicPlayer.webp', interz: 'interz.webp'};
 let publicData = null;
 let loadError = false;
 let matchCountdownTimer = null;
@@ -85,10 +85,6 @@ function playerCard(player, index) {
     overlay.setAttribute('aria-hidden', 'true');
     image.append(overlay);
   }
-  const label = document.createElement('span');
-  label.className = 'player-index';
-  label.textContent = `${String(index + 1).padStart(2, '0')} / HF`;
-  image.append(label);
   const info = document.createElement('div');
   info.className = 'player-info';
   const copy = document.createElement('div');
@@ -152,7 +148,7 @@ function renderProfile(route, players) {
       signature.setAttribute('aria-hidden', 'true');
       photo.append(signature);
     }
-    if (photoFile === 'assets/eggy.webp' || photoFile === 'assets/interz.webp') {
+    if (photoFile === 'assets/interz.webp') {
       const illustration = document.createElement('em');
       illustration.className = 'concept-label';
       illustration.append(translated('Illustrative portrait', 'Illusztráció'));
