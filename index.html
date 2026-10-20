@@ -5636,6 +5636,31 @@
         shell.querySelector('[data-recruitment-back]').classList.toggle('recruitment-hidden', step === 1);
       }
 
+      async function restoreDiscordSession() {
+        const queryIndex = location.hash.indexOf('?');
+        const query = queryIndex >= 0 ? new URLSearchParams(location.hash.slice(queryIndex + 1)) : new URLSearchParams();
+        const authStatus = query.get('discordAuth');
+        if (authStatus) history.replaceState(null, '', `${location.pathname}${location.search}#/join/`);
+        if (['failed', 'denied', 'state_error'].includes(authStatus)) {
+          document.dispatchEvent(new CustomEvent('holofyrn:discord-auth', { detail: { error: authStatus } }));
+          return;
+        }
+
+        try {
+          const response = await fetch('https://api.holofyrn.eu/auth/me', { credentials: 'include', cache: 'no-store' });
+          if (!response.ok) throw new Error(`Discord session check failed (${response.status})`);
+          const profile = await response.json();
+          if (!profile?.id) throw new Error('Discord session profile is missing');
+          window.holofyrnDiscordProfile = profile;
+          document.dispatchEvent(new CustomEvent('holofyrn:discord-auth', { detail: { discordId: profile.id, username: profile.username || '' } }));
+        } catch (error) {
+          if (authStatus === 'connected') {
+            document.dispatchEvent(new CustomEvent('holofyrn:discord-auth', { detail: { error: 'session_unavailable' } }));
+          }
+          console.warn('Could not restore the Discord session:', error.message);
+        }
+      }
+
       function route() {
         const hash = decodeURIComponent(location.hash.slice(1).split('?')[0]);
         if (hash === 'main') {
@@ -5787,9 +5812,10 @@
         tickerResizeFrame = requestAnimationFrame(setupTicker);
       });
       route();
+      restoreDiscordSession();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261019-player-images"></script>
+  <script type="module" src="public-data-v3.js?v=20261020-discord-session"></script>
 </body>
 
 </html>

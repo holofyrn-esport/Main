@@ -643,21 +643,10 @@ try {
   ]);
   const app = appApi.initializeApp(firebaseConfig);
   const auth = authApi.getAuth(app);
-  const hashQuery = location.hash.includes('?') ? location.hash.slice(location.hash.indexOf('?') + 1) : '';
-  const discordAuthResult = new URLSearchParams(hashQuery).get('discordAuth');
-  if (discordAuthResult) {
-    history.replaceState(null, '', `${location.pathname}${location.search}#/join/`);
-    if (['failed', 'denied', 'state_error'].includes(discordAuthResult)) document.dispatchEvent(new CustomEvent('holofyrn:discord-auth', {detail:{error:discordAuthResult}}));
-  }
   const existingUser = await new Promise((resolve, reject) => {
     const unsubscribe = authApi.onAuthStateChanged(auth, user => { unsubscribe(); resolve(user); }, reject);
   });
   if (!existingUser) await authApi.signInAnonymously(auth);
-  const discordProfile = await fetch('https://api.holofyrn.eu/auth/me', {credentials:'include'}).then(response => response.ok ? response.json() : null).catch(() => null);
-  if (discordProfile?.id) {
-    window.holofyrnDiscordProfile = discordProfile;
-    document.dispatchEvent(new CustomEvent('holofyrn:discord-auth', {detail:{discordId:discordProfile.id, username:discordProfile.username || ''}}));
-  }
   const db = fire.initializeFirestore(app, {experimentalAutoDetectLongPolling:true,useFetchStreams:false});
   fire.onSnapshot(fire.doc(db, 'holofyrnPublic', 'main'), snapshot => {
     const data = snapshot.data();
