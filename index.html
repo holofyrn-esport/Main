@@ -5628,6 +5628,14 @@
         });
       }
 
+      function setRecruitmentStep(shell, step) {
+        shell.dataset.step = String(step);
+        shell.querySelectorAll('[data-recruitment-panel]').forEach(panel => panel.classList.toggle('recruitment-hidden', Number(panel.dataset.recruitmentPanel) !== step));
+        shell.querySelectorAll('.recruitment-progress span').forEach((bar, index) => bar.classList.toggle('active', index === step - 1));
+        shell.querySelector('[data-recruitment-step-label]').textContent = `STEP ${step} OF 3`;
+        shell.querySelector('[data-recruitment-back]').classList.toggle('recruitment-hidden', step === 1);
+      }
+
       function route() {
         const hash = decodeURIComponent(location.hash.slice(1).split('?')[0]);
         if (hash === 'main') {
@@ -5713,11 +5721,7 @@
         } else if (event.target.closest('[data-recruitment-back]')) {
           step = Math.max(1, step - 1);
         } else return;
-        shell.dataset.step = String(step);
-        shell.querySelectorAll('[data-recruitment-panel]').forEach(panel => panel.classList.toggle('recruitment-hidden', Number(panel.dataset.recruitmentPanel) !== step));
-        shell.querySelectorAll('.recruitment-progress span').forEach((bar, index) => bar.classList.toggle('active', index === step - 1));
-        shell.querySelector('[data-recruitment-step-label]').textContent = `STEP ${step} OF 3`;
-        shell.querySelector('[data-recruitment-back]').classList.toggle('recruitment-hidden', step === 1);
+        setRecruitmentStep(shell, step);
       });
       document.addEventListener('holofyrn:discord-auth', event => {
         const shell = document.querySelector('[data-recruitment]');
@@ -5731,6 +5735,7 @@
           status.textContent = language === 'hu' ? `Csatlakoztatva: ${name}` : `Connected: ${name}`;
           login.classList.add('recruitment-hidden');
           next.classList.remove('recruitment-hidden');
+          setRecruitmentStep(shell, 2);
         } else if (event.detail?.error) {
           status.textContent = language === 'hu' ? 'A Discord-kapcsolat nem sikerült. Próbáld újra.' : 'Discord connection failed. Please try again.';
         }
