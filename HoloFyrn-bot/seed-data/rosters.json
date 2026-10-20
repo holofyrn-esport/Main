@@ -1,0 +1,227 @@
+{
+  "messageId": "1524074019500855531",
+  "teams": [
+    {
+      "id": "main",
+      "name": "HoloFyrn Esports",
+      "shortName": "HoloFyrn Esports",
+      "players": [
+        {
+          "name": "Kenz",
+          "country": "🇭🇺",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Kenz%20%E3%82%B1/overview",
+          "role": "Manager",
+          "discordId": "396023666288361503",
+          "liquipedia": "https://liquipedia.net/rocketleague/User:Kenz"
+        }
+      ],
+      "displayOrder": 1
+    },
+    {
+      "id": "academy",
+      "name": "HoloFyrn Esports Academy",
+      "shortName": "HoloFyrn Academy",
+      "players": [
+        {
+          "name": "Zemsta",
+          "discordId": "478565621303607296",
+          "country": "🇭🇺",
+          "role": "Captain",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Zemstalinho/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Prxu",
+          "discordId": "828279984056827924",
+          "country": "🇷🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Prxu.exe/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Suppa",
+          "discordId": "1266488410307166219",
+          "country": "🇷🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Suppa%C2%B5/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Oli",
+          "discordId": "1393215452066480148",
+          "country": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+          "role": "Sub",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/ayuko%20cch/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Ostrum",
+          "discordId": "484634627911450624",
+          "country": "🇭🇺",
+          "role": "Sub",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/steam/76561198367991752/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "GG07",
+          "discordId": "265137895361347584",
+          "country": "🇵🇹",
+          "role": "Coach",
+          "tracker": null,
+          "liquipedia": ""
+        }
+      ],
+      "displayOrder": 2
+    },
+    {
+      "id": "rls",
+      "name": "RLS HoloFyrn Esports",
+      "shortName": "RLS HoloFyrn Esports",
+      "players": [
+        {
+          "name": "Qex",
+          "discordId": "823177251368468531",
+          "country": "🇭🇺",
+          "role": "Captain",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/steam/76561198261848930/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Jerzy",
+          "discordId": "696473108118372484",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/JerzyZeroMechs/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Tobba",
+          "discordId": "527197752590073857",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Tobi%20toblerone/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Pellar",
+          "discordId": "500267667588907009",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/PeIIar/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Torsken",
+          "discordId": "679977952196165651",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Torskenn%20./overview",
+          "liquipedia": "https://liquipedia.net/rocketleague/Torsken"
+        },
+        {
+          "name": "Kenz",
+          "discordId": "396023666288361503",
+          "country": "🇭🇺",
+          "role": "Sub",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Kenz%20%E3%82%B1/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "metalhub",
+          "discordId": "461575441283678208",
+          "country": "🇭🇺",
+          "role": "Coach",
+          "tracker": null,
+          "liquipedia": "https://liquipedia.net/rocketleague/Metalhub"
+        }
+      ],
+      "displayOrder": 3
+    },
+    {
+      "id": "eldr",
+      "players": [],
+      "name": "RLS HoloFyrn Eldr",
+      "shortName": "RLS HoloFyrn Eldr",
+      "displayOrder": 4
+    },
+    {
+      "id": "rls-academy",
+      "name": "RLS HoloFyrn Esports Academy",
+      "shortName": "RLS HoloFyrn Academy",
+      "players": [
+        {
+          "name": "Zemsta",
+          "discordId": "478565621303607296",
+          "country": "🇭🇺",
+          "role": "Captain",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Zemstalinho/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Tony",
+          "discordId": "982354411005292684",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/steam/76561199035575368/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Nico",
+          "discordId": "923701269300936714",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/n._ico/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Flippip",
+          "discordId": "800028206719696897",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/Flippips/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Texvor",
+          "discordId": "708030232875237496",
+          "country": "🇳🇴",
+          "role": "Player",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/epic/vex%20ヌ/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "Ostrum",
+          "discordId": "484634627911450624",
+          "country": "🇭🇺",
+          "role": "Sub",
+          "tracker": "https://rocketleague.tracker.network/rocket-league/profile/steam/76561198367991752/overview",
+          "liquipedia": ""
+        },
+        {
+          "name": "metalhub",
+          "discordId": "461575441283678208",
+          "country": "🇭🇺",
+          "role": "Coach",
+          "tracker": null,
+          "liquipedia": "https://liquipedia.net/rocketleague/Metalhub"
+        }
+      ],
+      "displayOrder": 5
+    },
+    {
+      "id": "synq",
+      "players": [],
+      "name": "HoloFyrn Synq",
+      "shortName": "HoloFyrn Synq",
+      "displayOrder": 6
+    },
+    {
+      "id": "vanguards",
+      "players": [],
+      "name": "HoloFyrn Vanguards",
+      "shortName": "HoloFyrn Vanguards",
+      "displayOrder": 7
+    }
+  ],
+  "channelId": "1512884683719835688"
+}

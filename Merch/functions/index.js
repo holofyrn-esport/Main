@@ -15,7 +15,6 @@ const paymentsEnabled = defineString("MERCH_PAYMENTS_ENABLED", { default: "false
 const pricesEur = defineString("MERCH_PRICES_EUR_JSON", { default: "{}" });
 const shippingEurCents = defineString("MERCH_SHIPPING_EUR_CENTS", { default: "" });
 const allowedCountriesValue = defineString("MERCH_SHIPPING_COUNTRIES", { default: "HU" });
-
 const products = {
   jersey: { en: "FYRN Pro Jersey", hu: "FYRN Pro Mez", sizes: ["S", "M", "L", "XL", "2XL"] },
   hoodie: { en: "Core Hoodie", hu: "Core Pul\u00f3ver", sizes: ["S", "M", "L", "XL", "2XL"] },

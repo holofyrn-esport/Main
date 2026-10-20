@@ -1,0 +1,116 @@
+{
+  "lftMessageId": "1524508341781528636",
+  "lftChannelId": "1524484978669256874",
+  "captainDashboardMessageId": null,
+  "captainDashboardChannelId": null,
+  "events": [
+    {
+      "id": "T-001",
+      "name": "HRL League",
+      "date": "2026-07-16",
+      "time": "TBD",
+      "format": "3v3",
+      "registration": "https://discord.com/channels/1477443638479819013/1512884683719835688/1524508339508084877",
+      "rank": "",
+      "prize": "",
+      "notes": "The registration of teams close in 1-2 weeks, only the top 2 divisions have prize money. League takes 2 months.",
+      "channelId": "1512883358546268382",
+      "messageId": "1524557034521886874",
+      "lookingForTeam": [
+        "396023666288361503"
+      ],
+      "region": "EU",
+      "timezone": "CEST",
+      "imageUrl": "https://cdn.discordapp.com/ephemeral-attachments/1524488652275716227/1526379091690000384/01434583-d9fb-464b-b79e-f15562dd4d90-profile_image-70x70.png?ex=6a56cece&is=6a557d4e&hm=7f03b1cdfd711d5dfbed14782a651f91d45a9ce3d98cddb768560b30c4067f46&"
+    },
+    {
+      "id": "T-002",
+      "name": "Rocket Rush Weekly Series",
+      "date": "2026-07-19",
+      "time": "1:00",
+      "timezone": "CEST",
+      "format": "3v3",
+      "registration": "https://www.start.gg/tournament/100-3v3-rocket-rush-x-trophi-ai-nameless-esports-season-2-week-5/details",
+      "region": "US-E",
+      "rank": "",
+      "prize": "100 $",
+      "notes": "",
+      "imageUrl": "https://cdn.discordapp.com/ephemeral-attachments/1524488652275716227/1526328396404228166/image-b3e31f32a4130d77c49d8e75ef09ea01.png?ex=6a569f97&is=6a554e17&hm=ec7ddf47676b669a366987abccbf1a0a30c9f8d3b744ba4e34e99988f8eb2d5b&",
+      "channelId": "1512883358546268382",
+      "messageId": "1526328399998746717",
+      "lookingForTeam": [
+        "396023666288361503"
+      ]
+    },
+    {
+      "id": "T-003",
+      "name": "RLPC",
+      "date": "2026-07-27",
+      "time": "TBD",
+      "timezone": "CEST",
+      "format": "Draft",
+      "registration": "https://rlpc.gg/",
+      "region": "EU/US",
+      "rank": "",
+      "prize": "",
+      "notes": "4 divisions, only the top 2 divisons have prize pool, draft based league",
+      "imageUrl": "https://cdn.discordapp.com/ephemeral-attachments/1524488652275716227/1526377589277593673/RLPC_Logo.png?ex=6a56cd68&is=6a557be8&hm=fe627cd09a6510d81c92682e5a7eedd1f45952a4c4f2e5bcbee7c16748d54e34&",
+      "channelId": "1512883358546268382",
+      "messageId": "1526377592943546539",
+      "lookingForTeam": []
+    },
+    {
+      "id": "T-004",
+      "name": "3v3 Dropshot",
+      "date": "2026-07-18",
+      "time": "20:00",
+      "timezone": "CEST",
+      "format": "Extra Modes",
+      "registration": "https://www.start.gg/tournament/150-3v3-dropshot/details",
+      "region": "US-E",
+      "rank": "",
+      "prize": "150$",
+      "notes": "",
+      "imageUrl": "https://cdn.discordapp.com/ephemeral-attachments/1524488652275716227/1526380790349561919/image-50f3aa0b0c2aefc4842dd969d2265318.png?ex=6a56d063&is=6a557ee3&hm=fbbc818dac4a2d390713e74dad68a4fcd3f4018df4784c6efc36461cdc0494a9&",
+      "channelId": "1512883358546268382",
+      "messageId": "1526380795995095114",
+      "lookingForTeam": []
+    },
+    {
+      "id": "T-005",
+      "name": "DRE 2v2 2026",
+      "date": "2026-07-25",
+      "time": "10:00",
+      "timezone": "CEST",
+      "format": "2v2",
+      "registration": "https://www.start.gg/tournament/dre-2v2-2026/details",
+      "region": "India",
+      "rank": "",
+      "prize": "TBD",
+      "notes": "Asian server prioritized, but can be anything if agreed upon by both teams",
+      "imageUrl": "https://cdn.discordapp.com/ephemeral-attachments/1524488652275716227/1526381491192336394/image-867469d1e00b7f175e60b133dd5691f2.png?ex=6a56d10a&is=6a557f8a&hm=f30b3846c27f0320c320e810e1043ac16996882c8d3a1f68bbc39e58e205b1b5&",
+      "channelId": "1512883358546268382",
+      "messageId": "1526381497026875494",
+      "lookingForTeam": [
+        "396023666288361503"
+      ]
+    },
+    {
+      "id": "T-006",
+      "name": "Spartan 1v1",
+      "date": "2026-07-18",
+      "time": "2:00",
+      "timezone": "CEST",
+      "format": "1v1",
+      "registration": "https://www.start.gg/tournament/10-spart-1v1-twitch-tournament-5-youtube-giveaway-2/details",
+      "region": "US-E",
+      "rank": "",
+      "prize": "15$",
+      "notes": "",
+      "imageUrl": "https://cdn.discordapp.com/ephemeral-attachments/1524488652275716227/1526381878213345390/image-655bbc0f7028b6ccc63447f6a75a1001.jpg?ex=6a56d166&is=6a557fe6&hm=9b188992f7cf1d47d7acb45d7d146aa46b5bdf786c4b9c4b0b2720f9a6390d43&",
+      "channelId": "1512883358546268382",
+      "messageId": "1526381890561511447",
+      "lookingForTeam": []
+    }
+  ]
+}
