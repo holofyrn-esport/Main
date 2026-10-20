@@ -5822,7 +5822,26 @@
             }),
           });
           const result = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(result.error || `Request failed (${response.status})`);
+          if (!response.ok) {
+            if (result.code === 'discord_guild_required') {
+              status.textContent = language === 'hu'
+                ? 'A jelentkezéshez előbb lépj be a HoloFyrn Discord-szerverre.'
+                : 'Join the HoloFyrn Discord server before submitting your application.';
+              const invite = document.createElement('a');
+              invite.href = 'https://discord.gg/3xE5bmsMJ';
+              invite.target = '_blank';
+              invite.rel = 'noopener noreferrer';
+              invite.textContent = language === 'hu' ? ' Belépés a Discord-szerverre' : ' Join the Discord server';
+              status.append(invite);
+              return;
+            }
+            if (result.code === 'discord_membership_unavailable') {
+              throw new Error(language === 'hu'
+                ? 'Most nem sikerült ellenőrizni a Discord-szervertagságot. Próbáld újra később.'
+                : 'Could not verify Discord server membership right now. Please try again later.');
+            }
+            throw new Error(result.error || `Request failed (${response.status})`);
+          }
           form.reset();
           status.textContent = '';
           const successDialog = shell.querySelector('[data-recruitment-success-dialog]');

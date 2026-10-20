@@ -80,6 +80,9 @@ export default {
       if (!SITE_ORIGINS.has(origin)) return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers: jsonHeaders });
       const session = await readSession(cookie(request, "discord_session"), env.SESSION_SIGNING_SECRET);
       if (!session) return new Response(JSON.stringify({ error: "Connect your Discord account first" }), { status: 401, headers: jsonHeaders });
+      if (!env.DISCORD_GUILD_ID || !env.DISCORD_BOT_TOKEN) {
+        return new Response(JSON.stringify({ code: "discord_membership_unavailable", error: "Discord server membership check is not configured" }), { status: 503, headers: jsonHeaders });
+      }
       const contentLength = Number(request.headers.get("Content-Length") || 0);
       if (contentLength > 12000) return new Response(JSON.stringify({ error: "Application is too large" }), { status: 413, headers: jsonHeaders });
       const rawBody = await request.text();
@@ -104,6 +107,24 @@ export default {
       try { tracker = new URL(trackerUrl); } catch { tracker = null; }
       if (!teamName || playerName.length < 2 || playerName.length > 50 || !Number.isInteger(age) || age < 10 || age > 99 || !tracker || tracker.protocol !== "https:" || tracker.hostname !== "rocketleague.tracker.network" && !tracker.hostname.endsWith(".rocketleague.tracker.network") || country.length < 2 || country.length > 100 || availability.length < 2 || availability.length > 1200) {
         return new Response(JSON.stringify({ error: "Please check all application fields" }), { status: 400, headers: jsonHeaders });
+      }
+
+      let membershipResponse;
+      try {
+        membershipResponse = await fetch(`https://discord.com/api/v10/guilds/${encodeURIComponent(env.DISCORD_GUILD_ID)}/members/${encodeURIComponent(session.sub)}`, {
+          headers: { Authorization: `Bot ${env.DISCORD_BOT_TOKEN}` },
+          signal: AbortSignal.timeout(8000),
+        });
+      } catch (error) {
+        console.error("Discord membership check failed", error.message);
+        return new Response(JSON.stringify({ code: "discord_membership_unavailable", error: "Could not verify Discord server membership" }), { status: 503, headers: jsonHeaders });
+      }
+      if (membershipResponse.status === 404) {
+        return new Response(JSON.stringify({ code: "discord_guild_required", error: "Join the Discord server before applying" }), { status: 403, headers: jsonHeaders });
+      }
+      if (!membershipResponse.ok) {
+        console.error("Discord membership check returned", membershipResponse.status);
+        return new Response(JSON.stringify({ code: "discord_membership_unavailable", error: "Could not verify Discord server membership" }), { status: 503, headers: jsonHeaders });
       }
       if (!env.REVIEW_BOT_URL || !env.REVIEW_BOT_SECRET) {
         return new Response(JSON.stringify({ error: "The recruitment review bot is not connected yet" }), { status: 503, headers: jsonHeaders });
