@@ -102,8 +102,17 @@ export function publicHoloFyrnData(data = {}) {
   }));
   const competitions = rows(data.managerV8?.competitions).filter(item => item.status === 'published' && str(item.titleEn) && str(item.titleHu) && /^\d{4}-\d{2}-\d{2}$/.test(str(item.date))).map(item => ({
     id:str(item.id).slice(0,100), titleEn:str(item.titleEn).slice(0,160), titleHu:str(item.titleHu).slice(0,160), date:str(item.date),
+    prizePool:str(item.prizePool).slice(0,80), format:str(item.format).slice(0,120),
+    registrationOpen:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str(item.registrationOpen))?str(item.registrationOpen):'',
+    registrationClose:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str(item.registrationClose))?str(item.registrationClose):'',
+    checkIn:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str(item.checkIn))?str(item.checkIn):'',
+    tournamentStart:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str(item.tournamentStart))?str(item.tournamentStart):'',
+    groupsText:str(item.groupsText).slice(0,5000), bracketText:str(item.bracketText).slice(0,8000),
+    teams:rows(item.teams).filter(team=>str(team.id)&&str(team.name)).slice(0,128).map(team=>({id:str(team.id).slice(0,100),name:str(team.name).slice(0,100),group:str(team.group).slice(0,60),seed:str(team.seed).slice(0,20)})),
+    bracketMatches:rows(item.bracketMatches).filter(match=>str(match.id)&&str(match.round)&&str(match.teamAId)&&str(match.teamBId)).slice(0,256).map(match=>({id:str(match.id).slice(0,100),round:str(match.round).slice(0,60),teamAId:str(match.teamAId).slice(0,100),teamBId:str(match.teamBId).slice(0,100),scoreA:/^\d{1,3}$/.test(str(match.scoreA))?str(match.scoreA):'',scoreB:/^\d{1,3}$/.test(str(match.scoreB))?str(match.scoreB):''})),
     locationEn:str(item.locationEn).slice(0,160), locationHu:str(item.locationHu).slice(0,160), descriptionEn:str(item.descriptionEn).slice(0,1200), descriptionHu:str(item.descriptionHu).slice(0,1200),
     url:/^https:\/\/[^\s]+$/i.test(str(item.url))?str(item.url).slice(0,2048):'',
+    twitchUrl:/^https:\/\/(?:www\.)?twitch\.tv\/[A-Za-z0-9_/-]+(?:[?#].*)?$/i.test(str(item.twitchUrl))?str(item.twitchUrl).slice(0,500):'',
   }));
   const staffSource = Array.isArray(data.managerV8?.staff) ? data.managerV8.staff : defaultStaff;
   const staff = rows(staffSource).filter(item => str(item.name) && str(item.role)).map(item => ({

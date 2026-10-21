@@ -549,3 +549,12 @@ body{overflow-x:hidden}
 .player-image-team-heading p{margin:4px 0 0;color:var(--muted);font-size:12px}
 .player-image-team-group .player-image-manager-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
 @media(max-width:640px){.player-image-team-group{padding:13px;margin-bottom:18px}.player-image-team-heading h2{font-size:18px}.player-image-team-group .player-image-manager-grid{grid-template-columns:minmax(0,1fr)}}
+.competition-manager-section{margin-top:18px}
+.competition-manager-head-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+.competition-manager-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.competition-manager-group{min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:rgba(8,11,16,.55)}
+.competition-manager-group h4{margin:0 0 10px;font-size:15px}
+.competition-manager-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.competition-manager-row>strong{overflow-wrap:anywhere}
+.competition-manager-row>span{color:var(--muted);font-size:12px}
+@media(max-width:640px){.competition-manager-head-actions{justify-content:flex-start}.competition-manager-row{grid-template-columns:minmax(0,1fr) auto}.competition-manager-row>div{grid-column:1/-1}}

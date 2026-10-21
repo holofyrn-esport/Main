@@ -730,11 +730,82 @@
     .public-news-back { display:inline-block; margin-bottom:24px; color:#f1d6d6; font-weight:700; }
     .public-news-cta { display:inline-block; margin-top:24px; }
 
+    .competition-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    .competition-card { min-width:0; overflow:hidden; padding:0; border:1px solid var(--line); background:linear-gradient(135deg,#181414,#101010 65%); }
+    .competition-card-link { display:flex; min-height:220px; height:100%; flex-direction:column; justify-content:space-between; padding:clamp(22px,3vw,34px); color:inherit; text-decoration:none; }
+    .competition-card-link:hover { background:linear-gradient(120deg,rgba(38,91,190,.18),transparent 65%); }
+    .competition-card .eyebrow { color:#d9242f; }
+    .competition-card h3 { margin:20px 0 10px; font-size:clamp(1.55rem,3vw,2.2rem); }
+    .competition-card p { max-width:60ch; color:var(--muted,#a9b1bd); line-height:1.65; }
+    .competition-card-action { margin-top:22px; color:#ed3b4b; font-weight:700; }
+    .public-competition { max-width:1180px; margin:0 auto; }
+    .public-competition-back { display:inline-block; margin:0 0 24px; color:#c9d8f4; font-weight:700; }
+    .competition-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,340px); gap:18px; margin-bottom:22px; }
+    .competition-hero-main,.competition-facts,.competition-panel { border:1px solid var(--line); border-radius:10px; background:linear-gradient(135deg,#181414,#0b0b0b 75%); }
+    .competition-hero-main { min-height:250px; display:flex; flex-direction:column; justify-content:flex-end; padding:clamp(24px,4vw,44px); position:relative; overflow:hidden; }
+    .competition-hero-main::before { content:""; position:absolute; width:420px; height:300px; right:-80px; top:-120px; background:radial-gradient(ellipse,rgba(122,9,14,.38),transparent 68%); pointer-events:none; }
+    .competition-hero-main > * { position:relative; }
+    .competition-hero-main h1 { max-width:850px; margin:14px 0 12px; font-size:clamp(2.2rem,5vw,4rem); }
+    .competition-hero-main p { margin:0; color:#ceb7b7; }
+    .competition-hero-meta { display:flex; flex-wrap:wrap; gap:12px 24px; margin-top:12px; color:#ceb7b7; font-size:14px; }
+    .competition-status { display:inline-flex; align-self:flex-start; align-items:center; gap:8px; padding:7px 11px; border:1px solid rgba(217,36,47,.42); border-radius:4px; color:#f0b5b8; background:rgba(122,9,14,.2); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; }
+    .competition-status::before { content:""; width:6px; height:6px; border-radius:50%; background:var(--red); }
+    .competition-facts { padding:22px; display:flex; flex-direction:column; justify-content:center; gap:0; }
+    .competition-prize { display:grid; grid-template-columns:54px 1fr; gap:14px; align-items:center; padding-bottom:18px; margin-bottom:8px; border-bottom:1px solid var(--line); }
+    .competition-prize-icon { width:54px; height:54px; display:grid; place-items:center; border-radius:6px; color:var(--red); background:#230a0e; font-size:26px; }
+    .competition-prize-icon svg { width:30px; height:30px; }
+    .competition-prize small { display:block; margin-bottom:4px; color:#a99295; font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+    .competition-prize strong { font-size:clamp(1.45rem,3vw,1.9rem); }
+    .competition-fact { display:grid; grid-template-columns:30px 1fr; gap:11px; align-items:center; }
+    .competition-fact + .competition-fact { padding-top:12px; margin-top:12px; border-top:1px solid rgba(255,255,255,.07); }
+    .competition-fact-icon { width:30px; height:30px; display:grid; place-items:center; border-radius:5px; color:#ed3b4b; background:#230a0e; font-size:15px; }
+    .competition-fact small { display:block; margin-bottom:3px; color:#a99295; font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+    .competition-fact strong { font-size:14px; }
+    .competition-nav { display:flex; gap:24px; align-items:center; min-height:48px; border-bottom:1px solid var(--line); color:#a99295; font-size:13px; }
+    .competition-nav button { padding:15px 0 12px; border:0; border-bottom:2px solid transparent; background:transparent; color:inherit; font:inherit; cursor:pointer; }
+    .competition-nav button.active { border-bottom-color:var(--red); color:#f4eeee; }
+    .competition-detail-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,310px); gap:18px; margin-top:18px; align-items:start; }
+    .competition-tab-panel[hidden] { display:none; }
+    .competition-panel { padding:22px; }
+    .competition-panel h2 { margin:0 0 14px; font-size:1.25rem; }
+    .competition-side .competition-panel { display:flex; flex-direction:column; gap:10px; }
+    .competition-description { color:#ceb7b7; line-height:1.75; white-space:pre-wrap; }
+    .competition-schedule-list { display:grid; gap:16px; }
+    .competition-schedule-item { display:grid; grid-template-columns:14px minmax(0,1fr); gap:11px; align-items:start; position:relative; }
+    .competition-schedule-item:not(:last-child)::after { content:""; position:absolute; left:6px; top:15px; bottom:-18px; width:1px; background:#493033; }
+    .competition-schedule-marker { z-index:1; width:13px; height:13px; margin-top:2px; border:3px solid #6f1c23; border-radius:50%; background:var(--red); }
+    .competition-schedule-item small { display:block; margin-bottom:4px; color:#a99295; font-size:12px; }
+    .competition-schedule-item strong { display:block; color:#f4eeee; font-size:13px; line-height:1.5; }
+    .competition-bracket-view { margin-top:18px; padding:clamp(18px,3vw,28px); border:1px solid var(--line); border-radius:10px; background:#0b0b0b; overflow:hidden; }
+    .competition-bracket-view h2 { margin:0 0 16px; font-size:1.3rem; }
+    .competition-groups-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
+    .competition-group-card,.competition-match-card { border:1px solid #493033; border-radius:8px; background:linear-gradient(135deg,#181414,#0b0b0b); overflow:hidden; }
+    .competition-group-card { padding:16px; }
+    .competition-group-card h3,.competition-bracket-round h3 { margin:0 0 12px; color:#f4eeee; font-size:1rem; }
+    .competition-group-team { padding:10px 0; border-top:1px solid rgba(255,255,255,.08); color:#ceb7b7; font-size:14px; }
+    .competition-bracket-heading { margin-top:30px !important; }
+    .competition-bracket-grid { display:grid; grid-auto-columns:minmax(210px,1fr); grid-auto-flow:column; gap:44px; overflow-x:auto; padding:8px 8px 18px; }
+    .competition-bracket-round { display:flex; flex-direction:column; justify-content:space-around; gap:24px; min-width:210px; }
+    .competition-bracket-round h3 { padding-bottom:10px; border-bottom:1px solid var(--line); color:#a99295; }
+    .competition-match-card { position:relative; }
+    .competition-bracket-round:not(:last-child) .competition-match-card::after { content:""; position:absolute; top:50%; right:-45px; width:44px; height:1px; background:#6f1c23; }
+    .competition-match-team { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:12px; color:#f4eeee; font-size:13px; }
+    .competition-match-team + .competition-match-team { border-top:1px solid rgba(255,255,255,.08); }
+    .competition-match-team strong { min-width:20px; text-align:right; color:#ed3b4b; }
+    .competition-bracket-empty { padding:16px; border:1px dashed #493033; border-radius:8px; }
+    .competition-side { display:grid; gap:18px; }
+    .competition-detail-cta { display:block; width:100%; text-align:center; }
+    .competition-link-disabled,.competition-link-disabled:disabled { opacity:.48; cursor:not-allowed; }
+    .competition-empty { grid-column:1/-1; }
+
     @media (max-width: 760px) {
       .public-news-header { margin-bottom:28px; }
       .public-news-layout { grid-template-columns:minmax(0,1fr); gap:22px; }
       .public-news-visual { position:static; }
       .public-news-article-image { max-height:none; aspect-ratio:auto; }
+      .competition-list,.competition-hero,.competition-detail-grid { grid-template-columns:minmax(0,1fr); }
+      .competition-hero-main { min-height:220px; }
+      .competition-nav { gap:18px; overflow-x:auto; white-space:nowrap; }
     }
 
     .news-card:hover,
@@ -3337,6 +3408,9 @@
       <div class="compact-section"><p data-en="No competitions have been announced yet. Check back soon for updates." data-hu="Még nincs meghirdetett verseny. Hamarosan új információkkal jelentkezünk.">No competitions have been announced yet. Check back soon for updates.</p></div>
     </section>
   </template>
+  <template data-route="/competition-detail/" data-title="Tournament | HoloFyrn Esports">
+    <section class="section container page-section public-competition" id="public-competition-detail" aria-live="polite"></section>
+  </template>
   <template data-route="/news/" data-title="News | HoloFyrn Esport">
     <div class="page-intro container">
       <div class="eyebrow"><i></i><span data-en="HOLOFYRN / NEWS" data-hu="HOLOFYRN / HÍREK">HOLOFYRN / NEWS</span>
@@ -5696,11 +5770,11 @@
         }
         const socials = hash === '/socials';
         const requested = socials ? '/' : hash || '/';
-        const page = pages.get(requested) || (requested.startsWith('/players/') ? pages.get('/players/') : requested.startsWith('/staff/') ? pages.get('/staff/member/') : requested.startsWith('/news/') ? pages.get('/news-article/') : pages.get('/'));
+        const page = pages.get(requested) || (requested.startsWith('/players/') ? pages.get('/players/') : requested.startsWith('/staff/') ? pages.get('/staff/member/') : requested.startsWith('/news/') ? pages.get('/news-article/') : requested.startsWith('/competitions/') && requested !== '/competitions/' ? pages.get('/competition-detail/') : pages.get('/'));
         main.replaceChildren(page.content.cloneNode(true));
         setupTicker();
         document.title = page.dataset.title;
-        const activeRoute = page.dataset.route.startsWith('/teams/') || page.dataset.route.startsWith('/players/') ? '/teams/' : page.dataset.route.startsWith('/staff/') ? '/staff/' : page.dataset.route === '/news-article/' ? '/news/' : page.dataset.route;
+        const activeRoute = page.dataset.route.startsWith('/teams/') || page.dataset.route.startsWith('/players/') ? '/teams/' : page.dataset.route.startsWith('/staff/') ? '/staff/' : page.dataset.route === '/news-article/' ? '/news/' : page.dataset.route === '/competition-detail/' ? '/competitions/' : page.dataset.route;
         document.querySelectorAll('.main-nav a').forEach(link => {
           const active = link.getAttribute('href') === '#' + activeRoute || (socials && link.getAttribute('href') === '#/socials');
           link.classList.toggle('active', active);
@@ -5864,7 +5938,7 @@
       restoreDiscordSession();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261021-no-player-image-labels"></script>
+  <script type="module" src="public-data-v3.js?v=20261021-competition-builder"></script>
 </body>
 
 </html>

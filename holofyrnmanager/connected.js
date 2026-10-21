@@ -39,7 +39,7 @@ async function uploadPlayerImage(file,playerId){
   await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
   return {imageUrl:await storageApi.getDownloadURL(target),imagePath:path};
 }
-function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',resultFolderFilter:'',selectedLeagueId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],resultFolders:[],leagues:[],leagueGames:[],goals:[],news:[],competitions:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
+function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',resultFolderFilter:'',selectedLeagueId:null,selectedCompetitionId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],resultFolders:[],leagues:[],leagueGames:[],goals:[],news:[],competitions:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
 function safeUrl(input, image=false){
   if(image && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(input))return input;
@@ -48,7 +48,7 @@ function safeUrl(input, image=false){
 function availabilityWeekStart(){const date=new Date();date.setDate(date.getDate()-((date.getDay()+6)%7)+availabilityOffset*7);return model.localDate(date);}
 function updateSyncStatus(){const el=document.getElementById('sync-status');if(el){el.textContent=syncMessage || (pendingWrites?'Saving…':liveReady?'Connected':'Connecting…');el.dataset.error=syncMessage?'true':'false';}}
 function withTimeout(promise,milliseconds,message){let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(message)),milliseconds);})]).finally(()=>clearTimeout(timer));}
-function savePreferences(){try{localStorage.setItem('noctiq-manager-view',JSON.stringify(Object.fromEntries(['activeTeam','view','resultTab','selectedLeagueId','leagueTab','calendarCursor','sidebarOpen'].map(k=>[k,state[k]]))));}catch{/* View preferences are optional. */}}
+function savePreferences(){try{localStorage.setItem('noctiq-manager-view',JSON.stringify(Object.fromEntries(['activeTeam','view','resultTab','selectedLeagueId','selectedCompetitionId','leagueTab','calendarCursor','sidebarOpen'].map(k=>[k,state[k]]))));}catch{/* View preferences are optional. */}}
 function queueSave(){
   savePreferences();
   if(!liveReady || !currentUser() || !baseline)return false;
@@ -205,7 +205,7 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261019-player-images'),import('./public-data.mjs?v=20261019-player-images'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261021-competition-builder'),import('./public-data.mjs?v=20261021-competition-builder'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     storageApi=storage;services={appApi,fire,authApi,storageApi:storage,storage:storage.getStorage(app),db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};
@@ -220,7 +220,7 @@ async function startManager(){
         const ownRef=fire.doc(db,'users',user.uid),own=await withTimeout(fire.getDoc(ownRef),20000,'Timed out while loading your manager profile. Check that Firebase is reachable, then retry.');
         if(epoch!==connectionEpoch)return;
         if(!own.exists()){showAccessError('No team profile is linked to this login. Ask an administrator to create the account.');return;}
-        try{const prefs=JSON.parse(localStorage.getItem('noctiq-manager-view') || '{}');for(const key of ['activeTeam','view','resultTab','selectedLeagueId','leagueTab','calendarCursor','sidebarOpen'])if(key in prefs && key!=='sidebarOpen')state[key]=prefs[key];}catch{/* Ignore invalid preferences. */}
+        try{const prefs=JSON.parse(localStorage.getItem('noctiq-manager-view') || '{}');for(const key of ['activeTeam','view','resultTab','selectedLeagueId','selectedCompetitionId','leagueTab','calendarCursor','sidebarOpen'])if(key in prefs && key!=='sidebarOpen')state[key]=prefs[key];}catch{/* Ignore invalid preferences. */}
         let gotData=false,gotUsers=false;
         const ready=()=>{if(epoch!==connectionEpoch || syncMessage==='Not saved')return;if(gotData&&gotUsers){clearTimeout(initialSnapshotTimer);initialSnapshotTimer=null;liveReady=true;try{applyDatabase();}catch(error){console.error('Manager data could not be rendered.',error);liveReady=false;showAccessError(`Team data loaded but could not be displayed: ${error.message||'Unknown error'}`);}}};
         const fail=error=>{if(epoch===connectionEpoch){clearTimeout(initialSnapshotTimer);initialSnapshotTimer=null;console.error(error);showAccessError('The database could not be loaded. Check your connection and Firestore access.');}};

@@ -513,29 +513,103 @@ function renderPublishedNews(route) {
 }
 
 function renderPublicCompetitions(route) {
+  if (route.startsWith('/competitions/') && route !== '/competitions/') { renderPublicCompetitionDetail(route); return; }
   if (route !== '/competitions/') return;
-  const container = document.querySelector('#main .compact-section');
+  const container = document.querySelector('#main .compact-section, #main .competition-list');
   if (!container) return;
   const competitions = (publicData?.competitions || []).filter(item => item && item.titleEn && item.titleHu && /^\d{4}-\d{2}-\d{2}$/.test(item.date));
   if (!competitions.length) return;
   const hu = document.documentElement.lang === 'hu';
   const cards = competitions.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(item => {
     const card = document.createElement('article');
-    card.className = 'card card-pad';
+    card.className = 'card competition-card';
+    const link = document.createElement('a'); link.className='competition-card-link'; link.href=competitionPath(item);
+    const content = document.createElement('div');
     const date = document.createElement('span');
     date.className = 'eyebrow';
     date.textContent = new Intl.DateTimeFormat(hu ? 'hu-HU' : 'en-GB', {year:'numeric',month:'long',day:'numeric'}).format(new Date(`${item.date}T12:00:00`));
     const title = document.createElement('h3');
     title.textContent = hu ? item.titleHu : item.titleEn;
-    card.append(date,title);
+    content.append(date,title);
     const location = hu ? item.locationHu : item.locationEn;
     const description = hu ? item.descriptionHu : item.descriptionEn;
-    if (location) { const place=document.createElement('p'); place.textContent=location; card.append(place); }
-    if (description) { const copy=document.createElement('p'); copy.textContent=description; card.append(copy); }
+    if (location) { const place=document.createElement('p'); place.textContent=location; content.append(place); }
+    if (description) { const copy=document.createElement('p'); copy.textContent=description; content.append(copy); }
+    const action=document.createElement('span'); action.className='competition-card-action'; action.textContent=hu?'Verseny megtekint\u00e9se \u2192':'View tournament \u2192';
+    link.append(content,action); card.append(link);
     if (item.url && /^https:\/\/[^\s]+$/i.test(item.url)) { const link=document.createElement('a'); link.className='button button-outline'; link.href=item.url; link.target='_blank'; link.rel='noopener noreferrer'; link.textContent=hu?'Részletek és nevezés ↗':'Details and registration ↗'; card.append(link); }
     return card;
   });
-  container.replaceChildren(...cards);
+  container.classList.remove('compact-section'); container.classList.add('competition-list'); container.replaceChildren(...cards);
+}
+
+function competitionPath(item) { const id=String(item.id||'').replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,100); return `#/competitions/${id||'tournament'}/`; }
+
+function renderPublicCompetitionDetail(route) {
+  const page=document.getElementById('public-competition-detail'); if(!page)return;
+  const hu=document.documentElement.lang==='hu', id=route.split('/').filter(Boolean).at(-1);
+  const item=(publicData?.competitions||[]).find(entry=>String(entry.id||'').replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,100)===id);
+  page.replaceChildren();
+  const back=document.createElement('a'); back.className='public-competition-back'; back.href='#/competitions/'; back.textContent=hu?'\u2190 Vissza a versenyekhez':'\u2190 Back to tournaments';
+  if(!item){const message=document.createElement('p');message.textContent=hu?'Ez a verseny nem tal\u00e1lhat\u00f3.':'This tournament could not be found.';page.append(back,message);return;}
+  const title=hu?item.titleHu:item.titleEn, location=hu?item.locationHu:item.locationEn, description=hu?item.descriptionHu:item.descriptionEn;
+  document.title=`${title} | HoloFyrn Esports`;
+  const date=new Date(`${item.date}T12:00:00`), formattedDate=new Intl.DateTimeFormat(hu?'hu-HU':'en-GB',{year:'numeric',month:'long',day:'numeric'}).format(date);
+  const hero=document.createElement('div');hero.className='competition-hero';const main=document.createElement('header');main.className='competition-hero-main';
+  const category=document.createElement('div');category.className='eyebrow';category.textContent=hu?'HOLOFYRN / VERSENY':'HOLOFYRN / TOURNAMENT';
+  const status=document.createElement('span');status.className='competition-status';status.textContent=Date.now()<new Date(`${item.date}T23:59:59`).getTime()?(hu?'K\u00f6zelg\u0151 verseny':'Upcoming tournament'):(hu?'Lez\u00e1rult verseny':'Tournament concluded');
+  const heading=document.createElement('h1');heading.textContent=title;
+  const meta=document.createElement('div');meta.className='competition-hero-meta';
+  const dateMeta=document.createElement('span');dateMeta.textContent=`\u25f7  ${formattedDate}`;meta.append(dateMeta);
+  if(location){const placeMeta=document.createElement('span');placeMeta.textContent=`\u25c9  ${location}`;meta.append(placeMeta);}
+  main.append(category,status,heading,meta);
+  const facts=document.createElement('aside');facts.className='competition-facts';
+  const prize=document.createElement('div');prize.className='competition-prize';const prizeIcon=document.createElement('span');prizeIcon.className='competition-prize-icon';const trophy=document.createElementNS('http://www.w3.org/2000/svg','svg');trophy.setAttribute('viewBox','0 0 24 24');trophy.setAttribute('aria-hidden','true');trophy.innerHTML='<path d="M8 3h8v3c0 4-2 6-4 6s-4-2-4-6V3ZM8 5H5v2c0 2 1.5 3 4 3m7-5h3v2c0 2-1.5 3-4 3M12 12v4m-3 0h6v3H9zm-2 4h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';prizeIcon.append(trophy);const prizeCopy=document.createElement('span');const prizeLabel=document.createElement('small');prizeLabel.textContent=hu?'D\u00edjalap':'Prize Pool';const prizeValue=document.createElement('strong');prizeValue.textContent=item.prizePool||'TBA';prizeCopy.append(prizeLabel,prizeValue);prize.append(prizeIcon,prizeCopy);facts.append(prize);
+  const fact=(icon,label,value)=>{const row=document.createElement('div');row.className='competition-fact';const symbol=document.createElement('span');symbol.className='competition-fact-icon';symbol.textContent=icon;const copy=document.createElement('span');const caption=document.createElement('small');caption.textContent=label;const strong=document.createElement('strong');strong.textContent=value;copy.append(caption,strong);row.append(symbol,copy);facts.append(row);};
+  fact('\u25ce','Game','Rocket League');fact('\u2691',hu?'Form\u00e1tum':'Format',item.format||'TBA');fact('\u25ce',hu?'R\u00e9gi\u00f3':'Region','Global (EU Servers)');hero.append(main,facts);
+  const nav=document.createElement('nav');nav.className='competition-nav';nav.setAttribute('aria-label',hu?'Verseny inform\u00e1ci\u00f3k':'Tournament information');nav.setAttribute('role','tablist');
+  const overviewTab=document.createElement('button');overviewTab.type='button';overviewTab.id='competition-overview-tab';overviewTab.className='active';overviewTab.setAttribute('role','tab');overviewTab.setAttribute('aria-controls','competition-overview-panel');overviewTab.setAttribute('aria-selected','true');overviewTab.textContent=hu?'\u00c1ttekint\u00e9s':'Overview';
+  const bracketTab=document.createElement('button');bracketTab.type='button';bracketTab.id='competition-bracket-tab';bracketTab.setAttribute('role','tab');bracketTab.setAttribute('aria-controls','competition-bracket-panel');bracketTab.setAttribute('aria-selected','false');bracketTab.textContent='Bracket';nav.append(overviewTab,bracketTab);
+  const layout=document.createElement('div');layout.id='competition-overview-panel';layout.className='competition-detail-grid';layout.setAttribute('aria-labelledby',overviewTab.id);const about=document.createElement('section');about.className='competition-panel';const aboutTitle=document.createElement('h2');aboutTitle.textContent=hu?'A versenyr\u0151l':'About the tournament';about.append(aboutTitle);
+  if(description){const copy=document.createElement('p');copy.className='competition-description';copy.textContent=description;about.append(copy);}
+  const schedule=document.createElement('section');schedule.className='competition-panel competition-schedule';const scheduleTitle=document.createElement('h2');scheduleTitle.textContent=hu?'Verseny menetrend':'Tournament schedule';schedule.append(scheduleTitle);
+  const scheduleItems=[
+    {key:'registrationOpen',label:hu?'Nevez\u00e9s kezdete':'Registration opens'},
+    {key:'registrationClose',label:hu?'Nevez\u00e9s lez\u00e1r\u00e1sa':'Registration closes'},
+    {key:'checkIn',label:hu?'Check-in':'Check-in'},
+    {key:'tournamentStart',label:hu?'Verseny kezdete':'Tournament start',fallback:item.date},
+  ].map(row=>({...row,value:item[row.key]||row.fallback||''})).filter(row=>row.value).sort((a,b)=>new Date(a.value.length===10?`${a.value}T12:00:00`:a.value)-new Date(b.value.length===10?`${b.value}T12:00:00`:b.value));
+  const scheduleList=document.createElement('div');scheduleList.className='competition-schedule-list';
+  for(const entry of scheduleItems){const row=document.createElement('div');row.className='competition-schedule-item';const marker=document.createElement('span');marker.className='competition-schedule-marker';const copy=document.createElement('span');const label=document.createElement('small');label.textContent=entry.label;const value=document.createElement('strong');const time=new Date(entry.value.length===10?`${entry.value}T12:00:00`:entry.value);value.textContent=entry.value.length===10?new Intl.DateTimeFormat(hu?'hu-HU':'en-GB',{year:'numeric',month:'short',day:'numeric'}).format(time):new Intl.DateTimeFormat(hu?'hu-HU':'en-GB',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(time);copy.append(label,value);row.append(marker,copy);scheduleList.append(row);}
+  if(!scheduleItems.length){const empty=document.createElement('p');empty.className='competition-description';empty.textContent=hu?'A menetrend hamarosan el\u00e9rhet\u0151 lesz.':'The schedule will be announced soon.';scheduleList.append(empty);}
+  schedule.append(scheduleList);
+  const side=document.createElement('aside');side.className='competition-side';const quick=document.createElement('section');quick.className='competition-panel';const quickTitle=document.createElement('h2');quickTitle.textContent=hu?'Gyors el\u00e9r\u00e9s':'Quick links';quick.append(quickTitle);
+  const joinLabel=hu?'Nevez\u00e9s a versenyre':'Join tournament';
+  if(item.url&&/^https:\/\/[^\s]+$/i.test(item.url)){const join=document.createElement('a');join.className='button competition-detail-cta';join.href=item.url;join.target='_blank';join.rel='noopener noreferrer';join.textContent=joinLabel;quick.append(join);}else{const join=document.createElement('button');join.className='button competition-detail-cta competition-link-disabled';join.type='button';join.disabled=true;join.textContent=joinLabel;quick.append(join);}
+  const discord=document.createElement('a');discord.className='button button-outline competition-detail-cta';discord.href='https://discord.gg/3xE5bmsMJ';discord.target='_blank';discord.rel='noopener noreferrer';discord.textContent=hu?'Discord szerver':'Discord server';quick.append(discord);
+  if(item.twitchUrl&&/^https:\/\/(?:www\.)?twitch\.tv\/[A-Za-z0-9_/-]+(?:[?#].*)?$/i.test(item.twitchUrl)){const twitch=document.createElement('a');twitch.className='button button-outline competition-detail-cta';twitch.href=item.twitchUrl;twitch.target='_blank';twitch.rel='noopener noreferrer';twitch.textContent=hu?'N\u00e9zd Twitchen':'Watch on Twitch';quick.append(twitch);}else{const twitch=document.createElement('button');twitch.className='button button-outline competition-detail-cta competition-link-disabled';twitch.type='button';twitch.disabled=true;twitch.textContent=hu?'N\u00e9zd Twitchen':'Watch on Twitch';quick.append(twitch);}
+  side.append(schedule,quick);layout.append(about,side);layout.classList.add('competition-tab-panel');layout.setAttribute('role','tabpanel');
+  const bracketView=document.createElement('section');bracketView.id='competition-bracket-panel';bracketView.className='competition-bracket-view competition-tab-panel';bracketView.setAttribute('role','tabpanel');bracketView.setAttribute('aria-labelledby',bracketTab.id);bracketView.hidden=true;
+  const groupsHeading=document.createElement('h2');groupsHeading.textContent=hu?'Csoportok':'Groups';bracketView.append(groupsHeading);
+  const groupsGrid=document.createElement('div');groupsGrid.className='competition-groups-grid';
+  const groupMap=new Map();
+  for(const team of item.teams||[]){const group=String(team.group||'Ungrouped').trim()||'Ungrouped';if(!groupMap.has(group))groupMap.set(group,[]);groupMap.get(group).push(team.name);}
+  const groups=groupMap.size?[...groupMap].map(([name,teams])=>({name,teams})): (item.groupsText||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean).map(line=>{const split=line.indexOf(':');return{name:split<0?(hu?'Csoport':'Group'):line.slice(0,split).trim(),teams:(split<0?line:line.slice(split+1)).split(',').map(team=>team.trim()).filter(Boolean)};});
+  if(groups.length){for(const group of groups){const card=document.createElement('article');card.className='competition-group-card';const name=document.createElement('h3');name.textContent=group.name;card.append(name);for(const team of group.teams){const row=document.createElement('div');row.className='competition-group-team';row.textContent=team;card.append(row);}groupsGrid.append(card);}}
+  else {const empty=document.createElement('p');empty.className='competition-description competition-bracket-empty';empty.textContent=hu?'A csoportbeosztás hamarosan megjelenik.':'Group assignments will appear here when announced.';groupsGrid.append(empty);}
+  bracketView.append(groupsGrid);
+  const bracketHeading=document.createElement('h2');bracketHeading.className='competition-bracket-heading';bracketHeading.textContent=hu?'Verseny ágrajz':'Bracket (partial view)';bracketView.append(bracketHeading);
+  const bracketGrid=document.createElement('div');bracketGrid.className='competition-bracket-grid';
+  const teamNames=new Map((item.teams||[]).map(team=>[team.id,team.name]));
+  const matches=(item.bracketMatches||[]).map(match=>({round:match.round,teamA:teamNames.get(match.teamAId)||'TBD',scoreA:match.scoreA,scoreB:match.scoreB,teamB:teamNames.get(match.teamBId)||'TBD'}));
+  if(!matches.length)matches.push(...(item.bracketText||'').split(/\r?\n/).map(line=>line.split('|').map(value=>value.trim())).filter(parts=>parts.length>=5&&parts[0]&&parts[1]&&parts[4]).map(parts=>({round:parts[0],teamA:parts[1],scoreA:parts[2],scoreB:parts[3],teamB:parts[4]})));
+  const rounds=[...new Set(matches.map(match=>match.round))];
+  if(rounds.length){for(const roundName of rounds){const column=document.createElement('div');column.className='competition-bracket-round';const title=document.createElement('h3');title.textContent=roundName;column.append(title);for(const match of matches.filter(entry=>entry.round===roundName)){const card=document.createElement('article');card.className='competition-match-card';for(const [team,score] of [[match.teamA,match.scoreA],[match.teamB,match.scoreB]]){const row=document.createElement('div');row.className='competition-match-team';const teamName=document.createElement('span');teamName.textContent=team;const result=document.createElement('strong');result.textContent=score||'—';row.append(teamName,result);card.append(row);}column.append(card);}bracketGrid.append(column);}}
+  else {const empty=document.createElement('p');empty.className='competition-description competition-bracket-empty';empty.textContent=hu?'A verseny ágrajza hamarosan megjelenik.':'The tournament bracket will appear here when announced.';bracketGrid.append(empty);}
+  bracketView.append(bracketGrid);
+  const setTab=(active,show)=>{overviewTab.classList.toggle('active',active===overviewTab);bracketTab.classList.toggle('active',active===bracketTab);overviewTab.setAttribute('aria-selected',String(active===overviewTab));bracketTab.setAttribute('aria-selected',String(active===bracketTab));layout.hidden=show;bracketView.hidden=!show;};
+  overviewTab.addEventListener('click',()=>setTab(overviewTab,false));bracketTab.addEventListener('click',()=>setTab(bracketTab,true));
+  page.append(back,hero,nav,layout,bracketView);
 }
 
 function showPublicArticle(article) {
