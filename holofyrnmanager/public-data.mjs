@@ -101,7 +101,7 @@ export function publicHoloFyrnData(data = {}) {
     ctaUrl:/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(str(item.ctaUrl || (item.id === 'site-rocket-league-teams' ? '#/teams/' : ''))) || /^https:\/\/[^\s]+$/i.test(str(item.ctaUrl)) ? str(item.ctaUrl || '#/teams/').slice(0,2048) : '',
   }));
   const competitions = rows(data.managerV8?.competitions).filter(item => item.status === 'published' && str(item.titleEn) && str(item.titleHu) && /^\d{4}-\d{2}-\d{2}$/.test(str(item.date))).map(item => ({
-    id:str(item.id).slice(0,100), titleEn:str(item.titleEn).slice(0,160), titleHu:str(item.titleHu).slice(0,160), date:str(item.date),
+    id:str(item.id).slice(0,100), tournamentType:item.tournamentType === 'single_elimination' ? 'single_elimination' : 'groups', titleEn:str(item.titleEn).slice(0,160), titleHu:str(item.titleHu).slice(0,160), date:str(item.date),
     prizePool:str(item.prizePool).slice(0,80), format:str(item.format).slice(0,120),
     registrationOpen:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str(item.registrationOpen))?str(item.registrationOpen):'',
     registrationClose:/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str(item.registrationClose))?str(item.registrationClose):'',

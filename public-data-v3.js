@@ -512,7 +512,7 @@ function renderPublishedNews(route) {
   });
 }
 
-function renderPublicCompetitions(route) {
+function renderPublicCompetitionsLegacy(route) {
   if (route.startsWith('/competitions/') && route !== '/competitions/') { renderPublicCompetitionDetail(route); return; }
   if (route !== '/competitions/') return;
   const container = document.querySelector('#main .compact-section, #main .competition-list');
@@ -543,7 +543,56 @@ function renderPublicCompetitions(route) {
   container.classList.remove('compact-section'); container.classList.add('competition-list'); container.replaceChildren(...cards);
 }
 
+function renderPublicCompetitions(route) {
+  if(route.startsWith('/competitions/')&&route!=='/competitions/'){renderPublicCompetitionDetail(route);return;}
+  if(route!=='/competitions/')return;
+  const container=document.querySelector('#main .compact-section, #main .competition-list, #main .competition-hub');
+  if(!container)return;
+  const hu=document.documentElement.lang==='hu';
+  const items=(publicData?.competitions||[]).filter(item=>item&&item.titleEn&&item.titleHu&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!items.length)return;
+  const today=todayInBudapest();
+  const filters=document.createElement('div');filters.className='competition-filters';
+  const select=(label,options)=>{const el=document.createElement('select');el.setAttribute('aria-label',label);for(const [value,text]of options){const option=document.createElement('option');option.value=value;option.textContent=text;el.append(option);}return el;};
+  const game=select(hu?'Játék':'Game',[['all',hu?'Minden játék':'All Games'],['rocket-league','Rocket League']]);
+  const status=select(hu?'Állapot':'Status',[['all',hu?'Minden állapot':'All Statuses'],['upcoming',hu?'Közelgő':'Upcoming'],['ongoing',hu?'Folyamatban':'Ongoing'],['finished',hu?'Lezárult':'Finished']]);
+  const date=select(hu?'Dátum':'Date',[['all',hu?'Bármikor':'Any Date'],['30',hu?'Következő 30 nap':'Next 30 Days'],['past',hu?'Korábbi versenyek':'Past Tournaments']]);
+  const searchBox=document.createElement('label');searchBox.className='competition-search';searchBox.setAttribute('aria-label',hu?'Verseny keresése':'Search tournaments');const icon=document.createElement('span');icon.textContent='⌕';icon.setAttribute('aria-hidden','true');const search=document.createElement('input');search.type='search';search.placeholder=hu?'Verseny keresése…':'Search tournaments…';searchBox.append(icon,search);filters.append(game,status,date,searchBox);
+  const section=(titleText,extraClass='')=>{const el=document.createElement('section');el.className=`competition-category ${extraClass}`.trim();const header=document.createElement('header');header.className='competition-category-heading';const title=document.createElement('h2');title.textContent=titleText;header.append(title);const list=document.createElement('div');list.className=extraClass==='upcoming'?'competition-upcoming-grid':'competition-horizontal-list';el.append(header,list);return{el,header,list};};
+  const upcoming=section(hu?'Közelgő versenyek':'Upcoming Tournaments','upcoming'),ongoing=section(hu?'Folyamatban':'Ongoing Tournaments'),finished=section(hu?'Lezárult versenyek':'Finished Tournaments');
+  const viewAll=(target,value)=>{const button=document.createElement('button');button.type='button';button.className='competition-view-all';button.textContent=hu?'Összes megtekintése →':'View all →';button.addEventListener('click',()=>{status.value=value;date.value='all';render();});target.header.append(button);};
+  const lower=document.createElement('div');lower.className='competition-lower-grid';lower.append(ongoing.el,finished.el);viewAll(upcoming,'all');viewAll(finished,'finished');
+  const stateOf=item=>item.date>today?'upcoming':item.date===today?'ongoing':'finished';
+  const makeCard=(item,kind)=>{const card=document.createElement('article');card.className=`competition-tile competition-tile-${kind}`;const link=document.createElement('a');link.className='competition-tile-link';link.href=competitionPath(item);const visual=document.createElement('div');visual.className='competition-tile-visual';const badge=document.createElement('span');badge.className=`competition-state competition-state-${stateOf(item)}`;badge.textContent=stateOf(item)==='upcoming'?(hu?'KÖZELGŐ':'UPCOMING'):stateOf(item)==='ongoing'?(hu?'ÉLŐ':'LIVE'):(hu?'LEZÁRULT':'FINISHED');visual.append(badge);const body=document.createElement('div');body.className='competition-tile-content';const title=document.createElement('h3');title.textContent=hu?item.titleHu:item.titleEn;const gameMeta=document.createElement('p');gameMeta.className='competition-tile-meta';gameMeta.textContent=item.game||'Rocket League';const dateMeta=document.createElement('p');dateMeta.className='competition-tile-meta';dateMeta.textContent=new Intl.DateTimeFormat(hu?'hu-HU':'en-GB',{year:'numeric',month:'short',day:'numeric'}).format(new Date(`${item.date}T12:00:00`));body.append(title,gameMeta,dateMeta);if(item.prizePool){const prize=document.createElement('p');prize.className='competition-tile-prize';prize.textContent=`🏆 ${item.prizePool} · ${hu?'Díjalap':'Prize Pool'}`;body.append(prize);}const action=document.createElement('span');action.className='competition-card-action';action.textContent=hu?'Részletek →':'View details →';link.append(visual,body,action);card.append(link);return card;};
+  const render=()=>{const query=search.value.trim().toLocaleLowerCase(hu?'hu-HU':'en-GB'),now=Date.now();const visible=items.filter(item=>{const name=`${item.titleEn} ${item.titleHu} ${item.format||''} ${item.locationEn||''} ${item.locationHu||''}`.toLocaleLowerCase(hu?'hu-HU':'en-GB');if(game.value==='rocket-league'&&!String(item.game||'Rocket League').toLocaleLowerCase().includes('rocket league'))return false;if(status.value!=='all'&&stateOf(item)!==status.value)return false;if(date.value==='30'&&(item.date<today||new Date(`${item.date}T23:59:59`).getTime()>now+30*86400000))return false;if(date.value==='past'&&item.date>=today)return false;return !query||name.includes(query);});const sets=[[upcoming.list,visible.filter(item=>stateOf(item)==='upcoming'),'No upcoming tournaments.','Nincs közelgő verseny.','upcoming'],[ongoing.list,visible.filter(item=>stateOf(item)==='ongoing'),'No tournaments are currently ongoing.','Jelenleg nincs folyamatban verseny.','horizontal'],[finished.list,visible.filter(item=>stateOf(item)==='finished').sort((a,b)=>b.date.localeCompare(a.date)),'No finished tournaments yet.','Még nincs lezárult verseny.','horizontal']];for(const [list,rows,en,huText,kind]of sets){list.replaceChildren(...rows.map(item=>makeCard(item,kind)));if(!rows.length){const empty=document.createElement('p');empty.className='competition-filter-empty';empty.textContent=hu?huText:en;list.append(empty);}}};
+  for(const control of [game,status,date])control.addEventListener('change',render);search.addEventListener('input',render);container.classList.remove('compact-section');container.classList.add('competition-hub');container.replaceChildren(filters,upcoming.el,lower);render();
+}
+
 function competitionPath(item) { const id=String(item.id||'').replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,100); return `#/competitions/${id||'tournament'}/`; }
+
+function renderCompetitionStandings(item, hu) {
+  const section=document.createElement('section');section.className='competition-standings-section';
+  const heading=document.createElement('h2');heading.textContent=hu?'Tabella':'Standings';section.append(heading);
+  const teams=Array.isArray(item.teams)?item.teams.filter(team=>team&&team.id&&team.name):[];
+  const rows=new Map(teams.map(team=>[team.id,{team,wins:0,losses:0}]));
+  for(const match of Array.isArray(item.bracketMatches)?item.bracketMatches:[]){
+    const a=rows.get(match.teamAId),b=rows.get(match.teamBId),scoreA=Number(match.scoreA),scoreB=Number(match.scoreB);
+    if(!a||!b||match.scoreA===''||match.scoreB===''||!Number.isInteger(scoreA)||!Number.isInteger(scoreB)||scoreA===scoreB)continue;
+    if(scoreA>scoreB){a.wins++;b.losses++;}else{b.wins++;a.losses++;}
+  }
+  if(!teams.length){const empty=document.createElement('p');empty.className='competition-description competition-bracket-empty';empty.textContent=hu?'A tabella a résztvevő csapatok hozzáadása után jelenik meg.':'Standings will appear after teams are added.';section.append(empty);return section;}
+  const byGroup=new Map();
+  for(const row of rows.values()){const group=String(row.team.group||'').trim()||(teams.some(team=>String(team.group||'').trim())?(hu?'Csoport nélkül':'Ungrouped'):(hu?'Összesített':'Overall'));if(!byGroup.has(group))byGroup.set(group,[]);byGroup.get(group).push(row);}
+  for(const [group,entries] of byGroup){
+    if(byGroup.size>1){const label=document.createElement('h3');label.textContent=group;section.append(label);}
+    entries.sort((a,b)=>b.wins-a.wins||a.losses-b.losses||a.team.name.localeCompare(b.team.name));
+    const wrap=document.createElement('div');wrap.className='competition-standings';const table=document.createElement('table');
+    const head=document.createElement('thead'),headRow=document.createElement('tr');
+    for(const label of ['#',hu?'Csapat':'Team',hu?'Győzelem':'Wins',hu?'Vereség':'Losses']){const cell=document.createElement('th');cell.textContent=label;headRow.append(cell);}head.append(headRow);table.append(head);
+    const body=document.createElement('tbody');entries.forEach((entry,index)=>{const row=document.createElement('tr');for(const value of [String(index+1),entry.team.name,String(entry.wins),String(entry.losses)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}body.append(row);});table.append(body);wrap.append(table);section.append(wrap);
+  }
+  return section;
+}
 
 function renderPublicCompetitionDetail(route) {
   const page=document.getElementById('public-competition-detail'); if(!page)return;
@@ -569,7 +618,8 @@ function renderPublicCompetitionDetail(route) {
   fact('\u25ce','Game','Rocket League');fact('\u2691',hu?'Form\u00e1tum':'Format',item.format||'TBA');fact('\u25ce',hu?'R\u00e9gi\u00f3':'Region','Global (EU Servers)');hero.append(main,facts);
   const nav=document.createElement('nav');nav.className='competition-nav';nav.setAttribute('aria-label',hu?'Verseny inform\u00e1ci\u00f3k':'Tournament information');nav.setAttribute('role','tablist');
   const overviewTab=document.createElement('button');overviewTab.type='button';overviewTab.id='competition-overview-tab';overviewTab.className='active';overviewTab.setAttribute('role','tab');overviewTab.setAttribute('aria-controls','competition-overview-panel');overviewTab.setAttribute('aria-selected','true');overviewTab.textContent=hu?'\u00c1ttekint\u00e9s':'Overview';
-  const bracketTab=document.createElement('button');bracketTab.type='button';bracketTab.id='competition-bracket-tab';bracketTab.setAttribute('role','tab');bracketTab.setAttribute('aria-controls','competition-bracket-panel');bracketTab.setAttribute('aria-selected','false');bracketTab.textContent='Bracket';nav.append(overviewTab,bracketTab);
+  const bracketTab=document.createElement('button');bracketTab.type='button';bracketTab.id='competition-bracket-tab';bracketTab.setAttribute('role','tab');bracketTab.setAttribute('aria-controls','competition-bracket-panel');bracketTab.setAttribute('aria-selected','false');bracketTab.textContent='Bracket';
+  const standingsTab=document.createElement('button');standingsTab.type='button';standingsTab.id='competition-standings-tab';standingsTab.setAttribute('role','tab');standingsTab.setAttribute('aria-controls','competition-standings-panel');standingsTab.setAttribute('aria-selected','false');standingsTab.textContent=hu?'Tabella':'Standings';nav.append(overviewTab,bracketTab,standingsTab);
   const layout=document.createElement('div');layout.id='competition-overview-panel';layout.className='competition-detail-grid';layout.setAttribute('aria-labelledby',overviewTab.id);const about=document.createElement('section');about.className='competition-panel';const aboutTitle=document.createElement('h2');aboutTitle.textContent=hu?'A versenyr\u0151l':'About the tournament';about.append(aboutTitle);
   if(description){const copy=document.createElement('p');copy.className='competition-description';copy.textContent=description;about.append(copy);}
   const schedule=document.createElement('section');schedule.className='competition-panel competition-schedule';const scheduleTitle=document.createElement('h2');scheduleTitle.textContent=hu?'Verseny menetrend':'Tournament schedule';schedule.append(scheduleTitle);
@@ -588,16 +638,23 @@ function renderPublicCompetitionDetail(route) {
   if(item.url&&/^https:\/\/[^\s]+$/i.test(item.url)){const join=document.createElement('a');join.className='button competition-detail-cta';join.href=item.url;join.target='_blank';join.rel='noopener noreferrer';join.textContent=joinLabel;quick.append(join);}else{const join=document.createElement('button');join.className='button competition-detail-cta competition-link-disabled';join.type='button';join.disabled=true;join.textContent=joinLabel;quick.append(join);}
   const discord=document.createElement('a');discord.className='button button-outline competition-detail-cta';discord.href='https://discord.gg/3xE5bmsMJ';discord.target='_blank';discord.rel='noopener noreferrer';discord.textContent=hu?'Discord szerver':'Discord server';quick.append(discord);
   if(item.twitchUrl&&/^https:\/\/(?:www\.)?twitch\.tv\/[A-Za-z0-9_/-]+(?:[?#].*)?$/i.test(item.twitchUrl)){const twitch=document.createElement('a');twitch.className='button button-outline competition-detail-cta';twitch.href=item.twitchUrl;twitch.target='_blank';twitch.rel='noopener noreferrer';twitch.textContent=hu?'N\u00e9zd Twitchen':'Watch on Twitch';quick.append(twitch);}else{const twitch=document.createElement('button');twitch.className='button button-outline competition-detail-cta competition-link-disabled';twitch.type='button';twitch.disabled=true;twitch.textContent=hu?'N\u00e9zd Twitchen':'Watch on Twitch';quick.append(twitch);}
-  side.append(schedule,quick);layout.append(about,side);layout.classList.add('competition-tab-panel');layout.setAttribute('role','tabpanel');
+  const participantsPanel=document.createElement('section');participantsPanel.className='competition-panel competition-participants-panel';const participantsTitle=document.createElement('h2');participantsTitle.textContent=hu?'Résztvevő csapatok':'Participating Teams';participantsPanel.append(participantsTitle);const participantNames=(item.teams||[]).filter(team=>team&&typeof team.name==='string'&&team.name.trim());if(participantNames.length){const list=document.createElement('ul');list.className='competition-participant-list';for(const team of participantNames){const entry=document.createElement('li');entry.textContent=team.name.trim();list.append(entry);}participantsPanel.append(list);}else{const empty=document.createElement('p');empty.className='competition-description';empty.textContent=hu?'A résztvevő csapatok hamarosan megjelennek.':'Participating teams will be announced soon.';participantsPanel.append(empty);}
+  const aboutColumn=document.createElement('div');aboutColumn.className='competition-about-column';aboutColumn.append(about,participantsPanel);side.append(schedule,quick);layout.append(aboutColumn,side);layout.classList.add('competition-tab-panel');layout.setAttribute('role','tabpanel');
   const bracketView=document.createElement('section');bracketView.id='competition-bracket-panel';bracketView.className='competition-bracket-view competition-tab-panel';bracketView.setAttribute('role','tabpanel');bracketView.setAttribute('aria-labelledby',bracketTab.id);bracketView.hidden=true;
-  const groupsHeading=document.createElement('h2');groupsHeading.textContent=hu?'Csoportok':'Groups';bracketView.append(groupsHeading);
+  const teamsHeading=document.createElement('h2');teamsHeading.textContent=hu?'Résztvevő csapatok':'Participating teams';bracketView.append(teamsHeading);
+  const teamsGrid=document.createElement('div');teamsGrid.className='competition-groups-grid';
+  const participants=(item.teams||[]).filter(team=>team&&typeof team.name==='string'&&team.name.trim());
+  if(participants.length){for(const team of participants){const card=document.createElement('article');card.className='competition-group-card';const name=document.createElement('h3');name.textContent=team.name.trim();card.append(name);if(team.seed){const seed=document.createElement('div');seed.className='competition-group-team';seed.textContent=`${hu?'Kiemelés':'Seed'}: ${team.seed}`;card.append(seed);}teamsGrid.append(card);}}
+  else {const empty=document.createElement('p');empty.className='competition-description competition-bracket-empty';empty.textContent=hu?'A résztvevő csapatok hamarosan megjelennek.':'Participating teams will appear here when announced.';teamsGrid.append(empty);}
+  bracketView.append(teamsGrid);
+  const groupsHeading=document.createElement('h2');groupsHeading.textContent=hu?'Csoportok':'Groups';// Group UI is only shown for group-stage tournaments.
   const groupsGrid=document.createElement('div');groupsGrid.className='competition-groups-grid';
   const groupMap=new Map();
   for(const team of item.teams||[]){const group=String(team.group||'Ungrouped').trim()||'Ungrouped';if(!groupMap.has(group))groupMap.set(group,[]);groupMap.get(group).push(team.name);}
   const groups=groupMap.size?[...groupMap].map(([name,teams])=>({name,teams})): (item.groupsText||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean).map(line=>{const split=line.indexOf(':');return{name:split<0?(hu?'Csoport':'Group'):line.slice(0,split).trim(),teams:(split<0?line:line.slice(split+1)).split(',').map(team=>team.trim()).filter(Boolean)};});
   if(groups.length){for(const group of groups){const card=document.createElement('article');card.className='competition-group-card';const name=document.createElement('h3');name.textContent=group.name;card.append(name);for(const team of group.teams){const row=document.createElement('div');row.className='competition-group-team';row.textContent=team;card.append(row);}groupsGrid.append(card);}}
   else {const empty=document.createElement('p');empty.className='competition-description competition-bracket-empty';empty.textContent=hu?'A csoportbeosztás hamarosan megjelenik.':'Group assignments will appear here when announced.';groupsGrid.append(empty);}
-  bracketView.append(groupsGrid);
+  if((item.tournamentType||'groups')==='groups'){bracketView.append(groupsHeading,groupsGrid);}
   const bracketHeading=document.createElement('h2');bracketHeading.className='competition-bracket-heading';bracketHeading.textContent=hu?'Verseny ágrajz':'Bracket (partial view)';bracketView.append(bracketHeading);
   const bracketGrid=document.createElement('div');bracketGrid.className='competition-bracket-grid';
   const teamNames=new Map((item.teams||[]).map(team=>[team.id,team.name]));
@@ -607,9 +664,11 @@ function renderPublicCompetitionDetail(route) {
   if(rounds.length){for(const roundName of rounds){const column=document.createElement('div');column.className='competition-bracket-round';const title=document.createElement('h3');title.textContent=roundName;column.append(title);for(const match of matches.filter(entry=>entry.round===roundName)){const card=document.createElement('article');card.className='competition-match-card';for(const [team,score] of [[match.teamA,match.scoreA],[match.teamB,match.scoreB]]){const row=document.createElement('div');row.className='competition-match-team';const teamName=document.createElement('span');teamName.textContent=team;const result=document.createElement('strong');result.textContent=score||'—';row.append(teamName,result);card.append(row);}column.append(card);}bracketGrid.append(column);}}
   else {const empty=document.createElement('p');empty.className='competition-description competition-bracket-empty';empty.textContent=hu?'A verseny ágrajza hamarosan megjelenik.':'The tournament bracket will appear here when announced.';bracketGrid.append(empty);}
   bracketView.append(bracketGrid);
-  const setTab=(active,show)=>{overviewTab.classList.toggle('active',active===overviewTab);bracketTab.classList.toggle('active',active===bracketTab);overviewTab.setAttribute('aria-selected',String(active===overviewTab));bracketTab.setAttribute('aria-selected',String(active===bracketTab));layout.hidden=show;bracketView.hidden=!show;};
-  overviewTab.addEventListener('click',()=>setTab(overviewTab,false));bracketTab.addEventListener('click',()=>setTab(bracketTab,true));
-  page.append(back,hero,nav,layout,bracketView);
+  const standingsView=renderCompetitionStandings(item,hu);standingsView.id='competition-standings-panel';standingsView.classList.add('competition-tab-panel');standingsView.setAttribute('role','tabpanel');standingsView.setAttribute('aria-labelledby',standingsTab.id);standingsView.hidden=true;
+  const tabs=[overviewTab,bracketTab,standingsTab],panels=[layout,bracketView,standingsView];
+  const setTab=active=>{tabs.forEach(tab=>{const selected=tab===active;tab.classList.toggle('active',selected);tab.setAttribute('aria-selected',String(selected));});panels.forEach((panel,index)=>{panel.hidden=tabs[index]!==active;});};
+  overviewTab.addEventListener('click',()=>setTab(overviewTab));bracketTab.addEventListener('click',()=>setTab(bracketTab));standingsTab.addEventListener('click',()=>setTab(standingsTab));
+  page.append(back,hero,nav,layout,bracketView,standingsView);
 }
 
 function showPublicArticle(article) {

@@ -738,8 +738,41 @@
     .competition-card h3 { margin:20px 0 10px; font-size:clamp(1.55rem,3vw,2.2rem); }
     .competition-card p { max-width:60ch; color:var(--muted,#a9b1bd); line-height:1.65; }
     .competition-card-action { margin-top:22px; color:#ed3b4b; font-weight:700; }
+    .competition-hub { display:grid; gap:34px; }
+    .competition-filters { display:grid; grid-template-columns:repeat(3,minmax(150px,210px)) minmax(220px,1fr); gap:14px; align-items:center; }
+    .competition-filters select,.competition-search { min-width:0; height:48px; padding:0 15px; border:1px solid #493033; border-radius:7px; background:#101010; color:#f4eeee; font:inherit; }
+    .competition-search { display:flex; align-items:center; gap:10px; justify-self:end; width:min(100%,380px); }
+    .competition-search span { color:#a99295; font-size:24px; }
+    .competition-search input { min-width:0; width:100%; border:0; outline:0; background:transparent; color:#f4eeee; font:inherit; }
+    .competition-search input::placeholder { color:#a99295; }
+    .competition-category { min-width:0; }
+    .competition-category-heading { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:14px; }
+    .competition-category-heading h2 { margin:0; font-size:clamp(1.3rem,2vw,1.7rem); }
+    .competition-view-all { border:0; background:transparent; color:#ed3b4b; font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+    .competition-upcoming-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+    .competition-lower-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:24px; align-items:start; }
+    .competition-horizontal-list { display:grid; gap:12px; }
+    .competition-tile { min-width:0; overflow:hidden; border:1px solid var(--line); border-radius:9px; background:linear-gradient(135deg,#181414,#0b0b0b 80%); }
+    .competition-tile-link { display:grid; min-height:100%; color:inherit; text-decoration:none; }
+    .competition-tile-upcoming .competition-tile-link { grid-template-rows:132px 1fr auto; }
+    .competition-tile-visual { position:relative; display:flex; align-items:flex-start; justify-content:flex-end; padding:14px; overflow:hidden; background:linear-gradient(115deg,rgba(8,8,8,.15),rgba(8,8,8,.65)),url('assets/RLSHoloFyrnMainBG-960.webp') center 42%/cover; }
+    .competition-tile-visual::after { position:absolute; inset:45% 0 0; content:""; background:linear-gradient(0deg,rgba(0,0,0,.55),transparent); }
+    .competition-state { position:relative; z-index:1; padding:7px 10px; border-radius:4px; color:#fff; background:#6f1c23; font-size:10px; font-weight:800; letter-spacing:.06em; }
+    .competition-state-ongoing { background:#b31e2d; }
+    .competition-state-finished { background:#55494a; }
+    .competition-tile-content { padding:14px 16px 5px; }
+    .competition-tile-content h3 { margin:0 0 12px; font-size:1.2rem; }
+    .competition-tile-meta { margin:6px 0; color:#b9a9aa; font-size:13px; }
+    .competition-tile-prize { margin:12px 0 0; color:#f4eeee; font-size:14px; font-weight:700; }
+    .competition-tile .competition-card-action { display:block; margin:10px 16px 15px; text-align:right; font-size:13px; }
+    .competition-tile-horizontal .competition-tile-link { grid-template-columns:minmax(110px,34%) minmax(0,1fr); grid-template-rows:1fr auto; column-gap:15px; align-items:center; }
+    .competition-tile-horizontal .competition-tile-visual { grid-row:1/3; min-height:148px; }
+    .competition-tile-horizontal .competition-tile-content { padding:14px 14px 0 0; }
+    .competition-tile-horizontal .competition-tile-content h3 { font-size:1.05rem; }
+    .competition-tile-horizontal .competition-card-action { margin:4px 14px 13px 0; }
+    .competition-filter-empty { margin:0; padding:20px; border:1px dashed #493033; border-radius:8px; color:#a99295; }
     .public-competition { max-width:1180px; margin:0 auto; }
-    .public-competition-back { display:inline-block; margin:0 0 24px; color:#c9d8f4; font-weight:700; }
+    .public-competition-back { display:inline-block; margin:0 0 24px; color:var(--red); font-weight:700; }
     .competition-hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(280px,340px); gap:18px; margin-bottom:22px; }
     .competition-hero-main,.competition-facts,.competition-panel { border:1px solid var(--line); border-radius:10px; background:linear-gradient(135deg,#181414,#0b0b0b 75%); }
     .competition-hero-main { min-height:250px; display:flex; flex-direction:column; justify-content:flex-end; padding:clamp(24px,4vw,44px); position:relative; overflow:hidden; }
@@ -767,6 +800,9 @@
     .competition-detail-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,310px); gap:18px; margin-top:18px; align-items:start; }
     .competition-tab-panel[hidden] { display:none; }
     .competition-panel { padding:22px; }
+    .competition-about-column { display:grid; gap:18px; }
+    .competition-participant-list { display:flex; flex-wrap:wrap; gap:10px; margin:0; padding:0; list-style:none; }
+    .competition-participant-list li { padding:9px 13px; border:1px solid #493033; border-radius:5px; background:#120d0e; color:#f4eeee; font-size:14px; font-weight:700; }
     .competition-panel h2 { margin:0 0 14px; font-size:1.25rem; }
     .competition-side .competition-panel { display:flex; flex-direction:column; gap:10px; }
     .competition-description { color:#ceb7b7; line-height:1.75; white-space:pre-wrap; }
@@ -783,6 +819,15 @@
     .competition-group-card { padding:16px; }
     .competition-group-card h3,.competition-bracket-round h3 { margin:0 0 12px; color:#f4eeee; font-size:1rem; }
     .competition-group-team { padding:10px 0; border-top:1px solid rgba(255,255,255,.08); color:#ceb7b7; font-size:14px; }
+    .competition-standings { margin:0 0 28px; overflow-x:auto; border:1px solid #493033; border-radius:8px; background:#0b0b0b; }
+    .competition-standings-section { margin-top:18px; padding:clamp(18px,3vw,28px); border:1px solid var(--line); border-radius:10px; background:#0b0b0b; }
+    .competition-standings-section > h2 { margin:0 0 16px; font-size:1.3rem; }
+    .competition-standings table { width:100%; border-collapse:collapse; min-width:420px; text-align:left; }
+    .competition-standings th,.competition-standings td { padding:13px 16px; border-bottom:1px solid rgba(255,255,255,.08); }
+    .competition-standings th { color:#a99295; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .competition-standings td { color:#f4eeee; }
+    .competition-standings tbody tr:last-child td { border-bottom:0; }
+    .competition-standings td:first-child { color:#ed3b4b; font-weight:700; }
     .competition-bracket-heading { margin-top:30px !important; }
     .competition-bracket-grid { display:grid; grid-auto-columns:minmax(210px,1fr); grid-auto-flow:column; gap:44px; overflow-x:auto; padding:8px 8px 18px; }
     .competition-bracket-round { display:flex; flex-direction:column; justify-content:space-around; gap:24px; min-width:210px; }
@@ -804,6 +849,10 @@
       .public-news-visual { position:static; }
       .public-news-article-image { max-height:none; aspect-ratio:auto; }
       .competition-list,.competition-hero,.competition-detail-grid { grid-template-columns:minmax(0,1fr); }
+      .competition-filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .competition-search { grid-column:1/-1; justify-self:stretch; width:auto; }
+      .competition-upcoming-grid,.competition-lower-grid { grid-template-columns:minmax(0,1fr); }
+      .competition-tile-upcoming .competition-tile-link { grid-template-rows:150px 1fr auto; }
       .competition-hero-main { min-height:220px; }
       .competition-nav { gap:18px; overflow-x:auto; white-space:nowrap; }
     }
@@ -4024,20 +4073,6 @@
           </div>
         </a></div>
     </section>
-    <section class="section container page-section">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow"><i></i><span data-en="TEAM MANAGEMENT" data-hu="CSAPATVEZETŐSÉG">TEAM MANAGEMENT</span></div>
-          <h2><span data-en="Management" data-hu="Vezetőség">Management</span></h2>
-        </div>
-      </div>
-      <div class="staff-grid"><a class="staff-card" href="#/staff/zemsta/"><span class="staff-number">01</span><img
-            class="staff-avatar staff-avatar-photo" src="assets/zemsta-1200.webp" alt="Zemsta (Dávid Fekete)" loading="lazy" decoding="async">
-          <h2>Zemsta</h2>
-          <p><span data-en="Vice President of IT" data-hu="IT-alelnök">Vice President of IT</span> <span
-              aria-hidden="true">↗</span></p>
-        </a></div>
-    </section>
     <section class="section container compact-section">
       <div class="two-column">
         <div class="info-panel">
@@ -5938,7 +5973,7 @@
       restoreDiscordSession();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261021-competition-builder"></script>
+  <script type="module" src="public-data-v3.js?v=20261025-competition-participants"></script>
 </body>
 
 </html>
