@@ -1,6 +1,6 @@
 
 // Loaded before concept.js. The imported UI calls these production services.
-let services, model, publicModel, authenticatedUser, baseline, remoteData = {}, remoteProfiles = [];
+let services, model, publicModel, authenticatedUser, baseline, remoteData = {}, remoteProfiles = [], remotePortraits = {};
 let subscriptions = [], pendingWrites = 0, writeQueue = Promise.resolve(), syncMessage = '', initialSnapshotTimer = null;
 let availabilityOffset = 0, connectionEpoch = 0, liveReady = false, refreshDeferred = false, publicPublishStarted = false, coachingProfilesSynced = false;
 let storageApi;
@@ -31,16 +31,34 @@ async function uploadManagerTeamLogo(file,teamId){
   return {logoUrl:await storageApi.getDownloadURL(target),logoPath:path};
 }
 async function uploadPlayerImage(file,playerId){
-  if(!file||!storageApi||!services?.storage||!authenticatedUser)throw new Error('Image storage is unavailable. Reload the manager and try again.');
-  const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'},extension=extensions[file.type];
-  if(!extension)throw new Error('Choose a JPG, PNG or WebP image.');
-  if(file.size>8*1024*1024)throw new Error('The image must be smaller than 8 MB.');
-  const path=`player-images/${authenticatedUser.uid}/${playerId}/${crypto.randomUUID()}.${extension}`,target=storageApi.ref(services.storage,path);
-  await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
-  return {imageUrl:await storageApi.getDownloadURL(target),imagePath:path};
+  if(!file||!services?.fire||!services?.db||!authenticatedUser)throw new Error('Image storage is unavailable. Reload the manager and try again.');
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Choose a JPG, PNG or WebP image.');
+  if(file.size>20*1024*1024)throw new Error('Choose an image smaller than 20 MB.');
+  if(!/^[A-Za-z0-9_-]{1,128}$/.test(playerId))throw new Error('This player has an unsupported ID.');
+  const bitmap=await createImageBitmap(file),scale=Math.min(1,1200/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  const context=canvas.getContext('2d');if(!context){bitmap.close();throw new Error('The browser could not prepare this image.');}
+  context.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+  let blob=null;
+  for(const quality of [.82,.72,.62,.52,.42]){
+    blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',quality));
+    if(blob&&blob.size<=350*1024)break;
+  }
+  if(!blob||blob.size>350*1024)throw new Error('Could not compress the image below 350 KB. Choose a smaller photo.');
+  const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('The browser could not read this image.'));reader.readAsDataURL(blob);});
+  const path=`playerPortraits/${playerId}`;
+  await services.fire.setDoc(services.fire.doc(services.db,'playerPortraits',playerId),{dataUrl,contentType:'image/webp',updatedBy:authenticatedUser.uid,updatedAt:services.fire.serverTimestamp()});
+  remotePortraits[playerId]={dataUrl,contentType:'image/webp'};
+  return {imageUrl:'',imagePath:path};
+}
+async function removePlayerImage(playerId){
+  if(!services?.fire||!services?.db)throw new Error('Image database is unavailable. Reload the manager and try again.');
+  await services.fire.deleteDoc(services.fire.doc(services.db,'playerPortraits',playerId));
+  delete remotePortraits[playerId];
 }
 function emptyState(){return {currentUserId:'',activeTeam:'main',view:'overview',resultTab:'tournament',resultFolderFilter:'',selectedLeagueId:null,selectedCompetitionId:null,leagueTab:'standings',calendarCursor:today().slice(0,7),sidebarOpen:!matchMedia("(max-width: 900px)").matches,teams:[],users:[],players:[],results:[],resultFolders:[],leagues:[],leagueGames:[],goals:[],news:[],competitions:[],events:[],availability:[],notifications:[],staff:[],matches:[]};}
 function currentUser(){return authenticatedUser ? state.users.find(u=>u.id===state.currentUserId && (u.authUid===authenticatedUser.uid || u.id===authenticatedUser.uid)) : null;}
+function getPlayerPortrait(playerId){return remotePortraits[playerId]?.dataUrl||'';}
 function safeUrl(input, image=false){
   if(image && /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(input))return input;
   try{const url=new URL(input);return ['https:','http:'].includes(url.protocol)?url.href:'';}catch{return '';}
@@ -217,7 +235,7 @@ async function startManager(){
     authApi.onAuthStateChanged(auth,async user=>{
       clearTimeout(initialSnapshotTimer);initialSnapshotTimer=null;
       const epoch=++connectionEpoch;subscriptions.forEach(fn=>fn());subscriptions=[];
-      liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];baseline=null;state=emptyState();publicPublishStarted=false;coachingProfilesSynced=false;resetCoachingCache();
+      liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];remotePortraits={};baseline=null;state=emptyState();publicPublishStarted=false;coachingProfilesSynced=false;resetCoachingCache();
       document.getElementById('modal-root').innerHTML='';
       if(!user){showLogin();return;}
       document.getElementById('app').innerHTML='<main class="login-screen"><section class="card login-card" role="status">Loading team data…</section></main>';
@@ -232,6 +250,7 @@ async function startManager(){
         initialSnapshotTimer=setTimeout(()=>{if(epoch===connectionEpoch&&!liveReady){subscriptions.forEach(unsubscribe=>unsubscribe());subscriptions=[];showAccessError('Timed out while loading team data. Check your connection and Firebase/Firestore access, then retry.');}},20000);
         subscriptions.push(fire.onSnapshot(services.storeRef,snap=>{if(epoch!==connectionEpoch)return;remoteData=snap.exists()?snap.data():{};gotData=true;ready();},fail));
         subscriptions.push(fire.onSnapshot(fire.collection(db,'users'),snap=>{if(epoch!==connectionEpoch)return;remoteProfiles=snap.docs.map(d=>({...d.data(),id:d.id}));gotUsers=true;ready();},fail));
+        subscriptions.push(fire.onSnapshot(fire.collection(db,'playerPortraits'),snap=>{if(epoch!==connectionEpoch)return;remotePortraits=Object.fromEntries(snap.docs.map(d=>[d.id,d.data()]));if(liveReady&&!pendingWrites&&state.view==='player-images')render();},error=>console.warn('Player portraits could not be loaded.',error)));
       }catch(error){if(epoch===connectionEpoch)showAccessError(error.code==='permission-denied'?'This login has no approved team profile or Firestore access. Ask an administrator to check the account.':error.message);}
     });
   }catch(error){console.error(error);document.getElementById('app').innerHTML='<main class="login-screen"><section class="card login-card"><h1>Connection unavailable</h1><p>Firebase could not be loaded. Open this page through the local server or the website, check your connection, then reload.</p><button class="btn primary" onclick="location.reload()">Retry</button></section></main>';}

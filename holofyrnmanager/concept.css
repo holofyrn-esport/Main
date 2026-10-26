@@ -565,3 +565,4 @@ body{overflow-x:hidden}
 .competition-manager-row>strong{overflow-wrap:anywhere}
 .competition-manager-row>span{color:var(--muted);font-size:12px}
 @media(max-width:640px){.competition-manager-head-actions{justify-content:flex-start}.competition-manager-row{grid-template-columns:minmax(0,1fr) auto}.competition-manager-row>div{grid-column:1/-1}}
+.player-image-manager-info [data-player-image-remove]{display:block;width:max-content;margin:8px 0 0;position:static}

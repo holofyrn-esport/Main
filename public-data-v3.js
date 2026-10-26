@@ -19,6 +19,7 @@ const teamNames = {
 };
 const portraits = {kenz: 'Kenz-profile.webp', eggy: 'NoPicPlayer.webp', interz: 'interz.webp'};
 let publicData = null;
+let playerPortraits = {};
 let loadError = false;
 let matchCountdownTimer = null;
 
@@ -41,6 +42,7 @@ function playerLink(player) {
 }
 
 function portrait(player) {
+  if (playerPortraits[player.id]) return playerPortraits[player.id];
   if (typeof player.imageUrl === 'string' && /^https:\/\//i.test(player.imageUrl)) return player.imageUrl;
   const name = player.name.trim().toLowerCase();
   if (name === 'kenz') return 'assets/Kenz-profile.webp';
@@ -790,6 +792,10 @@ try {
     loadError = true;
     render();
   });
+  fire.onSnapshot(fire.collection(db, 'playerPortraits'), snapshot => {
+    playerPortraits = Object.fromEntries(snapshot.docs.map(doc => [doc.id, doc.data().dataUrl]).filter(([,dataUrl]) => typeof dataUrl === 'string' && dataUrl.startsWith('data:image/webp;base64,')));
+    render();
+  }, error => console.error('Player portraits could not be loaded', error));
 } catch (error) {
   console.error('HoloFyrn public data could not be loaded', error);
   loadError = true;

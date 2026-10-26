@@ -127,7 +127,7 @@ export function validateChanges(changes, user, players, leagues = []) {
         if (row.id !== user.id || Object.keys({...c.before,...c.after}).some(k=>!allowed.includes(k) && !equal(c.before[k],c.after[k]))) throw new Error('You may only edit your own profile.');
       }
     } else if (key === 'players' && !admin) throw new Error('Administrator access required.');
-    else if (key === 'players' && c.after && ((c.after.imageUrl && (typeof c.after.imageUrl!=='string'||c.after.imageUrl.length>2048||!/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath!=='string'||!/^player-images\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(c.after.imagePath))))) throw new Error('Player portraits must use a valid HTTPS storage URL and player image path.');
+    else if (key === 'players' && c.after && ((c.after.imageUrl && (typeof c.after.imageUrl!=='string'||c.after.imageUrl.length>2048||!/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath!=='string'||!(/^(?:player-images\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+|playerPortraits\/[A-Za-z0-9_-]+)$/.test(c.after.imagePath)))))) throw new Error('Player portraits must use a valid HTTPS image URL and supported image path.');
     else if (key === 'staff') {
       if (!admin) throw new Error('Administrator access required to manage staff.');
       if (c.after && (!c.after.name?.trim() || !c.after.role?.trim())) throw new Error('Staff needs a name and role.');
