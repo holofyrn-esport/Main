@@ -78,16 +78,20 @@ function queueSave(){
       if(Object.keys(patch).length){
         if(new TextEncoder().encode(JSON.stringify({...latest,...patch})).length>900000)throw new Error('The shared database document is nearly full. Export/archive old records before adding more.');
         transaction.set(storeRef,{...patch,updatedAt:fire.serverTimestamp()},{merge:true});
-        // Keep private manager changes (goals, notifications, standings setup) on
-        // the manager document. A public document write is needed only when its
-        // actual source data changes; otherwise an outdated public rule can
-        // reject an unrelated goal or settings save.
-        if(changes.players || changes.results || changes.leagueGames || changes.news || changes.competitions || changes.staff || changes.matches) transaction.set(services.publicRef,{...publicModel.publicHoloFyrnData({...latest,...patch}),publishedAt:fire.serverTimestamp()});
+        // Keep the manager data and linked profiles in the core transaction.
+        // Publishing is a separate write after commit so a stale public-data
+        // rule cannot roll back a player/account link or other manager edits.
       }
       for(const profile of userWrites)transaction.set(fire.doc(db,'users',profile.id),profile,{merge:true});
       committedSnapshot={...latest,...patch};committedUserWrites=userWrites;
     });
-    if(committedSnapshot){remoteData=committedSnapshot;for(const profile of committedUserWrites){const index=remoteProfiles.findIndex(row=>row.id===profile.id);if(index<0)remoteProfiles.push(profile);else remoteProfiles[index]=profile;}}
+    if(committedSnapshot){
+      remoteData=committedSnapshot;
+      for(const profile of committedUserWrites){const index=remoteProfiles.findIndex(row=>row.id===profile.id);if(index<0)remoteProfiles.push(profile);else remoteProfiles[index]=profile;}
+      if(changes.players || changes.results || changes.leagueGames || changes.news || changes.competitions || changes.staff || changes.matches){
+        try{await publishPublicData();}catch(error){console.error('Public data publication failed after the manager save.',error);}
+      }
+    }
   }).catch(error=>{
     console.error('Manager save failed',error);
     if(epoch!==connectionEpoch)return;
