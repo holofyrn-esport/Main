@@ -57,7 +57,7 @@ function queueSave(){
   try{model.validateChanges(changes,currentUser(),baseline.players,baseline.leagues);}catch(error){state={...state,...structuredClone(baseline)};render();toast('Change rejected',error.message);return false;}
   const previous=structuredClone(baseline), epoch=connectionEpoch;
   let latestSnapshot=null, latestProfiles=null;
-  let committedSnapshot=null, committedUserWrites=[];
+  let committedSnapshot=null, committedUserWrites=[], saveSucceeded=false;
   baseline=structuredClone(state);pendingWrites++;syncMessage='';updateSyncStatus();
   writeQueue=writeQueue.then(async()=>{
     if(epoch!==connectionEpoch || !liveReady)throw new Error('The session or database connection has changed. Reload before trying again.');
@@ -92,6 +92,7 @@ function queueSave(){
         try{await publishPublicData();}catch(error){console.error('Public data publication failed after the manager save.',error);}
       }
     }
+    saveSucceeded=true;
   }).catch(error=>{
     console.error('Manager save failed',error);
     if(epoch!==connectionEpoch)return;
@@ -110,7 +111,7 @@ function queueSave(){
     document.getElementById('modal-root').innerHTML='';
     render();
     openModal('Save failed',`<p>${esc(error.message)}</p><p>${latestSnapshot?'The latest database data is loaded. Your edit was not saved; reapply it and try again.':'Your change was not confirmed. Check your connection, then try again.'}</p>`,null);
-  }).finally(()=>{pendingWrites--;if(epoch===connectionEpoch && !pendingWrites && liveReady)applyDatabase();updateSyncStatus();});
+  }).finally(()=>{pendingWrites--;if(epoch===connectionEpoch && !pendingWrites && liveReady)applyDatabase();updateSyncStatus();}).then(()=>saveSucceeded);
   return writeQueue;
 }
 function applyDatabase(){
