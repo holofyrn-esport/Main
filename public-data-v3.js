@@ -574,26 +574,27 @@ function renderCompetitionStandings(item, hu) {
   const section=document.createElement('section');section.className='competition-standings-section';
   const heading=document.createElement('h2');heading.textContent=hu?'Tabella':'Standings';section.append(heading);
   const teams=Array.isArray(item.teams)?item.teams.filter(team=>team&&team.id&&team.name):[];
-  const rows=new Map(teams.map(team=>[team.id,{team,wins:0,losses:0}]));
+  const rows=new Map(teams.map(team=>[team.id,{team,wins:0,losses:0,gamesWon:0,gamesLost:0}]));
   for(const match of Array.isArray(item.bracketMatches)?item.bracketMatches:[]){
     const a=rows.get(match.teamAId),b=rows.get(match.teamBId),scoreA=Number(match.scoreA),scoreB=Number(match.scoreB);
-    if(!a||!b||match.scoreA===''||match.scoreB===''||!Number.isInteger(scoreA)||!Number.isInteger(scoreB)||scoreA===scoreB)continue;
-    if(scoreA>scoreB){a.wins++;b.losses++;}else{b.wins++;a.losses++;}
+    if(!a||!b||String(match.scoreA??'').trim()===''||String(match.scoreB??'').trim()===''||!Number.isInteger(scoreA)||!Number.isInteger(scoreB)||scoreA<0||scoreB<0)continue;
+    a.gamesWon+=scoreA;a.gamesLost+=scoreB;b.gamesWon+=scoreB;b.gamesLost+=scoreA;
+    if(scoreA>scoreB){a.wins++;b.losses++;}else if(scoreB>scoreA){b.wins++;a.losses++;}
   }
   if(!teams.length){const empty=document.createElement('p');empty.className='competition-description competition-bracket-empty';empty.textContent=hu?'A tabella a résztvevő csapatok hozzáadása után jelenik meg.':'Standings will appear after teams are added.';section.append(empty);return section;}
   const byGroup=new Map();
   for(const row of rows.values()){const group=String(row.team.group||'').trim()||(teams.some(team=>String(team.group||'').trim())?(hu?'Csoport nélkül':'Ungrouped'):(hu?'Összesített':'Overall'));if(!byGroup.has(group))byGroup.set(group,[]);byGroup.get(group).push(row);}
   for(const [group,entries] of byGroup){
     if(byGroup.size>1){const label=document.createElement('h3');label.textContent=group;section.append(label);}
-    entries.sort((a,b)=>b.wins-a.wins||a.losses-b.losses||a.team.name.localeCompare(b.team.name));
+    entries.sort((a,b)=>b.wins-a.wins||(b.gamesWon-b.gamesLost)-(a.gamesWon-a.gamesLost));
     const wrap=document.createElement('div');wrap.className='competition-standings';const table=document.createElement('table');
     const head=document.createElement('thead'),headRow=document.createElement('tr');
-    for(const label of ['#',hu?'Csapat':'Team',hu?'Győzelem':'Wins',hu?'Vereség':'Losses']){const cell=document.createElement('th');cell.textContent=label;headRow.append(cell);}head.append(headRow);table.append(head);
-    const body=document.createElement('tbody');entries.forEach((entry,index)=>{const row=document.createElement('tr');for(const value of [String(index+1),entry.team.name,String(entry.wins),String(entry.losses)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}body.append(row);});table.append(body);wrap.append(table);section.append(wrap);
+    const labels=hu?['#','Csapat','Szett győzelem','Szett vereség','Megnyert meccsek','Elvesztett meccsek','Meccskülönbség']:['#','Team','Series Wins','Series Losses','Games Won','Games Lost','Game Difference'];
+    for(const label of labels){const cell=document.createElement('th');cell.textContent=label;headRow.append(cell);}head.append(headRow);table.append(head);
+    const body=document.createElement('tbody');let position=0,previous=null;entries.forEach((entry,index)=>{const difference=entry.gamesWon-entry.gamesLost;if(!previous||entry.wins!==previous.wins||difference!==previous.gamesWon-previous.gamesLost)position=index+1;previous=entry;const row=document.createElement('tr');for(const value of [String(position),entry.team.name,String(entry.wins),String(entry.losses),String(entry.gamesWon),String(entry.gamesLost),difference>0?`+${difference}`:String(difference)]){const cell=document.createElement('td');cell.textContent=value;row.append(cell);}body.append(row);});table.append(body);wrap.append(table);section.append(wrap);
   }
   return section;
 }
-
 function renderPublicCompetitionDetail(route) {
   const page=document.getElementById('public-competition-detail'); if(!page)return;
   const hu=document.documentElement.lang==='hu', id=route.split('/').filter(Boolean).at(-1);

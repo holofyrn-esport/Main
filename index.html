@@ -822,8 +822,13 @@
     .competition-standings { margin:0 0 28px; overflow-x:auto; border:1px solid #493033; border-radius:8px; background:#0b0b0b; }
     .competition-standings-section { margin-top:18px; padding:clamp(18px,3vw,28px); border:1px solid var(--line); border-radius:10px; background:#0b0b0b; }
     .competition-standings-section > h2 { margin:0 0 16px; font-size:1.3rem; }
-    .competition-standings table { width:100%; border-collapse:collapse; min-width:420px; text-align:left; }
+    .competition-standings table { width:100%; border-collapse:collapse; min-width:980px; text-align:left; }
     .competition-standings th,.competition-standings td { padding:13px 16px; border-bottom:1px solid rgba(255,255,255,.08); }
+    .competition-standings th,.competition-standings td { white-space:nowrap; }
+    .competition-standings th:nth-child(2),.competition-standings td:nth-child(2) { min-width:220px; padding-right:38px; }
+    .competition-standings th:nth-child(3),.competition-standings td:nth-child(3) { border-left:1px solid rgba(255,255,255,.12); padding-left:30px; }
+    .competition-standings th:nth-child(n+4),.competition-standings td:nth-child(n+4) { min-width:122px; padding-left:24px; }
+    .competition-standings th:first-child,.competition-standings td:first-child,.competition-standings th:nth-child(n+3),.competition-standings td:nth-child(n+3) { text-align:center; }
     .competition-standings th { color:#a99295; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
     .competition-standings td { color:#f4eeee; }
     .competition-standings tbody tr:last-child td { border-bottom:0; }
@@ -3885,8 +3890,6 @@
         <div class="team-hero-content">
           <div class="eyebrow"><i></i><span data-en="ROCKET LEAGUE" data-hu="ROCKET LEAGUE">ROCKET LEAGUE</span></div>
           <h1>HoloFyrn Academy</h1>
-          <p><span data-en="Development roster" data-hu="Akadémiai csapat">Development roster</span> · HoloFyrn Esport
-          </p>
         </div>
       </div>
     </section>
@@ -3934,8 +3937,6 @@
         <div class="team-hero-content">
           <div class="eyebrow"><i></i><span data-en="ROCKET LEAGUE" data-hu="ROCKET LEAGUE">ROCKET LEAGUE</span></div>
           <h1>HoloFyrn Shadows</h1>
-          <p><span data-en="Shadows roster" data-hu="Shadows csapat">Shadows roster</span> · HoloFyrn Esport
-          </p>
         </div>
       </div>
     </section>
@@ -3983,8 +3984,6 @@
         <div class="team-hero-content">
           <div class="eyebrow"><i></i><span data-en="ROCKET LEAGUE" data-hu="ROCKET LEAGUE">ROCKET LEAGUE</span></div>
           <h1>Holofyrn Vanguards</h1>
-          <p><span data-en="Vanguards roster" data-hu="Vanguards csapat">Vanguards roster</span> · HoloFyrn Esport
-          </p>
         </div>
       </div>
     </section>
@@ -4032,7 +4031,6 @@
         <div class="team-hero-content">
           <div class="eyebrow"><i></i><span data-en="ROCKET LEAGUE" data-hu="ROCKET LEAGUE">ROCKET LEAGUE</span></div>
           <h1>HoloFyrn Esport</h1>
-          <p><span data-en="Main roster" data-hu="Fő csapat">Main roster</span> · HoloFyrn Esport</p>
         </div>
       </div>
     </section>
@@ -4138,7 +4136,6 @@
         <div class="team-hero-content">
           <div class="eyebrow"><i></i><span data-en="ROCKET LEAGUE" data-hu="ROCKET LEAGUE">ROCKET LEAGUE</span></div>
           <h1>RLS HoloFyrn Academy</h1>
-          <p><span data-en="RLS development" data-hu="RLS akadémia">RLS development</span> · HoloFyrn Esport</p>
         </div>
       </div>
     </section>
@@ -4186,7 +4183,6 @@
         <div class="team-hero-content">
           <div class="eyebrow"><i></i><span data-en="ROCKET LEAGUE" data-hu="ROCKET LEAGUE">ROCKET LEAGUE</span></div>
           <h1>RLS HoloFyrn Eldr</h1>
-          <p><span data-en="Community roster" data-hu="Közösségi csapat">Community roster</span> · HoloFyrn Esport</p>
         </div>
       </div>
     </section>
@@ -4234,7 +4230,6 @@
         <div class="team-hero-content">
           <div class="eyebrow"><i></i><span data-en="ROCKET LEAGUE" data-hu="ROCKET LEAGUE">ROCKET LEAGUE</span></div>
           <h1>RLS HoloFyrn Esport</h1>
-          <p><span data-en="RLS roster" data-hu="RLS csapat">RLS roster</span> · HoloFyrn Esport</p>
         </div>
       </div>
     </section>
@@ -5973,7 +5968,7 @@
       restoreDiscordSession();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261025-competition-participants"></script>
+  <script type="module" src="public-data-v3.js?v=20261026-competition-tied-places"></script>
 </body>
 
 </html>
