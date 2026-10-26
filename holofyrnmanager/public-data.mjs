@@ -29,6 +29,7 @@ export function publicHoloFyrnData(data = {}) {
     ...teams,
   ];
   const players = rows(data.players).filter(player => str(player.name || player.rlName)).map(player => ({
+    id: str(player.id).slice(0, 128),
     name: str(player.name || player.rlName).slice(0, 100),
     team: str(player.teamId || player.team || 'main').slice(0, 80),
     teamIds: [...new Set((rows(player.teamIds).length ? player.teamIds : [player.teamId || player.team || 'main']).map(id => str(id).slice(0, 80)).filter(Boolean))],
