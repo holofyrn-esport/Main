@@ -319,7 +319,7 @@ function accountModal(user=null){
       closeModal();toast('Account created',name);
     }catch(error){
       if(credential)try{await services.authApi.deleteUser(credential.user);}catch{console.error('Account profile failed; remove the orphan login in Firebase Authentication.');}
-      message.textContent=error.code==='auth/email-already-in-use'?'This username is already in use.':error.message;button.disabled=false;
+      message.textContent=error.code==='auth/email-already-in-use'?'A Firebase login with this username still exists. The deletion request may still be waiting for the account cleanup workflow. Run the queued account deletion workflow in GitHub Actions, or remove this login in Firebase Console → Authentication → Users, then try again.':error.message;button.disabled=false;
     }finally{if(secondary)await services.appApi.deleteApp(secondary);}
   });
 }
