@@ -30,3 +30,8 @@ export async function addCoachingNote(fire, db, teamId, playerId, authorId, text
     createdAt: fire.serverTimestamp()
   });
 }
+
+export async function deleteCoachingNote(fire, db, teamId, playerId, noteId) {
+  const path = playerId ? coachingPlayerPath(teamId, playerId) : coachingTeamPath(teamId);
+  return fire.deleteDoc(fire.doc(db, ...path, noteId));
+}

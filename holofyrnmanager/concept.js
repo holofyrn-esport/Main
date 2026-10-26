@@ -176,7 +176,7 @@ function loadCoachingPage(scope,force=false){
   const key=coachingKey(scope);
   if(!force && coachingCache.key===key)return;
   coachingCache={key,status:'loading',notes:[],error:''};
-  import('./coaching-data.mjs').then(({loadCoachingNotes})=>loadCoachingNotes(services.fire,services.db,scope.teamId,scope.players.map(p=>p.id)))
+  import('./coaching-data.mjs?v=20261026-own-note-delete').then(({loadCoachingNotes})=>loadCoachingNotes(services.fire,services.db,scope.teamId,scope.players.map(p=>p.id)))
     .then(notes=>{if(coachingCache.key!==key)return;coachingCache={key,status:'ready',notes,error:''};if(state.view==='coaching')render();})
     .catch(error=>{if(coachingCache.key!==key)return;console.error('Coaching notes failed',error);coachingCache={key,status:'error',notes:[],error:'The coaching notes could not be loaded. Check the team assignment and Firestore rules.'};if(state.view==='coaching')render();});
 }
@@ -184,7 +184,8 @@ function coachingNoteMarkup(note,scope){
   const author=userById(note.authorId)?.displayName || 'Coach';
   const player=scope.players.find(p=>p.id===note.playerId);
   const date=note.createdAt?.toDate?.();
-  return `<article class="coaching-note"><div class="coaching-note-meta"><strong>${esc(author)}</strong><span>${date?esc(date.toLocaleString()):'Just now'}</span></div>${scope.canWrite?`<small>${note.kind==='team'?'Team':`Player · ${esc(player?.name||'Player')}`}</small>`:''}<p>${esc(note.text)}</p></article>`;
+  const ownNote=note.authorId===authenticatedUser?.uid;
+  return `<article class="coaching-note"><div class="coaching-note-meta"><strong>${esc(author)}</strong><span>${date?esc(date.toLocaleString()):'Just now'}</span></div>${scope.canWrite?`<small>${note.kind==='team'?'Team':`Player · ${esc(player?.name||'Player')}`}</small>`:''}<p>${esc(note.text)}</p>${ownNote?`<button class="btn small danger coaching-note-delete" type="button" data-coaching-note-delete="${esc(note.id)}" data-coaching-note-kind="${esc(note.kind)}" data-coaching-note-player="${esc(note.playerId||'')}">Delete my note</button>`:''}</article>`;
 }
 function coaching(){
   const scope=coachingScope();
@@ -199,6 +200,15 @@ function coaching(){
 function bindCoaching(){
   const scope=coachingScope();
   document.getElementById('coaching-refresh')?.addEventListener('click',()=>{resetCoachingCache();loadCoachingPage(scope);render();});
+  document.querySelectorAll('[data-coaching-note-delete]').forEach(button=>button.addEventListener('click',()=>{
+    const note=coachingCache.notes.find(item=>item.id===button.dataset.coachingNoteDelete&&item.kind===button.dataset.coachingNoteKind&&(item.playerId||'')===button.dataset.coachingNotePlayer);
+    if(!note||note.authorId!==authenticatedUser?.uid||!scope)return;
+    confirmModal('Delete coaching note?','This permanently removes your note.',async()=>{
+      button.disabled=true;
+      try{const {deleteCoachingNote}=await import('./coaching-data.mjs?v=20261026-own-note-delete');await deleteCoachingNote(services.fire,services.db,scope.teamId,note.playerId,note.id);resetCoachingCache();loadCoachingPage(scope);render();toast('Coaching note deleted');}
+      catch(error){console.error('Coaching note deletion failed',error);button.disabled=false;toast('Could not delete note','Check your connection and Firestore rules.');}
+    });
+  }));
   document.getElementById('coaching-form')?.addEventListener('submit',async event=>{
     event.preventDefault();
     if(!scope?.canWrite || !liveReady)return;
@@ -208,7 +218,7 @@ function bindCoaching(){
     if(!message || message.length>4000 || (target!=='team'&&!playerId)){error.textContent='Choose a recipient and enter a message of at most 4000 characters.';return;}
     button.disabled=true;error.textContent='';
     try{
-      const {addCoachingNote}=await import('./coaching-data.mjs');
+      const {addCoachingNote}=await import('./coaching-data.mjs?v=20261026-own-note-delete');
       await addCoachingNote(services.fire,services.db,scope.teamId,playerId,authenticatedUser.uid,message);
       resetCoachingCache();loadCoachingPage(scope);render();toast('Coaching note posted');
     }catch(e){console.error('Coaching note failed',e);error.textContent='The note could not be saved. Check the team assignment and Firestore rules.';button.disabled=false;}

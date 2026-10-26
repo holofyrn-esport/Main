@@ -83,14 +83,16 @@ service cloud.firestore {
     match /coachingTeams/{teamId}/notes/{noteId} {
       allow read: if isAdmin() || isTeamCoach(teamId) || isAssignedPlayer(teamId);
       allow create: if (isAdmin() || isTeamCoach(teamId)) && validCoachingNote();
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if isMember() && resource.data.authorId == request.auth.uid;
     }
 
     match /coachingPlayers/{teamId}/players/{playerId}/notes/{noteId} {
       allow read: if isAdmin() || isTeamCoach(teamId)
         || (isAssignedPlayer(teamId) && isOwnPlayer(playerId));
       allow create: if (isAdmin() || isTeamCoach(teamId)) && validCoachingNote();
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if isMember() && resource.data.authorId == request.auth.uid;
     }
 
     match /holofyrnPublic/main {
