@@ -214,6 +214,16 @@ export function toDatabase(data, profiles, uid, changes) {
     if (!u) continue;
     const original = profiles.find(p=>str(p.id)===id) || list(data.users).find(p=>str(p.id)===id) || {};
     const {password, ...profile} = original;
+    const actor=next.users.find(user=>user.id===uid);
+    if (id===uid && actor?.role!=='admin') {
+      const edit=(changes.users||[]).find(change=>change.id===id);
+      if(!edit?.after)continue;
+      const fields={displayName:'name',initials:'initials',discord:'discord',discordUrl:'discordUrl',instagramUrl:'instagramUrl',xUrl:'xUrl',tiktokUrl:'tiktokUrl',bio:'bio',avatarData:'avatarData',avatarScale:'avatarScale',avatarX:'avatarX',avatarY:'avatarY'};
+      const userPatch={};
+      for(const [source,target] of Object.entries(fields))if(!equal(edit.before?.[source],edit.after[source]))userPatch[target]=edit.after[source];
+      if(Object.keys(userPatch).length)userWrites.push({id,...userPatch});
+      continue;
+    }
     const linkedPlayer=next.players.find(p=>p.id===u.linkedPlayerId);
     userWrites.push({...profile,id:u.id,authUid:profile.authUid || u.id,name:u.displayName,username:u.username || '',role:u.role[0].toUpperCase()+u.role.slice(1),teamId:linkedPlayer?.team || (u.role==='player'?'':u.teamId || ''),teamIds:linkedPlayer?playerTeams(linkedPlayer):(u.teamIds?.length?u.teamIds:(u.teamId?[u.teamId]:[])),playerId:linkedPlayer?.id || '',linkedPlayerId:linkedPlayer?.id || null,approved:u.approved!==false,discord:u.discord || '',discordUrl:u.discordUrl || '',instagramUrl:u.instagramUrl || '',xUrl:u.xUrl || '',tiktokUrl:u.tiktokUrl || '',bio:u.bio || '',avatarData:u.avatarData || '',avatarScale:Number(u.avatarScale || 1),avatarX:Number(u.avatarX || 0),avatarY:Number(u.avatarY || 0)});
   }
