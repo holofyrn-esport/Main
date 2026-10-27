@@ -1,13 +1,13 @@
 export {sortedRoster, teamRole} from '../public-roster.mjs?v=20260930-team-roles';
 // Compatibility boundary: existing Noctiq records remain the source of truth.
 export const defaultTeams = [
-  { id: 'main', name: 'HoloFyrn Esports', code: 'Main roster' },
-  { id: 'academy', name: 'HoloFyrn Academy', code: 'Academy' },
-  { id: 'rls', name: 'HoloFyrn Esports RLS', code: 'RLS' },
-  { id: 'rls-academy', name: 'Rls HoloFyrn Academy', code: 'RLS Academy' },
-  { id: 'rls-eldr', name: 'Rls HoloFyrn Eldr', code: 'RLS Eldr' },
-  { id: 'shadows', name: 'HoloFyrn Shadows', code: 'Shadows' },
-  { id: 'vanguards', name: 'Holofyrn Vanguards', code: 'Vanguards' },
+  { id: 'main', name: 'HoloFyrn Esports', code: 'Main roster', level: 'Main roster', accent: '#e91d39', logoUrl: 'assets/HoloFyrn_Esports_main.png', backgroundUrl: 'assets/HolofyrnMainBG-960.webp' },
+  { id: 'academy', name: 'HoloFyrn Academy', code: 'Academy', level: 'Academy', accent: '#bd8855', logoUrl: 'assets/HolofyrnAcademy-transparent-360.webp', backgroundUrl: 'assets/HolofyrnAcademyBG-960.webp' },
+  { id: 'rls', name: 'HoloFyrn Esports RLS', code: 'RLS', level: 'RLS', accent: '#a71d3c', logoUrl: 'assets/RLSHolofyrnEsport-360.webp', backgroundUrl: 'assets/RLSHoloFyrnMainBG-960.webp' },
+  { id: 'rls-academy', name: 'Rls HoloFyrn Academy', code: 'RLS Academy', level: 'RLS Academy', accent: '#c29a60', logoUrl: 'assets/RLSHoloFyrnAcademy-transparent-360.webp', backgroundUrl: 'assets/RLSHolofyrnacademyBG-960.webp' },
+  { id: 'rls-eldr', name: 'Rls HoloFyrn Eldr', code: 'RLS Eldr', level: 'RLS Eldr', accent: '#fa7116', logoUrl: 'assets/HolofyrnEldr-360.webp', backgroundUrl: 'assets/RLSHoloFyrnEldBG-960.webp' },
+  { id: 'shadows', name: 'HoloFyrn Shadows', code: 'Shadows', level: 'Shadows', accent: '#929ba5', logoUrl: 'assets/HoloFyrnShadows-transparent-360.webp', backgroundUrl: 'assets/HolofyrnShadowsBG-960.webp' },
+  { id: 'vanguards', name: 'Holofyrn Vanguards', code: 'Vanguards', level: 'Vanguards', accent: '#929ba5', logoUrl: 'assets/HoloFyrnVanguards-transparent-360.webp', backgroundUrl: 'assets/HoloFyrnVanguardsBG-960.webp' },
 ];
 export const defaultStaff = [
   {id:'kenz',name:'Kenz',role:'President',imageUrl:'assets/KenzStaff-1200.webp',profileUrl:'#/staff/kenz/'},
@@ -66,7 +66,7 @@ export function fromDatabase(data = {}, profiles = [], uid = '') {
   const extension = data.managerV8 || {};
   return {
     currentUserId: users.find(u=>u.authUid===uid || u.id===uid)?.id || uid,
-    teams: Array.isArray(extension.teams) ? extension.teams.map(rebrand) : structuredClone(defaultTeams), users, players, events, staff: Array.isArray(extension.staff) ? extension.staff : structuredClone(defaultStaff), matches: list(extension.matches),
+    teams: (Array.isArray(extension.teams) ? extension.teams.map(rebrand) : structuredClone(defaultTeams)).map(team => ({ ...defaultTeams.find(item => item.id === team.id), ...team })), users, players, events, staff: Array.isArray(extension.staff) ? extension.staff : structuredClone(defaultStaff), matches: list(extension.matches),
     results: list(data.results).map(r=>({id:str(r.id), team:r.teamId || 'main', type:r.managerType || (r.type === 'League match' ? 'league' : 'tournament'), date:dateParts(r).date, event:r.title || r.event || '', stage:r.stage || '', placement:r.placement || r.score || '', prizeMoney:Number(r.prizeEur || r.prizeMoney || 0), result:r.result || 'pending', folderId:str(r.folderId), ...(r.leagueId != null ? {leagueId:r.leagueId} : {})})),
     availability: list(data.availability).map(a=>({id:str(a.id), playerId:str(a.playerId), date:a.date || '', from:a.startTime || a.from || '', until:a.endTime || a.until || '', status:a.status || 'Available'})),
     leagues: rebrand(list(extension.leagues).map(l=>({...l,playoffs:l.playoffs||{rounds:[]}}))), leagueGames: rebrand(list(extension.leagueGames)), resultFolders:list(extension.resultFolders), goals: list(extension.goals).map(g=>({...g,progress:Math.max(0,Math.min(100,Number(g.progress)||0)),mode:g.mode||'percent',status:g.status||'active',priority:['low','normal','high','urgent'].includes(g.priority)?g.priority:'normal'})), news: list(extension.news), competitions:list(extension.competitions), notifications: list(extension.notifications),
@@ -118,7 +118,7 @@ export function validateChanges(changes, user, players, leagues = []) {
     const row = c.after || c.before;
     if (key === 'teams' && !admin) throw new Error('Administrator access required to manage teams.');
     if (key === 'teams' && c.after && (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(c.after.id||'') || !c.after.name?.trim() || c.after.name.length>60)) throw new Error('Teams need a valid unique ID and a name of 60 characters or fewer.');
-    if (key === 'teams' && c.after && ((c.after.logoUrl && (typeof c.after.logoUrl!=='string'||c.after.logoUrl.length>2048||!/^https:\/\//i.test(c.after.logoUrl))) || (c.after.logoPath && (typeof c.after.logoPath!=='string'||!/^team-logos\/[A-Za-z0-9_-]+\/[a-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(c.after.logoPath))))) throw new Error('Team logos must use a valid HTTPS storage URL and team logo path.');
+    if (key === 'teams' && c.after && ((c.after.logoUrl && (typeof c.after.logoUrl!=='string'||c.after.logoUrl.length>2048||(!/^https:\/\//i.test(c.after.logoUrl)&&(!/^assets\/[A-Za-z0-9_./-]+$/.test(c.after.logoUrl)||c.after.logoUrl.includes('..'))))) || (c.after.backgroundUrl && (typeof c.after.backgroundUrl!=='string'||c.after.backgroundUrl.length>2048||(!/^https:\/\//i.test(c.after.backgroundUrl)&&(!/^assets\/[A-Za-z0-9_./-]+$/.test(c.after.backgroundUrl)||c.after.backgroundUrl.includes('..'))))) || (c.after.logoPath && (typeof c.after.logoPath!=='string'||!/^team-logos\/[A-Za-z0-9_-]+\/[a-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(c.after.logoPath))) || (c.after.backgroundPath && (typeof c.after.backgroundPath!=='string'||!/^team-backgrounds\/[A-Za-z0-9_-]+\/[a-z0-9-]+\/[A-Za-z0-9_.-]+$/.test(c.after.backgroundPath))) || (c.after.level && (typeof c.after.level!=='string'||c.after.level.length>80)) || (c.after.accent && (typeof c.after.accent!=='string'||!/^#[0-9a-f]{6}$/i.test(c.after.accent))))) throw new Error('Team card images, level and accent must use valid values.');
     if (key === 'leagues' && !c.after && !admin) throw new Error('Administrator access required to delete a league.');
     if (key === 'users') {
       if (!c.after || !c.before) throw new Error('Use account management to create or disable accounts.');

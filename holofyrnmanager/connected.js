@@ -3,7 +3,7 @@
 let services, model, publicModel, authenticatedUser, baseline, remoteData = {}, remoteProfiles = [], remotePortraits = {};
 let subscriptions = [], pendingWrites = 0, writeQueue = Promise.resolve(), syncMessage = '', initialSnapshotTimer = null;
 let availabilityOffset = 0, connectionEpoch = 0, liveReady = false, refreshDeferred = false, publicPublishStarted = false, coachingProfilesSynced = false;
-let storageApi;
+let storageApi, remoteTeamArt = {};
 const EXISTING_SITE_NEWS = [
   {id:'site-rocket-league-teams',title:'Discover our Rocket League teams',category:'ROCKET LEAGUE',summary:'Seven lineups, one shared home.',body:'Explore the teams representing HoloFyrn across Rocket League and meet the players behind each roster. Seven lineups, one shared home.',ctaLabel:'Explore Teams',ctaUrl:'#/teams/',imageUrl:'https://holofyrn.eu/assets/Rllogo-960.webp',status:'published',createdAt:'2026-10-06T00:00:00.000Z',publishedAt:''},
   {id:'site-norway-rls',title:'Norway, here we come!',category:'TEAMS',summary:'HoloFyrn is taking part in the Norwegian RLS league. Meet the team representing us.',body:'HoloFyrn is taking part in the Norwegian RLS league. Meet the team representing us and follow our Rocket League roster through the competition.',imageUrl:'https://holofyrn.eu/assets/NorwayNews-960.webp',status:'published',createdAt:'2026-10-06T00:00:00.000Z',publishedAt:''},
@@ -21,14 +21,22 @@ async function uploadNewsImage(file,articleId){
   await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
   return {imageUrl:await storageApi.getDownloadURL(target),imagePath:path};
 }
-async function uploadManagerTeamLogo(file,teamId){
-  if(!file||!storageApi||!services?.storage||!authenticatedUser)throw new Error('Image storage is unavailable. Reload the manager and try again.');
-  const extensions={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'},extension=extensions[file.type];
-  if(!extension)throw new Error('Choose a JPG, PNG or WebP image.');
-  if(file.size>8*1024*1024)throw new Error('The image must be smaller than 8 MB.');
-  const path=`team-logos/${authenticatedUser.uid}/${teamId}/${crypto.randomUUID()}.${extension}`,target=storageApi.ref(services.storage,path);
-  await storageApi.uploadBytes(target,file,{contentType:file.type,cacheControl:'public,max-age=31536000,immutable'});
-  return {logoUrl:await storageApi.getDownloadURL(target),logoPath:path};
+async function uploadManagerTeamAsset(file,teamId,kind='logo'){
+  if(!file||!services?.fire||!services?.db||!authenticatedUser)throw new Error('Firestore image storage is unavailable. Reload the manager and try again.');
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Choose a JPG, PNG or WebP image.');
+  if(file.size>20*1024*1024)throw new Error('Choose an image smaller than 20 MB.');
+  const bitmap=await createImageBitmap(file),maxDimension=kind==='background'?1600:900,scale=Math.min(1,maxDimension/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  const context=canvas.getContext('2d');if(!context){bitmap.close();throw new Error('The browser could not prepare this image.');}
+  context.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+  let blob=null;
+  for(const quality of [.82,.72,.62,.52,.42,.32]){blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',quality));if(blob&&blob.size<=320*1024)break;}
+  if(!blob||blob.size>320*1024)throw new Error('Could not compress the image below 320 KB. Choose a smaller image.');
+  const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('The browser could not read this image.'));reader.readAsDataURL(blob);});
+  const imageField=kind==='background'?'backgroundDataUrl':'logoDataUrl';
+  await services.fire.setDoc(services.fire.doc(services.db,'teamArt',teamId),{[imageField]:dataUrl,updatedBy:authenticatedUser.uid,updatedAt:services.fire.serverTimestamp()},{merge:true});
+  remoteTeamArt[teamId]={...(remoteTeamArt[teamId]||{}),[imageField]:dataUrl};
+  return {[imageField]:dataUrl};
 }
 async function uploadPlayerImage(file,playerId){
   if(!file||!services?.fire||!services?.db||!authenticatedUser)throw new Error('Image storage is unavailable. Reload the manager and try again.');
@@ -106,7 +114,7 @@ function queueSave(){
     if(committedSnapshot){
       remoteData=committedSnapshot;
       for(const profile of committedUserWrites){const index=remoteProfiles.findIndex(row=>row.id===profile.id);if(index<0)remoteProfiles.push(profile);else remoteProfiles[index]=profile;}
-      if(changes.players || changes.results || changes.leagueGames || changes.news || changes.competitions || changes.staff || changes.matches){
+      if(changes.teams || changes.players || changes.results || changes.leagueGames || changes.news || changes.competitions || changes.staff || changes.matches){
         try{await publishPublicData();}catch(error){console.error('Public data publication failed after the manager save.',error);}
       }
     }
@@ -228,14 +236,14 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261026-self-profile-write'),import('./public-data.mjs?v=20261026-player-portrait-id'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261027-firestore-teamart'),import('./public-data.mjs?v=20261027-firestore-teamart'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     storageApi=storage;services={appApi,fire,authApi,storageApi:storage,storage:storage.getStorage(app),db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};
     authApi.onAuthStateChanged(auth,async user=>{
       clearTimeout(initialSnapshotTimer);initialSnapshotTimer=null;
       const epoch=++connectionEpoch;subscriptions.forEach(fn=>fn());subscriptions=[];
-      liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];remotePortraits={};baseline=null;state=emptyState();publicPublishStarted=false;coachingProfilesSynced=false;resetCoachingCache();
+      liveReady=false;syncMessage='';authenticatedUser=user;remoteData={};remoteProfiles=[];remotePortraits={};remoteTeamArt={};baseline=null;state=emptyState();publicPublishStarted=false;coachingProfilesSynced=false;resetCoachingCache();
       document.getElementById('modal-root').innerHTML='';
       if(!user){showLogin();return;}
       document.getElementById('app').innerHTML='<main class="login-screen"><section class="card login-card" role="status">Loading team data…</section></main>';
@@ -251,6 +259,7 @@ async function startManager(){
         subscriptions.push(fire.onSnapshot(services.storeRef,snap=>{if(epoch!==connectionEpoch)return;remoteData=snap.exists()?snap.data():{};gotData=true;ready();},fail));
         subscriptions.push(fire.onSnapshot(fire.collection(db,'users'),snap=>{if(epoch!==connectionEpoch)return;remoteProfiles=snap.docs.map(d=>({...d.data(),id:d.id}));gotUsers=true;ready();},fail));
         subscriptions.push(fire.onSnapshot(fire.collection(db,'playerPortraits'),snap=>{if(epoch!==connectionEpoch)return;remotePortraits=Object.fromEntries(snap.docs.map(d=>[d.id,d.data()]));if(liveReady&&!pendingWrites&&state.view==='player-images')render();},error=>console.warn('Player portraits could not be loaded.',error)));
+        subscriptions.push(fire.onSnapshot(fire.collection(db,'teamArt'),snap=>{if(epoch!==connectionEpoch)return;remoteTeamArt=Object.fromEntries(snap.docs.map(d=>[d.id,d.data()]).filter(([,art])=>['logoDataUrl','backgroundDataUrl'].some(key=>typeof art[key]==='string'&&art[key].startsWith('data:image/webp;base64,'))));if(liveReady&&!pendingWrites&&!document.querySelector('#modal-root .modal')&&['teams','player-images'].includes(state.view))render();},error=>console.warn('Team images could not be loaded.',error)));
       }catch(error){if(epoch===connectionEpoch)showAccessError(error.code==='permission-denied'?'This login has no approved team profile or Firestore access. Ask an administrator to check the account.':error.message);}
     });
   }catch(error){console.error(error);document.getElementById('app').innerHTML='<main class="login-screen"><section class="card login-card"><h1>Connection unavailable</h1><p>Firebase could not be loaded. Open this page through the local server or the website, check your connection, then reload.</p><button class="btn primary" onclick="location.reload()">Retry</button></section></main>';}

@@ -122,6 +122,23 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /teamArt/{teamId} {
+      allow read: if request.auth != null;
+      allow create, update: if isAdmin()
+        && teamId.matches('[a-z0-9]+(-[a-z0-9]+)*')
+        && request.resource.data.keys().hasOnly(['logoDataUrl', 'backgroundDataUrl', 'updatedBy', 'updatedAt'])
+        && request.resource.data.keys().hasAny(['logoDataUrl', 'backgroundDataUrl'])
+        && request.resource.data.get('logoDataUrl', '') is string
+        && request.resource.data.get('logoDataUrl', '').size() <= 450000
+        && request.resource.data.get('logoDataUrl', '').matches('(^$|data:image/webp;base64,[A-Za-z0-9+/=]+)')
+        && request.resource.data.get('backgroundDataUrl', '') is string
+        && request.resource.data.get('backgroundDataUrl', '').size() <= 450000
+        && request.resource.data.get('backgroundDataUrl', '').matches('(^$|data:image/webp;base64,[A-Za-z0-9+/=]+)')
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
     match /users/{userId} {
       allow read: if isMember();
       allow create: if isAdmin();

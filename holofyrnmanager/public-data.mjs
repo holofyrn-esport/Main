@@ -1,10 +1,15 @@
 import {todayInBudapest} from '../public-matches.mjs';
-import {defaultStaff} from './manager-data.mjs?v=20261008-staff-restore';
+import {defaultStaff, defaultTeams} from './manager-data.mjs?v=20261027-firestore-teamart';
 
 // Only these fields are copied into the Firestore document read by the website.
 export function publicHoloFyrnData(data = {}) {
   const rows = value => Array.isArray(value) ? value : [];
   const str = value => typeof value === 'string' ? value.trim() : '';
+  const publicImage = value => {
+    const image = str(value);
+    if (/^https:\/\/[^\s]+$/i.test(image)) return image.slice(0, 2048);
+    return /^assets\/[A-Za-z0-9_./-]+$/i.test(image) && !image.includes('..') ? image.slice(0, 300) : '';
+  };
   const dateParts = row => {
     if (row?.startsAtUtc) {
       const date = new Date(row.startsAtUtc);
@@ -17,7 +22,13 @@ export function publicHoloFyrnData(data = {}) {
     return {date, time:(time || row?.time || '').slice(0,5)};
   };
   const publicTeamName = value => str(value).replace(/Noctiq\s+eSports\s+Academy/gi, 'HoloFyrn Academy').replace(/Noctiq\s+Esports/gi, 'HoloFyrn Esports').replace(/Noctiq/gi, 'HoloFyrn');
-  const teams = rows(data.managerV8?.teams);
+  const configuredTeams = rows(data.managerV8?.teams);
+  const teams = (configuredTeams.length ? configuredTeams : defaultTeams).map(team => ({...defaultTeams.find(item => item.id === team.id), ...team}));
+  const publicTeams = teams.filter(team => /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(str(team.id)) && str(team.name)).slice(0,128).map(team => ({
+    id:str(team.id).slice(0,100), name:publicTeamName(team.name).slice(0,100), level:str(team.level || team.code).slice(0,80),
+    logoUrl:publicImage(team.logoUrl), backgroundUrl:publicImage(team.backgroundUrl),
+    accent:/^#[0-9a-f]{6}$/i.test(str(team.accent))?str(team.accent):'#e91d39',
+  }));
   const knownTeams = [
     {id:'main',name:'HoloFyrn Esports'},
     {id:'academy',name:'HoloFyrn Academy'},
@@ -123,5 +134,5 @@ export function publicHoloFyrnData(data = {}) {
     profileUrl:/^#\/staff\/(?:member\/)?[a-z0-9-]+\/$/i.test(str(item.profileUrl)) ? str(item.profileUrl).slice(0,160) : '',
     bio:str(item.bioEn || item.bio).slice(0,2000), bioEn:str(item.bioEn || item.bio).slice(0,2000), bioHu:str(item.bioHu).slice(0,2000),
   }));
-  return {players,results,upcomingMatches,news,competitions,staff};
+  return {teams:publicTeams,players,results,upcomingMatches,news,competitions,staff};
 }

@@ -20,6 +20,7 @@ const teamNames = {
 const portraits = {kenz: 'Kenz-profile.webp', eggy: 'NoPicPlayer.webp', interz: 'interz.webp'};
 let publicData = null;
 let playerPortraits = {};
+let publicTeamArt = {};
 let loadError = false;
 let matchCountdownTimer = null;
 
@@ -346,8 +347,59 @@ function resultList(rows, emptyEn, emptyHu) {
   return list;
 }
 
+function publicTeamImage(value, fallback) {
+  const image = String(value || '').trim();
+  if (/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(image)) return image;
+  if (/^https:\/\/[^\s]+$/i.test(image)) return image;
+  return /^assets\/[A-Za-z0-9_./-]+$/i.test(image) && !image.includes('..') ? image : fallback;
+}
+
+function renderPublicTeams() {
+  const grid = document.getElementById('public-team-grid');
+  if (!grid) return;
+  grid.querySelectorAll('[data-manager-team-id]').forEach(card => card.remove());
+  for (const item of publicData?.teams || []) {
+    if (!item || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(String(item.id || '')) || !String(item.name || '').trim()) continue;
+    const route = Object.entries(teamRoutes).find(([, id]) => id === item.id)?.[0];
+    let card = route ? grid.querySelector(`.team-card[href="#${route}"]`) : null;
+    if (!card) {
+      if (route) continue;
+      card = document.createElement('article');
+      card.className = 'team-card manager-team-card';
+      card.dataset.managerTeamId = item.id;
+      grid.append(card);
+      const background = document.createElement('img');
+      background.className = 'team-card-background'; background.alt = ''; background.setAttribute('aria-hidden', 'true'); background.loading = 'lazy'; background.decoding = 'async';
+      card.append(background);
+      const center = document.createElement('div'); center.className = 'team-card-center';
+      const logo = document.createElement('img'); logo.alt = ''; logo.loading = 'lazy'; logo.decoding = 'async'; center.append(logo); card.append(center);
+      const heading = document.createElement('h3'); card.append(heading);
+      const level = document.createElement('span'); level.className = 'team-card-level'; card.append(level);
+    }
+    const accent = /^#[0-9a-f]{6}$/i.test(String(item.accent || '')) ? item.accent : '#e91d39';
+    card.style.setProperty('--team-accent', accent);
+    const background = card.querySelector('.team-card-background');
+    if (background) {
+      background.src = publicTeamImage(publicTeamArt[item.id]?.backgroundDataUrl || item.backgroundUrl, 'assets/site-background-1920.webp');
+      background.removeAttribute('srcset');
+    }
+    const logo = card.querySelector('.team-card-center img');
+    if (logo) {
+      logo.src = publicTeamImage(publicTeamArt[item.id]?.logoDataUrl || item.logoUrl, 'assets/brand-mark.webp');
+      logo.removeAttribute('srcset');
+      logo.removeAttribute('sizes');
+    }
+    if (!route) card.querySelector('h3').textContent = item.name;
+    let level = card.querySelector('.team-card-level');
+    if (!level) { level = document.createElement('span'); level.className = 'team-card-level'; card.append(level); }
+    level.textContent = String(item.level || '').slice(0, 80);
+    level.hidden = !level.textContent;
+  }
+}
+
 function render() {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
+  renderPublicTeams();
   if(route!=='/'&&matchCountdownTimer){clearInterval(matchCountdownTimer);matchCountdownTimer=null;}
   const team = teamRoutes[route];
   if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
@@ -796,6 +848,10 @@ try {
     playerPortraits = Object.fromEntries(snapshot.docs.map(doc => [doc.id, doc.data().dataUrl]).filter(([,dataUrl]) => typeof dataUrl === 'string' && dataUrl.startsWith('data:image/webp;base64,')));
     render();
   }, error => console.error('Player portraits could not be loaded', error));
+  fire.onSnapshot(fire.collection(db, 'teamArt'), snapshot => {
+    publicTeamArt = Object.fromEntries(snapshot.docs.map(doc => [doc.id, doc.data()]).filter(([id,art]) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/i.test(id) && ['logoDataUrl','backgroundDataUrl'].some(key => typeof art[key] === 'string' && /^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(art[key]))));
+    render();
+  }, error => console.error('HoloFyrn team images could not be loaded', error));
 } catch (error) {
   console.error('HoloFyrn public data could not be loaded', error);
   loadError = true;
