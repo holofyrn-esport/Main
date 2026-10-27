@@ -374,7 +374,6 @@ function renderPublicTeams() {
       const center = document.createElement('div'); center.className = 'team-card-center';
       const logo = document.createElement('img'); logo.alt = ''; logo.loading = 'lazy'; logo.decoding = 'async'; center.append(logo); card.append(center);
       const heading = document.createElement('h3'); card.append(heading);
-      const level = document.createElement('span'); level.className = 'team-card-level'; card.append(level);
     }
     const accent = /^#[0-9a-f]{6}$/i.test(String(item.accent || '')) ? item.accent : '#e91d39';
     card.style.setProperty('--team-accent', accent);
@@ -390,10 +389,6 @@ function renderPublicTeams() {
       logo.removeAttribute('sizes');
     }
     if (!route) card.querySelector('h3').textContent = item.name;
-    let level = card.querySelector('.team-card-level');
-    if (!level) { level = document.createElement('span'); level.className = 'team-card-level'; card.append(level); }
-    level.textContent = String(item.level || '').slice(0, 80);
-    level.hidden = !level.textContent;
   }
 }
 
