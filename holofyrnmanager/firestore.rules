@@ -29,7 +29,33 @@ service cloud.firestore {
 
     function canManageGoals() {
       return isMember()
-        && managerProfile().role in ['Admin', 'admin', 'Coach', 'coach', 'Manager', 'manager'];
+        && managerProfile().role in ['Admin', 'admin', 'Manager', 'manager'];
+    }
+
+    function isManager() {
+      return isMember() && managerProfile().role in ['Manager', 'manager'];
+    }
+
+    function isCaptain() {
+      return isMember() && managerProfile().role in ['Captain', 'captain'];
+    }
+
+    function isCoach() {
+      return isMember() && managerProfile().role in ['Coach', 'coach'];
+    }
+
+    function canUpdateManagerData() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let managerV8Changed = request.resource.data.get('managerV8', {}).diff(resource.data.get('managerV8', {})).affectedKeys();
+      return changed.hasOnly(['players', 'results', 'availability', 'events', 'managerV8', 'updatedAt'])
+        && (!changed.hasAny(['players']) || isManager())
+        && (!changed.hasAny(['results']) || isManager())
+        && (!changed.hasAny(['availability']) || isCoach())
+        && (!changed.hasAny(['managerV8']) ||
+          (isManager() && managerV8Changed.hasOnly(['goals', 'matches', 'leagues', 'leagueGames', 'resultFolders'])) ||
+          (isCaptain() && managerV8Changed.hasOnly(['matches'])) ||
+          (isMember() && managerV8Changed.hasOnly(['notifications'])))
+        && (!changed.hasAny(['events']) || isMember());
     }
 
     function canManageNews() {
@@ -70,29 +96,26 @@ service cloud.firestore {
     match /noctiqManager/main {
       allow read: if isMember();
       allow create, delete: if isAdmin();
-      allow update: if isAdmin() || (isMember()
-        && request.resource.data.get('players', []) == resource.data.get('players', [])
-        && (canManageGoals()
-          || request.resource.data.get('managerV8', {}).get('goals', [])
-            == resource.data.get('managerV8', {}).get('goals', [])))
+      allow update: if isAdmin() || canUpdateManagerData()
         || (canManageNews()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['managerV8', 'updatedAt'])
           && request.resource.data.get('managerV8', {}).diff(resource.data.get('managerV8', {})).affectedKeys().hasOnly(['news', 'newsInitialized']));
     }
 
     match /coachingTeams/{teamId}/notes/{noteId} {
-      allow read: if isAdmin() || isTeamCoach(teamId) || isAssignedPlayer(teamId);
+      allow read: if isAdmin() || isTeamCoach(teamId) || isAssignedPlayer(teamId) || isAssignedTo(teamId);
       allow create: if (isAdmin() || isTeamCoach(teamId)) && validCoachingNote();
       allow update: if false;
-      allow delete: if isMember() && resource.data.authorId == request.auth.uid;
+      allow delete: if (isAdmin() || isTeamCoach(teamId)) && resource.data.authorId == request.auth.uid;
     }
 
     match /coachingPlayers/{teamId}/players/{playerId}/notes/{noteId} {
       allow read: if isAdmin() || isTeamCoach(teamId)
-        || (isAssignedPlayer(teamId) && isOwnPlayer(playerId));
+        || (isAssignedTo(teamId) && isOwnPlayer(playerId))
+        || (isAssignedTo(teamId) && managerProfile().role in ['Manager', 'manager', 'Captain', 'captain']);
       allow create: if (isAdmin() || isTeamCoach(teamId)) && validCoachingNote();
       allow update: if false;
-      allow delete: if isMember() && resource.data.authorId == request.auth.uid;
+      allow delete: if (isAdmin() || isTeamCoach(teamId)) && resource.data.authorId == request.auth.uid;
     }
 
     match /holofyrnPublic/main {
@@ -143,7 +166,9 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isMember();
       allow create: if isAdmin();
-      allow update: if isAdmin() || (isMember() && request.auth.uid == userId
+      allow update: if isAdmin() || (isManager() && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'teamId', 'teamIds', 'playerId', 'linkedPlayerId'
+        ])) || (isMember() && request.auth.uid == userId
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'name', 'displayName', 'initials', 'discord', 'discordUrl',
           'instagramUrl', 'xUrl', 'tiktokUrl', 'bio', 'avatarData',
