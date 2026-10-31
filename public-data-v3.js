@@ -189,7 +189,17 @@ function renderProfile(route, players) {
   const hasKenzBio = player.name.trim().toLowerCase() === 'kenz';
   const about = document.createElement(hasZemstaBio || hasKenzBio ? 'div' : 'p');
   about.className = 'profile-bio';
-  if (hasZemstaBio) {
+  if (player.bioEn || player.bioHu) {
+    const localizedBio = document.documentElement.lang === 'hu'
+      ? (player.bioHu || player.bioEn)
+      : (player.bioEn || player.bioHu || player.bio);
+    for (const paragraphText of String(localizedBio || '').split(/\n\s*\n/).filter(Boolean)) {
+      const paragraph = document.createElement('p');
+      paragraph.textContent = paragraphText;
+      about.append(paragraph);
+    }
+  }
+  else if (hasZemstaBio) {
     const paragraphs = [
       [
         "I'm Zemsta, captain of the HoloFyrn Esport Academy team. My main goal right now is to bring out the best in the club's players and help them keep developing both mentally and as esports competitors.",

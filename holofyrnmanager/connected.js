@@ -150,7 +150,7 @@ function applyDatabase(){
   state=normalizeState({...state,...mapped});
   if(!state.teams.some(t=>t.id===state.activeTeam))state.activeTeam=state.teams[0].id;
   baseline=structuredClone(state);render();
-  if(['admin','socials'].includes(state.users.find(user=>user.id===state.currentUserId)?.role)&&!remoteData.managerV8?.newsInitialized){
+  if(['admin'].includes(state.users.find(user=>user.id===state.currentUserId)?.role)&&!remoteData.managerV8?.newsInitialized){
     if(!state.news.length)state.news=structuredClone(EXISTING_SITE_NEWS);
     save();
   }
@@ -158,7 +158,7 @@ function applyDatabase(){
     coachingProfilesSynced=true;
     syncCoachingProfiles(mapped).catch(error=>console.error('Coaching team assignment sync failed',error));
   }
-  if(!publicPublishStarted && ['admin','coach','manager','captain','socials'].includes(me.role)){
+  if(!publicPublishStarted && ['admin','coach','manager','captain'].includes(me.role)){
     publicPublishStarted=true;
     publishPublicData().catch(error=>console.error('Public data publication failed',error));
   }
@@ -236,7 +236,7 @@ function showLogin(message=''){
 }
 async function startManager(){
   try{
-    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261027-firestore-teamart'),import('./public-data.mjs?v=20261027-firestore-teamart'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
+    const [data,publicData,{firebaseConfig},appApi,fire,authApi,storage]=await Promise.all([import('./manager-data.mjs?v=20261031-player-bios'),import('./public-data.mjs?v=20261031-player-bios'),import('./firebaseConfig.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js')]);
     model=data;publicModel=publicData;
     const app=appApi.initializeApp(firebaseConfig),db=fire.initializeFirestore(app,{experimentalAutoDetectLongPolling:true,useFetchStreams:false}),auth=authApi.getAuth(app);
     storageApi=storage;services={appApi,fire,authApi,storageApi:storage,storage:storage.getStorage(app),db,auth,firebaseConfig,storeRef:fire.doc(db,'noctiqManager','main'),publicRef:fire.doc(db,'holofyrnPublic','main')};

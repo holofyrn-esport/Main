@@ -1,5 +1,6 @@
 import {todayInBudapest} from '../public-matches.mjs';
-import {defaultStaff, defaultTeams} from './manager-data.mjs?v=20261027-firestore-teamart';
+import {defaultStaff, defaultTeams} from './manager-data.mjs?v=20261031-player-bios';
+import {legacyPlayerBio} from './player-bios.mjs';
 
 // Only these fields are copied into the Firestore document read by the website.
 export function publicHoloFyrnData(data = {}) {
@@ -39,17 +40,23 @@ export function publicHoloFyrnData(data = {}) {
     {id:'vanguards',name:'Holofyrn Vanguards'},
     ...teams,
   ];
-  const players = rows(data.players).filter(player => str(player.name || player.rlName)).map(player => ({
+  const players = rows(data.players).filter(player => str(player.name || player.rlName)).map(player => {
+    const name = str(player.name || player.rlName);
+    const team = str(player.teamId || player.team || 'main');
+    const legacyBio = legacyPlayerBio(name, team);
+    const bioEn = str(player.publicBioEn || player.bioEn || legacyBio.en || player.publicBio || player.bio).slice(0,2000);
+    const bioHu = str(player.publicBioHu || player.bioHu || legacyBio.hu).slice(0,2000);
+    return {
     id: str(player.id).slice(0, 128),
-    name: str(player.name || player.rlName).slice(0, 100),
-    team: str(player.teamId || player.team || 'main').slice(0, 80),
+    name: name.slice(0, 100),
+    team: team.slice(0, 80),
     teamIds: [...new Set((rows(player.teamIds).length ? player.teamIds : [player.teamId || player.team || 'main']).map(id => str(id).slice(0, 80)).filter(Boolean))],
     rosterOrder: Object.fromEntries(Object.entries(player.rosterOrder || {}).filter(([team, position]) => team.length <= 80 && Number.isInteger(position) && position >= 0)),
     teamRoles: Object.fromEntries(Object.entries(player.teamRoles || {}).filter(([team, role]) => team.length <= 80 && typeof role === 'string').map(([team, role]) => [team, str(role).slice(0, 80)])),
     role: str(player.position || player.role).slice(0, 80),
-    bio: str(player.publicBio || player.bio).slice(0, 1000),
+    bio: bioEn.slice(0,1000), bioEn, bioHu,
     imageUrl:/^https:\/\//i.test(str(player.imageUrl))?str(player.imageUrl).slice(0,2048):'',
-  }));
+  };});
   const results = rows(data.results).filter(row => str(row.title || row.event)).map(row => ({
     team: str(row.teamId || row.team || 'main').slice(0, 80),
     type: row.managerType === 'league' || row.type === 'League match' ? 'league' : 'tournament',

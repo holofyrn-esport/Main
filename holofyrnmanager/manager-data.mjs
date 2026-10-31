@@ -1,5 +1,7 @@
 export {sortedRoster, teamRole} from '../public-roster.mjs?v=20260930-team-roles';
 // Compatibility boundary: existing Noctiq records remain the source of truth.
+import {legacyPlayerBio} from './player-bios.mjs';
+
 export const defaultTeams = [
   { id: 'main', name: 'HoloFyrn Esports', code: 'Main roster', level: 'Main roster', accent: '#e91d39', logoUrl: 'assets/HoloFyrn_Esports_main.png', backgroundUrl: 'assets/HolofyrnMainBG-960.webp' },
   { id: 'academy', name: 'HoloFyrn Academy', code: 'Academy', level: 'Academy', accent: '#bd8855', logoUrl: 'assets/HolofyrnAcademy-transparent-360.webp', backgroundUrl: 'assets/HolofyrnAcademyBG-960.webp' },
@@ -50,7 +52,12 @@ export function fromDatabase(data = {}, profiles = [], uid = '') {
   const players = list(data.players).map(p => {
     const account = users.find(u => u.linkedPlayerId === str(p.id) || (p.authUid && (u.authUid === p.authUid || u.id === p.authUid)) || (p.userId && u.id === p.userId));
     if (account) account.linkedPlayerId = str(p.id);
-    return { id: str(p.id), accountId: account?.id || p.accountId || null, team: playerTeams(p)[0] || 'main', teamIds: playerTeams(p), rosterOrder: p.rosterOrder || {}, teamRoles: p.teamRoles || {}, name: p.name || p.rlName || '', rl: p.rlName || p.rl || '', discord: p.discord || '', role: p.position || p.role || 'Player', m1: num(p.peak1s), m2: num(p.peak2s || p.mmr), m3: num(p.peak3s), tracker: p.profileLink || '', bio: p.publicBio || p.about || '', imageUrl:p.imageUrl||'',imagePath:p.imagePath||'', private: p.notes || '' };
+    const name = p.name || p.rlName || '';
+    const teams = playerTeams(p);
+    const existingBio = legacyPlayerBio(name, teams[0]);
+    const bioEn = p.publicBioEn || p.bioEn || existingBio.en || p.publicBio || p.about || '';
+    const bioHu = p.publicBioHu || p.bioHu || existingBio.hu || '';
+    return { id: str(p.id), accountId: account?.id || p.accountId || null, team: teams[0] || 'main', teamIds: teams, rosterOrder: p.rosterOrder || {}, teamRoles: p.teamRoles || {}, name, rl: p.rlName || p.rl || '', discord: p.discord || '', role: p.position || p.role || 'Player', m1: num(p.peak1s), m2: num(p.peak2s || p.mmr), m3: num(p.peak3s), tracker: p.profileLink || '', bio: bioEn, bioEn, bioHu, imageUrl:p.imageUrl||'',imagePath:p.imagePath||'', private: p.notes || '' };
   });
   const events = list(data.events).map(e => ({
     id: str(e.id), title: e.title || '', ...dateParts(e), duration: Number(e.durationMinutes || 60), type: e.type || 'Meeting', priority: ['low','normal','high','urgent'].includes(e.priority)?e.priority:'normal',
@@ -132,7 +139,16 @@ export function validateChanges(changes, user, players, leagues = []) {
         if (row.id !== user.id || Object.keys({...c.before,...c.after}).some(k=>!allowed.includes(k) && !equal(c.before[k],c.after[k]))) throw new Error('You may only edit your own profile.');
       }
     } else if (key === 'players' && !admin && !manager) throw new Error('Manager access required to edit the roster.');
-    else if (key === 'players' && c.after && ((c.after.imageUrl && (typeof c.after.imageUrl!=='string'||c.after.imageUrl.length>2048||!/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath!=='string'||!(/^(?:player-images\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+|playerPortraits\/[A-Za-z0-9_-]+)$/.test(c.after.imagePath)))))) throw new Error('Player portraits must use a valid HTTPS image URL and supported image path.');
+    else if (key === 'players' && c.after) {
+      if (manager) {
+        const beforeTeams = c.before ? playerTeams(c.before).filter(teamId => teamId !== ownTeam).sort() : [];
+        const afterTeams = playerTeams(c.after).filter(teamId => teamId !== ownTeam).sort();
+        if (!ownTeam || !playerTeams(c.after).includes(ownTeam) || (c.before && !playerTeams(c.before).includes(ownTeam)) || !equal(beforeTeams, afterTeams)) throw new Error('Managers may only manage roster players assigned to their team.');
+        for (const teamId of beforeTeams) if (!equal(c.before?.teamRoles?.[teamId], c.after?.teamRoles?.[teamId])) throw new Error('Managers may not edit roster roles for other teams.');
+      }
+      if ((c.after.imageUrl && (typeof c.after.imageUrl!=='string'||c.after.imageUrl.length>2048||!/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath!=='string'||!(/^(?:player-images\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+|playerPortraits\/[A-Za-z0-9_-]+)$/.test(c.after.imagePath))))) throw new Error('Player portraits must use a valid HTTPS image URL and supported image path.');
+      if (['bioEn','bioHu'].some(field => typeof (c.after[field] || '') !== 'string' || (c.after[field] || '').length > 2000)) throw new Error('Player introductions must be 2,000 characters or fewer in each language.');
+    } else if (key === 'players' && manager && c.before && (!ownTeam || !playerTeams(c.before).includes(ownTeam) || playerTeams(c.before).some(teamId => teamId !== ownTeam))) throw new Error('Managers may only delete roster players assigned exclusively to their team.');
     else if (key === 'staff') {
       if (!admin) throw new Error('Administrator access required to manage staff.');
       if (c.after && (!c.after.name?.trim() || !c.after.role?.trim())) throw new Error('Staff needs a name and role.');
@@ -142,7 +158,10 @@ export function validateChanges(changes, user, players, leagues = []) {
     }
     else if (key === 'matches') {
       if (!mayEditMatches) throw new Error('Manager or captain access required to manage matches.');
-      if (manager) assertOwnTeam(c.after?.teamId || c.before?.teamId);
+      if (manager || captain) {
+        const permittedTeams = manager ? [ownTeam] : [user.teamId, ...list(user.teamIds)].filter(Boolean).map(String);
+        if ([c.before,c.after].filter(Boolean).some(match => !permittedTeams.includes(String(match.teamId || '')))) throw new Error('You may only manage matches for your assigned team.');
+      }
       if (c.after && (!['league','tournament'].includes(c.after.type) || !c.after.competition?.trim() || !c.after.teamId || !c.after.date || !/^\d{2}:\d{2}$/.test(c.after.time || '') || !c.after.opponent?.trim())) throw new Error('Choose a match type and complete the competition, team, opponent, date and time.');
       if (c.after && (c.after.competition.length > 120 || c.after.opponent.length > 100 || (c.after.notes||'').length > 1000)) throw new Error('Match details exceed the allowed length.');
       if (c.after?.twitchUrl && (typeof c.after.twitchUrl !== 'string' || c.after.twitchUrl.length > 500 || !/^https:\/\/(?:www\.|m\.)?twitch\.tv\/[A-Za-z0-9_/-]+(?:[?#][^\s<>"']*)?$/i.test(c.after.twitchUrl))) throw new Error('Use a valid HTTPS Twitch link.');
@@ -164,7 +183,7 @@ export function validateChanges(changes, user, players, leagues = []) {
       if (c.after && !['low','normal','high','urgent'].includes(c.after.priority || 'normal')) throw new Error('Choose a valid goal priority.');
     }
     else if (key === 'news') {
-      if (!(admin || user.role === 'socials')) throw new Error('Administrator or socials access required to manage news.');
+      if (!admin) throw new Error('Administrator access required to manage news.');
       if (c.after?.status === 'published' && !['titleEn','summaryEn','bodyEn','titleHu','summaryHu','bodyHu'].every(field => typeof c.after[field] === 'string' && c.after[field].trim())) throw new Error('Published news needs English and Hungarian titles, summaries and article text.');
       if (c.after && ((c.after.imageUrl && (typeof c.after.imageUrl !== 'string' || c.after.imageUrl.length > 2048 || !/^https:\/\//i.test(c.after.imageUrl))) || (c.after.imagePath && (typeof c.after.imagePath !== 'string' || !/^news\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+$/.test(c.after.imagePath))))) throw new Error('News images must use a valid HTTPS storage URL and image path.');
       if (c.after && ((Boolean(c.after.ctaLabel) !== Boolean(c.after.ctaUrl)) || (c.after.ctaLabel && (typeof c.after.ctaLabel !== 'string' || c.after.ctaLabel.length > 60)) || (c.after.ctaUrl && (typeof c.after.ctaUrl !== 'string' || c.after.ctaUrl.length > 2048 || !(/^#\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/?$/.test(c.after.ctaUrl) || /^https:\/\/[^\s]+$/i.test(c.after.ctaUrl)))))) throw new Error('News buttons need a label and a valid internal page or HTTPS link.');
@@ -181,8 +200,11 @@ export function validateChanges(changes, user, players, leagues = []) {
       if (c.after && (!Array.isArray(c.after.bracketMatches||[]) || (c.after.bracketMatches||[]).length > 256 || (c.after.bracketMatches||[]).some(match => typeof match.id!=='string' || !match.id || typeof match.round!=='string' || !match.round.trim() || match.round.length > 60 || !(c.after.teams||[]).some(team=>team.id===match.teamAId) || !(c.after.teams||[]).some(team=>team.id===match.teamBId) || match.teamAId===match.teamBId || [match.scoreA,match.scoreB].some(score=>score!==''&&(!/^\d{1,3}$/.test(String(score))||Number(score)>999))))) throw new Error('Check the tournament bracket matches and scores.');
     }
     else if (key === 'availability') {
-      if (!mayEditAvailability) throw new Error('Coach or captain access required to edit availability.');
-      if (manager && [c.before,c.after].filter(Boolean).some(a=>{const player=players.find(p=>str(p.id)===str(a.playerId));return !player || !playerTeams(player).includes(ownTeam);})) throw new Error('You may only edit availability for your assigned team.');
+      if (!mayEditAvailability) throw new Error('Coach access required to edit availability.');
+      if (coach) {
+        const permittedTeams = [user.teamId, ...list(user.teamIds)].filter(Boolean).map(String);
+        if ([c.before,c.after].filter(Boolean).some(a=>{const player=players.find(p=>str(p.id)===str(a.playerId));return !player || !playerTeams(player).some(teamId=>permittedTeams.includes(teamId));})) throw new Error('You may only edit availability for your assigned team.');
+      }
       if (c.after && (!row.playerId || !row.date || !row.from || row.from>=row.until)) throw new Error('Check the availability date and time range.');
     } else if (key === 'events') {
       if (row.source) throw new Error('Edit this entry in Training & team tools.');
@@ -207,7 +229,7 @@ export function toDatabase(data, profiles, uid, changes) {
     const original=list(data[key]).find(r=>str(r.id)===str(row.id));
     return original && !changes[key]?.some(c=>c.id===str(row.id)) ? original : {...original,...convert(row)};
   });
-  if (changes.players) patch.players = preserve('players',next.players,p=>({id:p.id,name:p.name,rlName:p.rl,discord:p.discord,teamId:playerTeams(p)[0] || 'main',teamIds:playerTeams(p),rosterOrder:p.rosterOrder || {},teamRoles:p.teamRoles || {},position:p.teamRoles?.[playerTeams(p)[0]] || p.role,peak1s:p.m1??'',peak2s:p.m2??'',peak3s:p.m3??'',profileLink:p.tracker,publicBio:p.bio,imageUrl:p.imageUrl||'',imagePath:p.imagePath||'',notes:p.private,userId:p.accountId || '',authUid:next.users.find(u=>u.id===p.accountId)?.authUid || p.accountId || ''}));
+  if (changes.players) patch.players = preserve('players',next.players,p=>({id:p.id,name:p.name,rlName:p.rl,discord:p.discord,teamId:playerTeams(p)[0] || 'main',teamIds:playerTeams(p),rosterOrder:p.rosterOrder || {},teamRoles:p.teamRoles || {},position:p.teamRoles?.[playerTeams(p)[0]] || p.role,peak1s:p.m1??'',peak2s:p.m2??'',peak3s:p.m3??'',profileLink:p.tracker,publicBio:p.bioEn||p.bio||'',publicBioEn:p.bioEn||p.bio||'',publicBioHu:p.bioHu||'',imageUrl:p.imageUrl||'',imagePath:p.imagePath||'',notes:p.private,userId:p.accountId || '',authUid:next.users.find(u=>u.id===p.accountId)?.authUid || p.accountId || ''}));
   if (changes.results || deletedLeagues.size) patch.results = preserve('results',next.results,r=>({id:r.id,teamId:r.team,managerType:r.type,type:list(data.results).find(x=>str(x.id)===r.id)?.type || (r.type==='league'?'Match':'Tournament'),dateTime:r.date+'T12:00',title:r.event,stage:r.stage,placement:r.placement,prizeEur:r.prizeMoney,result:r.result,folderId:r.folderId||'',...(r.leagueId!=null?{leagueId:r.leagueId}:{})}));
   if (changes.availability) patch.availability = preserve('availability',next.availability,a=>({id:a.id,playerId:a.playerId,teamId:next.players.find(p=>p.id===a.playerId)?.team || 'main',date:a.date,startTime:a.from,endTime:a.until,status:a.status || 'Available'}));
   if (changes.events) patch.events = preserve('events',next.events.filter(e=>!e.source),e=>({id:e.id,title:e.title,dateTime:`${e.date}T${e.time}`,startsAtUtc:new Date(`${e.date}T${e.time}`).toISOString(),durationMinutes:e.duration,type:e.type,priority:e.priority || 'normal',creatorUserId:e.creatorUserId,invitedTeamIds:e.invitedTeamIds,invitedUserIds:e.invitedUserIds,directInvitedUserIds:e.directInvitedUserIds || [],hiddenFromAdmins:e.hiddenFromAdmins,teamId:e.invitedTeamIds[0] || '',targetType:e.invitedTeamIds.length?'team':'player'}));
