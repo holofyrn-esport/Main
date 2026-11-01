@@ -8,7 +8,7 @@ const teamRoutes = {
 const teamNames = {
   main: 'HoloFyrn Esport', academy: 'HoloFyrn Academy',
   rls: 'RLS HoloFyrn Esport', 'rls-academy': 'RLS HoloFyrn Academy',
-  'rls-eldr': 'RLS HoloFyrn Élet',
+  'rls-eldr': 'RLS HoloFyrn Eldr',
 };
 const portraits = {kenz: 'Kenz.webp', eggy: 'NoPicPlayer.webp', interz: 'interz.webp'};
 let publicData = null;

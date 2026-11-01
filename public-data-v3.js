@@ -13,7 +13,7 @@ const teamRoutes = {
 const teamNames = {
   main: 'HoloFyrn Esport', academy: 'HoloFyrn Academy',
   rls: 'RLS HoloFyrn Esport', 'rls-academy': 'RLS HoloFyrn Academy',
-  'rls-eldr': 'RLS HoloFyrn Élet',
+  'rls-eldr': 'RLS HoloFyrn Eldr',
   shadows: 'HoloFyrn Shadows',
   vanguards: 'Holofyrn Vanguards',
 };
