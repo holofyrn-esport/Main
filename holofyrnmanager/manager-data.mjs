@@ -123,7 +123,7 @@ export function validateChanges(changes, user, players, leagues = []) {
   const coach = role === 'coach';
   const mayEditCompetition = admin || manager;
   const mayEditMatches = mayEditCompetition || captain;
-  const mayEditAvailability = admin || coach;
+  const mayEditAvailability = admin || coach || captain || role === 'player';
   const ownTeam = String(user.teamId||'');
   const assertOwnTeam = (teamId) => { if (manager && (!ownTeam || String(teamId||'') !== ownTeam)) throw new Error('Managers may only edit their assigned team.'); };
   for (const [key, items] of Object.entries(changes)) for (const c of items) {
@@ -201,10 +201,11 @@ export function validateChanges(changes, user, players, leagues = []) {
     }
     else if (key === 'availability') {
       if (!mayEditAvailability) throw new Error('Coach access required to edit availability.');
-      if (coach) {
+      if (coach || captain) {
         const permittedTeams = [user.teamId, ...list(user.teamIds)].filter(Boolean).map(String);
         if ([c.before,c.after].filter(Boolean).some(a=>{const player=players.find(p=>str(p.id)===str(a.playerId));return !player || !playerTeams(player).some(teamId=>permittedTeams.includes(teamId));})) throw new Error('You may only edit availability for your assigned team.');
       }
+      if (role === 'player' && [c.before,c.after].filter(Boolean).some(a=>str(a.playerId)!==str(user.linkedPlayerId))) throw new Error('You may only edit your own availability.');
       if (c.after && (!row.playerId || !row.date || !row.from || row.from>=row.until)) throw new Error('Check the availability date and time range.');
     } else if (key === 'events') {
       if (row.source) throw new Error('Edit this entry in Training & team tools.');

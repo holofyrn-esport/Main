@@ -33,6 +33,12 @@ service cloud.firestore {
       return isMember() && managerProfile().role in ['Captain', 'captain'];
     }
 
+    function isLinkedPlayer() {
+      return isMember()
+        && (managerProfile().get('playerId', '') != ''
+          || managerProfile().get('linkedPlayerId', '') != '');
+    }
+
     function isCoach() {
       return isMember() && managerProfile().role in ['Coach', 'coach'];
     }
@@ -43,7 +49,7 @@ service cloud.firestore {
       return changed.hasOnly(['players', 'results', 'availability', 'events', 'managerV8', 'updatedAt'])
         && (!changed.hasAny(['players']) || isManager())
         && (!changed.hasAny(['results']) || isManager())
-        && (!changed.hasAny(['availability']) || isCoach())
+        && (!changed.hasAny(['availability']) || isCoach() || isCaptain() || isLinkedPlayer())
         && (!changed.hasAny(['managerV8']) ||
           (isManager() && managerV8Changed.hasOnly(['goals', 'matches', 'leagues', 'leagueGames', 'resultFolders'])) ||
           (isCaptain() && managerV8Changed.hasOnly(['matches'])) ||
