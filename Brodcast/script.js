@@ -1,9 +1,12 @@
 (() => {
   const $ = id => document.getElementById(id);
   const logo = (letters, color) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 3 92 22 83 70 50 97 17 70 8 22Z" fill="#090a0d" stroke="${color}" stroke-width="5"/><path d="M50 13 81 27 74 65 50 85 26 65 19 27Z" fill="#17191d" stroke="${color}" stroke-width="2"/><text x="50" y="61" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="34" fill="${color}">${letters}</text></svg>`)}`;
-  const defaults = {homeName:'HOLOFYRN',homeTag:'ESPORTS',awayName:'KARMINE CORP',awayTag:'',homeLogo:logo('HF','#f31830'),awayLogo:logo('KC','#10b9e9'),homeColor:'#f31830',awayColor:'#10b9e9',bestOf:5,seriesWins:[0,0],endedMatches:[],seriesPlayerStats:{},language:'hu'};
+  const defaults = {homeName:'HOLOFYRN',homeTag:'ESPORTS',awayName:'KARMINE CORP',awayTag:'',homeLogo:logo('HF','#f31830'),awayLogo:logo('KC','#a71930'),homeColor:'#f31830',awayColor:'#a71930',bestOf:5,seriesWins:[0,0],endedMatches:[],seriesPlayerStats:{},language:'hu'};
   let settings = {...defaults};
   try { settings={...settings,...JSON.parse(localStorage.getItem('holofyrnHubTeams')||'{}')}; } catch {}
+  // Migrate the previous default cyan so existing users see the HoloFyrn palette too.
+  if(settings.awayColor?.toLowerCase()==='#10b9e9')settings.awayColor=defaults.awayColor;
+  if(settings.awayLogo?.includes(encodeURIComponent('#10b9e9')))settings.awayLogo=defaults.awayLogo;
   if(!['hu','en'].includes(settings.language))settings.language='hu';
   if(![3,5,7].includes(Number(settings.bestOf)))settings.bestOf=5;else settings.bestOf=Number(settings.bestOf);
   if(!Array.isArray(settings.seriesWins))settings.seriesWins=[0,0];
@@ -98,10 +101,11 @@
   function showGoal(data){
     const scorer=data.Scorer?.Name||'GOAL';
     match.lastScorer=scorer;renderScene();
+    if(screenMode==='goal')document.body.dataset.goalActive='true';
     const speed=Math.round((Number(data.GoalSpeed)||0)*0.036);
     const goalColor=Number(data.Scorer?.TeamNum)===1?settings.awayColor:settings.homeColor;
     for(const prefix of ['','out-']){const scorerNode=$(`${prefix}goal-scorer`),speedNode=$(`${prefix}goal-speed`),toast=$(`${prefix}goal-toast`);if(scorerNode)scorerNode.textContent=scorer;if(speedNode)speedNode.textContent=`${speed} KM/H`;if(toast){toast.style.setProperty('--goal-color',goalColor);toast.classList.remove('visible');void toast.offsetWidth;toast.classList.add('visible')}}
-    clearTimeout(goalTimer);goalTimer=setTimeout(()=>document.querySelectorAll('.goal-toast').forEach(e=>e.classList.remove('visible')),4200);
+    clearTimeout(goalTimer);goalTimer=setTimeout(()=>{document.querySelectorAll('.goal-toast').forEach(e=>e.classList.remove('visible'));if(screenMode==='goal')document.body.dataset.goalActive='false'},4200);
   }
   function onMessage(raw){
     let message;try{message=JSON.parse(raw)}catch{return}
@@ -150,8 +154,17 @@
   }
   function escapeHtml(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   async function loadLogo(file){
-    try{const bitmap=await createImageBitmap(file),scale=Math.min(1,512/Math.max(bitmap.width,bitmap.height)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();return canvas.toDataURL('image/webp',.86)}
-    catch{return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)})}
+    const normalize=image=>{
+      const size=512,padding=32,scale=Math.min((size-padding*2)/image.width,(size-padding*2)/image.height);
+      const width=image.width*scale,height=image.height*scale,canvas=document.createElement('canvas');
+      canvas.width=size;canvas.height=size;
+      const context=canvas.getContext('2d');if(!context)throw new Error('Canvas is unavailable');
+      context.imageSmoothingEnabled=true;context.imageSmoothingQuality='high';
+      context.drawImage(image,(size-width)/2,(size-height)/2,width,height);
+      return canvas.toDataURL('image/webp',.92);
+    };
+    try{const bitmap=await createImageBitmap(file);try{return normalize(bitmap)}finally{bitmap.close()}}
+    catch{return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const image=new Image();image.onload=()=>{try{resolve(normalize(image))}catch(error){reject(error)}};image.onerror=reject;image.src=reader.result};reader.onerror=reject;reader.readAsDataURL(file)})}
   }
   function bindLogo(side){
     $(`${side}-file`).addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{settings[side+'Logo']=await loadLogo(file);updateSettings()}catch{const status=$('cloud-status');if(status)status.textContent='A logó betöltése nem sikerült.'}});

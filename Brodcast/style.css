@@ -42,3 +42,46 @@ body{font-family:Manrope,Inter,Arial,sans-serif}
 .overlay-mode:not([data-screen="game"]) .broadcast-scene:before{inset:0;opacity:.2;background-image:linear-gradient(90deg,rgba(3,4,8,.25),rgba(3,4,8,.5)),url('assets/holofyrn-broadcast-bg.webp');background-position:center;background-size:cover}
 .scene-card:after{content:'';position:absolute;z-index:0;right:2%;bottom:-10%;width:24%;aspect-ratio:1;background:url('assets/holofyrn-logo.webp') center/contain no-repeat;opacity:.09;pointer-events:none;filter:drop-shadow(0 0 18px #ed284438)}
 .language-picker button.selected{border-color:#e53250;background:#351522;color:#fff;box-shadow:inset 0 -2px #e53250}
+/* OBS HUD proportions and legible match metadata. */
+.bar-home,.bar-away{display:grid;align-items:center;column-gap:.6cqw;padding:4px 8px}
+.bar-home{grid-template-columns:23% minmax(0,1fr) 18%}
+.bar-away{grid-template-columns:18% minmax(0,1fr) 23%}
+.team-emblem img,.overlay-stage .bar-team .team-emblem img{width:82%;height:82%;object-fit:contain}
+.overlay-mode .scorebar{height:15%;min-height:100px}
+.overlay-mode .bar-meta{gap:.8vw;margin-top:.7vw;font-size:clamp(12px,1.25vw,24px)}
+.overlay-mode .bar-meta>i{width:clamp(7px,.55vw,11px);height:clamp(7px,.55vw,11px)}
+.overlay-mode[data-screen="goal"] .broadcast-scene{display:none;background:transparent!important}
+.overlay-mode[data-screen="goal"][data-goal-active="true"] .broadcast-scene{display:block}
+.overlay-mode[data-screen="goal"] .broadcast-scene:before{display:none}
+.overlay-mode[data-screen="goal"] .goal-card{background:transparent;border:0;box-shadow:none}
+.overlay-mode[data-screen="goal"] .goal-card:before,.overlay-mode[data-screen="goal"] .goal-card:after{display:none}
+.overlay-mode[data-screen="goal"] .goal-card>h1{color:#fff;text-shadow:0 3px 14px #000,0 0 24px #e53250}
+.overlay-mode[data-screen="goal"] .goal-card>p,.overlay-mode[data-screen="goal"] .goal-card>small,.overlay-mode[data-screen="goal"] .goal-card>b{text-shadow:0 2px 10px #000}
+/* Give team logos a full, centered column beside centered team names. */
+.bar-home{grid-template-columns:24% minmax(0,1fr) 18%;column-gap:0}
+.bar-away{grid-template-columns:18% minmax(0,1fr) 24%;column-gap:0}
+.team-emblem,.bar-away .team-emblem{display:grid;place-items:center;overflow:visible}
+.team-emblem img,.overlay-stage .bar-team .team-emblem img{width:100%;height:100%;object-fit:contain}
+.bar-team{gap:.65cqw}
+.team-plaque,.bar-home .team-plaque,.bar-away .team-plaque{padding-inline:1%}
+.team-plaque b,.bar-away .team-plaque b{text-align:center}
+.team-plaque,.bar-home .team-plaque,.bar-away .team-plaque{flex-direction:row;align-items:baseline;justify-content:center;gap:.55em}
+.team-plaque small{flex:0 0 auto;margin-top:0;white-space:nowrap}
+/* HoloFyrn broadcast palette: black, white and the team's red. */
+:root{--hf-ink:#090a0c;--hf-panel:#111318;--hf-panel-2:#1b1c22;--hf-cyan:#e53250;--hf-red:#e53250;--hf-home:var(--home-color,#f31830);--hf-away:var(--away-color,#a71930)}
+.scorebar{background:linear-gradient(180deg,#202126,#090a0c)}
+.bar-team{background:linear-gradient(105deg,color-mix(in srgb,var(--hf-home),#090a0c 72%),#0b0c0f 76%)}
+.bar-away{background:linear-gradient(255deg,color-mix(in srgb,var(--hf-away),#090a0c 72%),#0b0c0f 76%)}
+.bar-center{background:linear-gradient(180deg,#202126,#0a0b0d)}
+.team-stats{background:linear-gradient(155deg,#15161aF2,#090a0cF5);border-color:#ffffff20}
+.goal-toast{background:linear-gradient(100deg,#0b0c0fF5,#1a1518F5)}
+.boost>div{background:#090a0c;border-color:#24252a}
+.broadcast-scene{background:radial-gradient(ellipse at 50% 0%,#261018 0,#110c10 45%,#090a0c 100%)}
+.broadcast-scene:before{background:linear-gradient(120deg,transparent 0 34%,#e53250 34.1% 34.35%,transparent 34.5% 67%,#f31830 67.1% 67.35%,transparent 67.5%)}
+.scene-card{background:linear-gradient(145deg,#1a1115f7,#0b0a0cfa 60%,#151014f7);border-top-color:#e53250}
+.scene-card>small,.scene-card th,.series-count i,.mvp-card>h1,.intermission-card>p{color:#f05b70}
+.scene-card th{background:#211117}
+.goal-card{background:linear-gradient(110deg,#1b1114f7,#0d0a0cfa);border-top-color:#e53250;border-bottom-color:#a71930}
+.winner-card{border-top-color:#e53250}.winner-card>h1{color:#f05b70}
+.language-picker button{border-color:#383035;background:#151114;color:#c9c2c5}
+.language-picker button.selected{border-color:#e53250;background:#351522;color:#fff;box-shadow:inset 0 -2px #e53250}
