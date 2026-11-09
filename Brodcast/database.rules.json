@@ -1,0 +1,16 @@
+{
+  "rules": {
+    "hubs": {
+      "$roomId": {
+        "ownerUid": {
+          ".read": "auth != null && data.val() === auth.uid",
+          ".write": "auth != null && ((!data.exists() && newData.val() === auth.uid) || data.val() === auth.uid)"
+        },
+        "settings": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === root.child('hubs').child($roomId).child('ownerUid').val()"
+        }
+      }
+    }
+  }
+}
