@@ -25,6 +25,21 @@ service firebase.storage {
         && firestore.get(profilePath).data.role in ['Admin', 'admin'];
     }
 
+    function canWriteBroadcastLogo(userId) {
+      return request.auth != null
+        && request.auth.uid == userId
+        && (request.resource == null
+          || (request.resource.size <= 1024 * 1024
+            && request.resource.contentType == 'image/webp'));
+    }
+
+    match /broadcast-logos/{userId}/{roomId}/{fileName} {
+      allow read: if true;
+      allow write: if canWriteBroadcastLogo(userId)
+        && roomId.matches('[A-Za-z0-9_-]{1,100}')
+        && fileName.matches('(home|away)\\.webp');
+    }
+
     match /news/{userId}/{articleId}/{fileName} {
       allow read: if true;
       allow write: if canManageNews()

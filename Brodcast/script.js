@@ -167,7 +167,7 @@
     catch{return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const image=new Image();image.onload=()=>{try{resolve(normalize(image))}catch(error){reject(error)}};image.onerror=reject;image.src=reader.result};reader.onerror=reject;reader.readAsDataURL(file)})}
   }
   function bindLogo(side){
-    $(`${side}-file`).addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{settings[side+'Logo']=await loadLogo(file);updateSettings()}catch{const status=$('cloud-status');if(status)status.textContent='A logó betöltése nem sikerült.'}});
+    $(`${side}-file`).addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;const input=event.currentTarget;try{const dataUrl=await loadLogo(file);settings[side+'Logo']=window.hubCloud?.uploadLogo?await window.hubCloud.uploadLogo(dataUrl,side):dataUrl;updateSettings()}catch(error){const status=$('cloud-status');if(status){status.textContent=`A logó feltöltése nem sikerült: ${error.message}`;status.dataset.state='error'}}finally{input.value=''}});
     $(`${side}-remove`).addEventListener('click',()=>{settings[side+'Logo']='';updateSettings()});
     $(`${side}-name`).addEventListener('input',e=>{if(settings[side+'Name']!==e.target.value){settings.seriesWins=[0,0];settings.endedMatches=[]}settings[side+'Name']=e.target.value;settings.seriesPlayerStats={};updateSettings()});
     $(`${side}-tag`).addEventListener('input',e=>{settings[side+'Tag']=e.target.value;updateSettings()});

@@ -1,4 +1,13 @@
 {
+  "firestore": {
+    "rules": "holofyrnmanager/firestore.rules"
+  },
+  "storage": [
+    {
+      "bucket": "noctiq-d1020.firebasestorage.app",
+      "rules": "holofyrnmanager/storage.rules"
+    }
+  ],
   "functions": [
     {
       "source": "Merch/functions",

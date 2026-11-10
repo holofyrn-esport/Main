@@ -14,89 +14,99 @@ window.HUB_ROOM_ID = roomId;
 const emit = (name, detail = {}) => window.dispatchEvent(new CustomEvent(name, { detail }));
 const setStatus = (text, state = 'offline') => emit('hub-cloud-status', { text, state });
 let pendingSettings = null;
-window.hubCloud = { publish(settings) { pendingSettings = settings; } };
+let storageReady = false;
+let storage;
+let authReady;
+window.hubCloud = {
+  publish() {},
+  async uploadLogo(dataUrl, side) {
+    if (!storageReady) throw new Error('A Firebase Storage kapcsolat nem érhető el.');
+    if (!['home', 'away'].includes(side) || !/^[a-zA-Z0-9_-]{1,100}$/.test(roomId)) throw new Error('Érvénytelen szobaazonosító.');
+    const user = await authReady;
+    const [{ ref, uploadBytes, getDownloadURL }] = await Promise.all([
+      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-storage.js')
+    ]);
+    const blob = await (await fetch(dataUrl)).blob();
+    const logoRef = ref(storage, `broadcast-logos/${user.uid}/${roomId}/${side}.webp`);
+    await uploadBytes(logoRef, blob, { contentType: 'image/webp', cacheControl: 'public,max-age=31536000,immutable' });
+    return getDownloadURL(logoRef);
+  }
+};
 emit('hub-room-ready', { roomId, overlayMode });
 
-const configured = ['apiKey', 'authDomain', 'databaseURL', 'projectId', 'appId']
+const appConfigured = ['apiKey', 'authDomain', 'projectId', 'appId', 'storageBucket']
   .every(key => Boolean(firebaseConfig[key]));
 
-if (!configured) {
-  setStatus('A felhőszinkron Firebase-beállításra vár.', 'offline');
-} else if (!roomId) {
-  setStatus('Hiányzik a megosztott overlay szobaazonosítója.', 'offline');
+if (!appConfigured) {
+  setStatus('A Firebase beállítása hiányzik.', 'offline');
+} else if (!roomId || !/^[a-zA-Z0-9_-]{1,100}$/.test(roomId)) {
+  setStatus('Hiányzik vagy érvénytelen az overlay szobaazonosítója.', 'offline');
 } else {
   try {
-    const [{ initializeApp }, { getDatabase, ref, set, onValue }, { getAuth, signInAnonymously }] = await Promise.all([
+    const [{ initializeApp }, authApi, storageApi, firestoreApi] = await Promise.all([
       import('https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js'),
-      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-database.js'),
-      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js')
+      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js'),
+      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-storage.js'),
+      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js')
     ]);
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const settingsRef = ref(db, `hubs/${roomId}/settings`);
-    let initialResolved = false;
-    let cloudHasSettings = false;
-    let ownerReady = overlayMode;
+    const auth = authApi.getAuth(app);
+    const db = firestoreApi.getFirestore(app);
+    storage = storageApi.getStorage(app);
+    storageReady = true;
+    authReady = authApi.signInAnonymously(auth).then(credential => credential.user);
+    const settingsRef = firestoreApi.doc(db, 'broadcastHubs', roomId);
     let isOwner = false;
+    let cloudHasSettings = false;
     let writeTimer;
 
-    function queueWrite(settings) {
+    window.hubCloud.publish = settings => {
       if (!settings) return;
       pendingSettings = settings;
-      if (!ownerReady || !initialResolved || !isOwner) return;
+      if (!isOwner) return;
       clearTimeout(writeTimer);
       writeTimer = setTimeout(() => {
-        set(settingsRef, pendingSettings).then(() => setStatus('A csapatbeállítások élőben szinkronizálva.', 'online'))
+        firestoreApi.setDoc(settingsRef, { settings: pendingSettings }, { merge: true })
+          .then(() => setStatus('A csapatbeállítások élőben szinkronizálva.', 'online'))
           .catch(error => setStatus(`A felhőbe mentés nem sikerült: ${error.message}`, 'error'));
       }, 220);
-    }
+    };
 
-    window.hubCloud.publish = queueWrite;
-    const settingsRefStatus = overlayMode ? 'Az overlay a megosztott beállításokra vár.' : 'Kapcsolódás a HUB felhőszinkronjához…';
-    setStatus(settingsRefStatus, 'pending');
-
-    onValue(settingsRef, snapshot => {
-      initialResolved = true;
-      cloudHasSettings = snapshot.exists();
-      if (cloudHasSettings) {
-        pendingSettings = snapshot.val();
-        emit('hub-cloud-settings', { settings: pendingSettings });
-        setStatus('A csapatbeállítások élőben szinkronizálva.', 'online');
-      } else if (isOwner && pendingSettings) {
-        queueWrite(pendingSettings);
-      } else if (overlayMode) {
-        setStatus('Nincs még elmentett csapatbeállítás ehhez az overlay-linkhez.', 'error');
+    setStatus('Kapcsolódás a Broadcast Firestore-szinkronhoz…', 'pending');
+    authReady.then(async user => {
+      const ownerKey = `broadcastHubOwner:${roomId}`;
+      const knownOwner = localStorage.getItem(ownerKey);
+      const snapshot = await firestoreApi.getDoc(settingsRef);
+      if (snapshot.exists()) {
+        isOwner = snapshot.data().ownerUid === user.uid;
+        cloudHasSettings = Boolean(snapshot.data().settings);
+      } else if (!knownOwner || knownOwner === user.uid) {
+        await firestoreApi.setDoc(settingsRef, { ownerUid: user.uid });
+        localStorage.setItem(ownerKey, user.uid);
+        isOwner = true;
+      } else {
+        isOwner = knownOwner === user.uid;
       }
-    }, error => setStatus(`A felhőadatbázis nem érhető el: ${error.message}`, 'error'));
-
-    if (!overlayMode) {
-      const auth = getAuth(app);
-      signInAnonymously(auth).then(async credential => {
-        const uid = credential.user.uid;
-        const ownerKey = `broadcastHubOwner:${roomId}`;
-        const knownOwner = localStorage.getItem(ownerKey);
-        if (knownOwner === uid) {
-          isOwner = true;
-        } else if (!knownOwner) {
-          try {
-            await set(ref(db, `hubs/${roomId}/ownerUid`), uid);
-            localStorage.setItem(ownerKey, uid);
-            isOwner = true;
-          } catch {
-            isOwner = false;
-          }
+      firestoreApi.onSnapshot(settingsRef, docSnapshot => {
+        cloudHasSettings = docSnapshot.exists() && Boolean(docSnapshot.data().settings);
+        if (cloudHasSettings) {
+          pendingSettings = docSnapshot.data().settings;
+          emit('hub-cloud-settings', { settings: pendingSettings });
+          setStatus('A csapatbeállítások élőben szinkronizálva.', 'online');
+        } else if (overlayMode) {
+          setStatus('Nincs még elmentett csapatbeállítás ehhez az overlay-linkhez.', 'error');
         }
-        ownerReady = true;
-        if (!isOwner) setStatus('Ez a böngésző csak megtekintheti a beállításokat; a szerkesztés a létrehozó böngészőből érhető el.', 'error');
-        else if (!cloudHasSettings) queueWrite(pendingSettings);
-        emit('hub-cloud-ready', { roomId, isOwner, hasSettings: cloudHasSettings });
-      }).catch(error => {
-        ownerReady = true;
-        emit('hub-cloud-ready', { roomId, isOwner: false, hasSettings: cloudHasSettings });
-        setStatus(`Firebase bejelentkezés sikertelen: ${error.message}`, 'error');
-      });
-    }
+      }, error => setStatus(`A felhőadatbázis nem érhető el: ${error.message}`, 'error'));
+
+      if (!isOwner) setStatus('Ez a böngésző csak megtekintheti a beállításokat; a szerkesztés a létrehozó böngészőből érhető el.', 'error');
+      emit('hub-cloud-ready', { roomId, isOwner, hasSettings: cloudHasSettings });
+      if (isOwner && pendingSettings && !cloudHasSettings) window.hubCloud.publish(pendingSettings);
+    }).catch(error => {
+      emit('hub-cloud-ready', { roomId, isOwner: false, hasSettings: cloudHasSettings });
+      setStatus(`Firebase bejelentkezés sikertelen: ${error.message}`, 'error');
+    });
   } catch (error) {
+    storageReady = false;
     setStatus(`A Firebase kapcsolat nem indult el: ${error.message}`, 'error');
   }
 }
