@@ -12,29 +12,21 @@ if (!overlayMode && roomId) localStorage.setItem(ROOM_KEY, roomId);
 window.HUB_ROOM_ID = roomId;
 
 const emit = (name, detail = {}) => window.dispatchEvent(new CustomEvent(name, { detail }));
-const setStatus = (text, state = 'offline') => emit('hub-cloud-status', { text, state });
+const setStatus = (text, state = 'offline', extra = {}) => emit('hub-cloud-status', { text, state, ...extra });
+const explainFirebaseError = error => {
+  if (error?.code === 'auth/operation-not-allowed') return 'A Firebase Console-ban engedélyezd az Anonymous bejelentkezést.';
+  if (error?.code === 'auth/unauthorized-domain') return `A(z) ${location.hostname} címet add hozzá a Firebase Authentication → Settings → Authorized domains listához.`;
+  if (error?.code === 'permission-denied') return 'A Firestore elutasította a mentést. Ellenőrizd, hogy a broadcastHubs Firestore-szabályok élesek-e.';
+  return error?.message || String(error);
+};
 let pendingSettings = null;
-let storageReady = false;
-let storage;
 let authReady;
 window.hubCloud = {
-  publish() {},
-  async uploadLogo(dataUrl, side) {
-    if (!storageReady) throw new Error('A Firebase Storage kapcsolat nem érhető el.');
-    if (!['home', 'away'].includes(side) || !/^[a-zA-Z0-9_-]{1,100}$/.test(roomId)) throw new Error('Érvénytelen szobaazonosító.');
-    const user = await authReady;
-    const [{ ref, uploadBytes, getDownloadURL }] = await Promise.all([
-      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-storage.js')
-    ]);
-    const blob = await (await fetch(dataUrl)).blob();
-    const logoRef = ref(storage, `broadcast-logos/${user.uid}/${roomId}/${side}.webp`);
-    await uploadBytes(logoRef, blob, { contentType: 'image/webp', cacheControl: 'public,max-age=31536000,immutable' });
-    return getDownloadURL(logoRef);
-  }
+  publish() {}
 };
 emit('hub-room-ready', { roomId, overlayMode });
 
-const appConfigured = ['apiKey', 'authDomain', 'projectId', 'appId', 'storageBucket']
+const appConfigured = ['apiKey', 'authDomain', 'projectId', 'appId']
   .every(key => Boolean(firebaseConfig[key]));
 
 if (!appConfigured) {
@@ -43,17 +35,14 @@ if (!appConfigured) {
   setStatus('Hiányzik vagy érvénytelen az overlay szobaazonosítója.', 'offline');
 } else {
   try {
-    const [{ initializeApp }, authApi, storageApi, firestoreApi] = await Promise.all([
+    const [{ initializeApp }, authApi, firestoreApi] = await Promise.all([
       import('https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js'),
       import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js'),
-      import('https://www.gstatic.com/firebasejs/13.2.0/firebase-storage.js'),
       import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js')
     ]);
     const app = initializeApp(firebaseConfig);
     const auth = authApi.getAuth(app);
     const db = firestoreApi.getFirestore(app);
-    storage = storageApi.getStorage(app);
-    storageReady = true;
     authReady = authApi.signInAnonymously(auth).then(credential => credential.user);
     const settingsRef = firestoreApi.doc(db, 'broadcastHubs', roomId);
     let isOwner = false;
@@ -67,8 +56,8 @@ if (!appConfigured) {
       clearTimeout(writeTimer);
       writeTimer = setTimeout(() => {
         firestoreApi.setDoc(settingsRef, { settings: pendingSettings }, { merge: true })
-          .then(() => setStatus('A csapatbeállítások élőben szinkronizálva.', 'online'))
-          .catch(error => setStatus(`A felhőbe mentés nem sikerült: ${error.message}`, 'error'));
+          .then(() => setStatus('A csapatbeállítások és logók Firestore-ba mentve, OBS-szel szinkronizálva.', 'online', { saved: true }))
+          .catch(error => setStatus(`A Firestore-mentés nem sikerült: ${explainFirebaseError(error)}`, 'error', { saved: true }));
       }, 220);
     };
 
@@ -103,10 +92,9 @@ if (!appConfigured) {
       if (isOwner && pendingSettings && !cloudHasSettings) window.hubCloud.publish(pendingSettings);
     }).catch(error => {
       emit('hub-cloud-ready', { roomId, isOwner: false, hasSettings: cloudHasSettings });
-      setStatus(`Firebase bejelentkezés sikertelen: ${error.message}`, 'error');
+      setStatus(`Firebase bejelentkezés sikertelen: ${explainFirebaseError(error)}`, 'error');
     });
   } catch (error) {
-    storageReady = false;
     setStatus(`A Firebase kapcsolat nem indult el: ${error.message}`, 'error');
   }
 }

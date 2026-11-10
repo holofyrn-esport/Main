@@ -13,8 +13,18 @@
   settings.seriesWins=settings.seriesWins.slice(0,2).map(value=>Math.max(0,Number(value)||0));while(settings.seriesWins.length<2)settings.seriesWins.push(0);
   if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];
   let socket, retryTimer, connected=false, hasGameData=false, goalTimer;
-  const match = {homeScore:0,awayScore:0,clock:'--:--',players:[[],[]],boost:0,boostAvailable:false,lastScorer:'',winner:null};
+  const match = {homeScore:0,awayScore:0,clock:'--:--',players:[[],[]],watchedPlayer:null,lastScorer:'',winner:null};
   const safeImage=(img,src)=>{if(!img)return;img.src=src||'';img.style.visibility=src?'visible':'hidden'};
+  function setupHudWidgets(){
+    for(const stageId of ['overlay-stage','obs-output']){
+      const stage=$(stageId),center=stage?.querySelector('.bar-center');
+      if(!stage||!center)continue;
+      stage.querySelector('.boost')?.remove();
+      const ribbon=stage.querySelector('.series-ribbon'),meta=center.querySelector('.bar-meta');
+      if(ribbon&&meta)meta.after(ribbon);
+    }
+  }
+  setupHudWidgets();
   function updateSettings({publishCloud=true}={}){
     document.documentElement.style.setProperty('--home-color',settings.homeColor);
     document.documentElement.style.setProperty('--away-color',settings.awayColor);
@@ -34,27 +44,28 @@
     updateLanguageButtons();
     if(publishCloud)window.hubCloud?.publish({...settings});
   }
-  function renderPlayers(index){
-    const players=match.players[index].slice(0,3);
-    const overlayLanguage=new URLSearchParams(location.search).get('lang')||settings.language;
-    const metricLabels=overlayLanguage==='en'?['G','S','SV']:['G','L','V'];
-    return players.map(p=>`<div class="player-row"><b>${escapeHtml(p.Name||'')}</b><span><i>${metricLabels[0]}</i> ${Number(p.Goals)||0}</span><span><i>${metricLabels[1]}</i> ${Number(p.Shots)||0}</span><span><i>${metricLabels[2]}</i> ${Number(p.Saves)||0}</span></div>`).join('');
-  }
   function render(){
     const names={home:settings.homeName||'HOME',away:settings.awayName||'AWAY'};
-    const ids={home:['hud-home-logo','out-home-logo','stats-home-logo','out-stats-home-logo'],away:['hud-away-logo','out-away-logo','stats-away-logo','out-stats-away-logo']};
+    const ids={home:['hud-home-logo','out-home-logo'],away:['hud-away-logo','out-away-logo']};
     for(const side of ['home','away']){
       document.querySelectorAll(`[data-team-name="${side}"]`).forEach(el=>el.textContent=names[side]);
       ids[side].forEach(id=>safeImage($(id),settings[side+'Logo']));
     }
-    ['hud-home-name','out-home-name','stats-home-name','out-stats-home-name'].forEach(id=>{if($(id))$(id).textContent=names.home});
-    ['hud-away-name','out-away-name','stats-away-name','out-stats-away-name'].forEach(id=>{if($(id))$(id).textContent=names.away});
+    ['hud-home-name','out-home-name'].forEach(id=>{if($(id))$(id).textContent=names.home});
+    ['hud-away-name','out-away-name'].forEach(id=>{if($(id))$(id).textContent=names.away});
     for(const side of ['home','away']){for(const id of [`hud-${side}-tag`,`out-${side}-tag`]){const el=$(id);if(el){el.textContent=settings[side+'Tag']||'';el.classList.toggle('is-hidden',!settings[side+'Tag']?.trim())}}}
-    const vals={'hud-home-score':match.homeScore,'out-home-score':match.homeScore,'hud-away-score':match.awayScore,'out-away-score':match.awayScore,'hud-clock':match.clock,'out-clock':match.clock,'boost-value':match.boost,'out-boost-value':match.boost};
+    const vals={'hud-home-score':match.homeScore,'out-home-score':match.homeScore,'hud-away-score':match.awayScore,'out-away-score':match.awayScore,'hud-clock':match.clock,'out-clock':match.clock};
     Object.entries(vals).forEach(([id,value])=>{const el=$(id);if(el)el.textContent=value});
-    [['home',0],['away',1]].forEach(([side,index])=>{const html=renderPlayers(index);if($(`${side}-players`))$(`${side}-players`).innerHTML=html;if($(`out-${side}-players`))$(`out-${side}-players`).innerHTML=html});
-    ['boost-widget','out-boost-widget'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('is-hidden',!match.boostAvailable)});
-    const language=new URLSearchParams(location.search).get('lang')||settings.language;
+    const watched=match.watchedPlayer,watchedSide=Number(watched?.TeamNum)===1?'away':'home',playerLanguage=new URLSearchParams(location.search).get('lang')||settings.language;
+    const watchedName=watched?.Name||(playerLanguage==='en'?'WAITING FOR PLAYER':'VÁRAKOZÁS A JÁTÉKOSRA');
+    for(const prefix of ['','out-']){
+      const name=$(prefix+'stats-home-name');if(name)name.textContent=watchedName;
+      safeImage($(prefix+'stats-home-logo'),settings[watchedSide+'Logo']);
+      const card=$(prefix+'stats-home-name')?.closest('.team-stats');if(card)card.style.setProperty('--player-color',settings[watchedSide+'Color']);
+      const target=$(prefix+'home-players');
+      if(target){const labels=playerLanguage==='en'?['SCORE','GOALS','ASSISTS','SAVES','SHOTS']:['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS'];const keys=['Score','Goals','Assists','Saves','Shots'];target.innerHTML=`<div class="watched-player-stats">${keys.map((key,index)=>`<span><small>${labels[index]}</small><b>${Number(watched?.[key])||0}</b></span>`).join('')}</div>`}
+    }
+    const language=playerLanguage;
     const targetWins=Math.ceil(Number(settings.bestOf)/2),gameNumber=settings.seriesWins[0]+settings.seriesWins[1]+1;
     const gameWord=language==='en'?'GAME':'MECCS';
     const seriesLabel=settings.seriesWins[0]>=targetWins?(language==='en'?`${names.home} WINS SERIES`:`${names.home} NYERI A SOROZATOT`):settings.seriesWins[1]>=targetWins?(language==='en'?`${names.away} WINS SERIES`:`${names.away} NYERI A SOROZATOT`):`${gameWord} ${gameNumber} · BO${settings.bestOf}`;
@@ -119,13 +130,13 @@
       if(blue)match.homeScore=Number(blue.Score)||0;if(orange)match.awayScore=Number(orange.Score)||0;
       if(Number.isFinite(Number(game.TimeSeconds))){const sec=Math.max(0,Math.floor(Number(game.TimeSeconds)));match.clock=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}${game.bOvertime?' · OT':''}`}
       const players=data.Players||[];match.players=[players.filter(p=>Number(p.TeamNum)===0),players.filter(p=>Number(p.TeamNum)===1)];
-      const target=players.find(p=>p.Name===game.Target?.Name)||players.find(p=>Number(p.TeamNum)===0);match.boostAvailable=!!target&&target.Boost!==undefined;if(match.boostAvailable)match.boost=Math.max(0,Math.min(100,Number(target.Boost)||0));
+      const target=players.find(p=>p.Name===game.Target?.Name)||null;match.watchedPlayer=target;
       render();
     }else if(message.Event==='GoalScored'){const team=Number(data.Scorer?.TeamNum);if(team===0)match.homeScore++;else if(team===1)match.awayScore++;render();showGoal(data)}
     else if(message.Event==='MatchEnded')recordSeriesWinner(data);
     else if(message.Event==='MatchCreated'){if(settings.seriesWins.some(wins=>wins>=Math.ceil(Number(settings.bestOf)/2))){settings.seriesWins=[0,0];settings.endedMatches=[];settings.seriesPlayerStats={};saveSettings();render();window.hubCloud?.publish({...settings})}}
-    else if(message.Event==='MatchInitialized'){match.homeScore=0;match.awayScore=0;match.clock='5:00';match.players=[[],[]];match.boost=0;match.boostAvailable=false;match.winner=null;render()}
-    else if(message.Event==='MatchDestroyed'){hasGameData=false;match.clock='--:--';match.players=[[],[]];match.boostAvailable=false;setConnection(connected);render()}
+    else if(message.Event==='MatchInitialized'){match.homeScore=0;match.awayScore=0;match.clock='5:00';match.players=[[],[]];match.watchedPlayer=null;match.winner=null;render()}
+    else if(message.Event==='MatchDestroyed'){hasGameData=false;match.clock='--:--';match.players=[[],[]];match.watchedPlayer=null;setConnection(connected);render()}
   }
   function recordSeriesWinner(data){
     const winner=Number(data.WinnerTeamNum);if(winner!==0&&winner!==1)return;
@@ -161,14 +172,16 @@
       const context=canvas.getContext('2d');if(!context)throw new Error('Canvas is unavailable');
       context.imageSmoothingEnabled=true;context.imageSmoothingQuality='high';
       context.drawImage(image,(size-width)/2,(size-height)/2,width,height);
-      return canvas.toDataURL('image/webp',.92);
+        const dataUrl=canvas.toDataURL('image/webp',.92);
+        if(dataUrl.length>280000)throw new Error('A logó túl nagy a Firestore-hoz (max. 280 KB). Próbálj kisebb képet.');
+        return dataUrl;
     };
     try{const bitmap=await createImageBitmap(file);try{return normalize(bitmap)}finally{bitmap.close()}}
     catch{return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const image=new Image();image.onload=()=>{try{resolve(normalize(image))}catch(error){reject(error)}};image.onerror=reject;image.src=reader.result};reader.onerror=reject;reader.readAsDataURL(file)})}
   }
   function bindLogo(side){
-    $(`${side}-file`).addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;const input=event.currentTarget;try{const dataUrl=await loadLogo(file);settings[side+'Logo']=window.hubCloud?.uploadLogo?await window.hubCloud.uploadLogo(dataUrl,side):dataUrl;updateSettings()}catch(error){const status=$('cloud-status');if(status){status.textContent=`A logó feltöltése nem sikerült: ${error.message}`;status.dataset.state='error'}}finally{input.value=''}});
-    $(`${side}-remove`).addEventListener('click',()=>{settings[side+'Logo']='';updateSettings()});
+    $(`${side}-file`).addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;const input=event.currentTarget,localStatus=$(`${side}-upload-status`),status=$('cloud-status');const show=(text,state)=>{if(localStatus){localStatus.textContent=text;localStatus.dataset.state=state}};try{show('Kép feldolgozása…','pending');const dataUrl=await loadLogo(file);settings[side+'Logo']=dataUrl;updateSettings();show('A logó beállítva; mentés Firestore-ba…','pending')}catch(error){const message=`A logó beállítása nem sikerült: ${error.message}`;show(message,'error');if(status){status.textContent=message;status.dataset.state='error'}}finally{input.value=''}});
+    $(`${side}-remove`).addEventListener('click',()=>{settings[side+'Logo']='';updateSettings();const status=$(`${side}-upload-status`);if(status){status.textContent='A logó eltávolítva.';status.dataset.state='success'}});
     $(`${side}-name`).addEventListener('input',e=>{if(settings[side+'Name']!==e.target.value){settings.seriesWins=[0,0];settings.endedMatches=[]}settings[side+'Name']=e.target.value;settings.seriesPlayerStats={};updateSettings()});
     $(`${side}-tag`).addEventListener('input',e=>{settings[side+'Tag']=e.target.value;updateSettings()});
     $(`${side}-color`).addEventListener('input',e=>{settings[side+'Color']=e.target.value;updateSettings()});
@@ -178,7 +191,7 @@
   $('reset-series').addEventListener('click',()=>{settings.seriesWins=[0,0];settings.endedMatches=[];updateSettings()});
   window.addEventListener('storage',event=>{if(event.key==='holofyrnHubTeams'){try{settings={...defaults,...JSON.parse(event.newValue||'{}')};updateSettings({publishCloud:false})}catch{}}});
   window.addEventListener('hub-cloud-settings',event=>{if(!event.detail?.settings)return;settings={...settings,...event.detail.settings};if(!Array.isArray(settings.seriesWins))settings.seriesWins=[0,0];if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];updateSettings({publishCloud:false})});
-  window.addEventListener('hub-cloud-status',event=>{const status=$('cloud-status');if(status){status.textContent=event.detail.text;status.dataset.state=event.detail.state||'offline'}});
+  window.addEventListener('hub-cloud-status',event=>{const status=$('cloud-status');if(status){status.textContent=event.detail.text;status.dataset.state=event.detail.state||'offline'}for(const side of ['home','away']){const localStatus=$(`${side}-upload-status`);if(!localStatus)continue;if(event.detail.state==='error'&&(localStatus.dataset.state==='idle'||localStatus.dataset.state==='pending')){localStatus.textContent=event.detail.text;localStatus.dataset.state='error'}else if(event.detail.saved&&event.detail.state==='online'&&localStatus.dataset.state==='pending'){localStatus.textContent='A logó Firestore-ba mentve, OBS-szel szinkronizálva.';localStatus.dataset.state='success'}}});
   window.addEventListener('hub-cloud-ready',event=>{if(event.detail?.isOwner&&!event.detail.hasSettings)window.hubCloud?.publish({...settings})});
   function getOverlayUrl(screen='game',language=settings.language){const url=new URL(location.href);url.search='';url.searchParams.set('overlay','');url.searchParams.set('screen',screen);url.searchParams.set('lang',language==='en'?'en':'hu');if(window.HUB_ROOM_ID)url.searchParams.set('room',window.HUB_ROOM_ID);url.hash='';return url}
   function updateRoomLink(){const room=window.HUB_ROOM_ID;if(room){$('room-badge').textContent=`SZOBAKÓD ${room.slice(0,8).toUpperCase()}`;$('obs-url').textContent=getOverlayUrl().href}}

@@ -193,17 +193,32 @@ service cloud.firestore {
 
     // Isolated Broadcast room documents; no Manager/Main documents are used.
     match /broadcastHubs/{roomId} {
+      function validLogo(value) {
+        return value is string
+          && value.size() <= 280000
+          && (value.matches('^data:image/webp;base64,[A-Za-z0-9+/=]+$')
+            || value.matches('^data:image/svg.*$'));
+      }
+
+      function validBroadcastDocument(data) {
+        return data.keys().hasOnly(['ownerUid', 'settings'])
+          && data.ownerUid == request.auth.uid
+          && (!('settings' in data)
+            || (data.settings is map
+              && data.settings.keys().hasAll(['homeLogo', 'awayLogo'])
+              && validLogo(data.settings.homeLogo)
+              && validLogo(data.settings.awayLogo)));
+      }
+
       allow read: if request.auth != null;
       allow create: if request.auth != null
         && roomId.matches('[A-Za-z0-9_-]{1,100}')
-        && request.resource.data.keys().hasOnly(['ownerUid', 'settings'])
-        && request.resource.data.ownerUid == request.auth.uid
-        && (!('settings' in request.resource.data) || request.resource.data.settings is map);
+        && validBroadcastDocument(request.resource.data);
       allow update: if request.auth != null
         && resource.data.ownerUid == request.auth.uid
         && request.resource.data.ownerUid == resource.data.ownerUid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['settings'])
-        && request.resource.data.settings is map;
+        && validBroadcastDocument(request.resource.data);
       allow delete: if false;
     }
   }

@@ -42,6 +42,10 @@ body{font-family:Manrope,Inter,Arial,sans-serif}
 .overlay-mode:not([data-screen="game"]) .broadcast-scene:before{inset:0;opacity:.2;background-image:linear-gradient(90deg,rgba(3,4,8,.25),rgba(3,4,8,.5)),url('assets/holofyrn-broadcast-bg.webp');background-position:center;background-size:cover}
 .scene-card:after{content:'';position:absolute;z-index:0;right:2%;bottom:-10%;width:24%;aspect-ratio:1;background:url('assets/holofyrn-logo.webp') center/contain no-repeat;opacity:.09;pointer-events:none;filter:drop-shadow(0 0 18px #ed284438)}
 .language-picker button.selected{border-color:#e53250;background:#351522;color:#fff;box-shadow:inset 0 -2px #e53250}
+.logo-upload-status{min-height:18px;margin:5px 0 0;color:#9b9ea7;font-size:9px;line-height:1.4;overflow-wrap:anywhere}
+.logo-upload-status[data-state=pending]{color:#80c9ff}
+.logo-upload-status[data-state=success]{color:#7ddaa0}
+.logo-upload-status[data-state=error]{color:#ff8290}
 /* OBS HUD proportions and legible match metadata. */
 .bar-home,.bar-away{display:grid;align-items:center;column-gap:.6cqw;padding:4px 8px}
 .bar-home{grid-template-columns:23% minmax(0,1fr) 18%}
@@ -85,3 +89,43 @@ body{font-family:Manrope,Inter,Arial,sans-serif}
 .winner-card{border-top-color:#e53250}.winner-card>h1{color:#f05b70}
 .language-picker button{border-color:#383035;background:#151114;color:#c9c2c5}
 .language-picker button.selected{border-color:#e53250;background:#351522;color:#fff;box-shadow:inset 0 -2px #e53250}
+/* Keep the team name visually centered on its logo and close to the emblem. */
+.bar-team{column-gap:.2cqw}
+.team-plaque,.bar-home .team-plaque,.bar-away .team-plaque{width:max-content;max-width:100%;height:auto;min-height:0;margin:0;padding:0;background:none;border:0;clip-path:none;flex-direction:column;align-items:center;justify-content:center;gap:.2em}
+.bar-home .team-plaque{justify-self:start}
+.bar-away .team-plaque{justify-self:end;text-align:center}
+.team-plaque b,.bar-away .team-plaque b{max-width:100%;font-size:clamp(16px,2.35cqw,42px);line-height:1;text-align:center;letter-spacing:.03em}
+.team-plaque small{margin:.2em 0 0;letter-spacing:.18em}
+.overlay-mode .team-plaque b,.overlay-mode .bar-away .team-plaque b{font-size:clamp(19px,2.5vw,48px)}
+/* Compact center panel with live boost, and a spectator card at bottom left. */
+.scorebar{grid-template-columns:minmax(0,1fr) 13% minmax(0,1fr)}
+.bar-center{min-width:0;padding:3px 5px}
+.team-stats.stats-away{display:none}
+.team-stats.stats-home{left:3.2%;right:auto;top:auto;bottom:8%;width:min(36%,620px);padding:.7cqw .9cqw;border:1px solid #ffffff24;border-left:3px solid var(--player-color,var(--home-color));border-top-color:#ffffff24;border-radius:4px;clip-path:none;background:linear-gradient(110deg,#141519eb,#08090bed);box-shadow:0 7px 20px #0008}
+.stats-home .stats-heading{min-height:0;gap:.65cqw;padding:0 0 .55cqw;border-bottom:1px solid #ffffff1c}
+.stats-home .stats-heading img{width:3.3cqw;height:3.3cqw;padding:.25cqw;background:#090a0c;border:1px solid color-mix(in srgb,var(--player-color,var(--home-color)),transparent 55%);border-radius:3px}
+.stats-home .stats-heading b{font:800 clamp(12px,1.3cqw,24px)/1 'Barlow Condensed',sans-serif;letter-spacing:.04em}
+.watched-player-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.45cqw;padding-top:.6cqw}
+.watched-player-stats>span{display:flex;min-width:0;flex-direction:column;gap:.1cqw;padding:.25cqw .35cqw;background:#ffffff08;border-radius:2px;text-align:center}
+.watched-player-stats small{overflow:hidden;color:#9699a2;font:700 clamp(7px,.62cqw,11px)/1 Inter,sans-serif;letter-spacing:.06em;text-overflow:ellipsis;white-space:nowrap}
+.watched-player-stats b{color:#f5f5f6;font:800 clamp(12px,1.15cqw,21px)/1 'Barlow Condensed',sans-serif}
+.overlay-mode .stats-home{left:3.2%;bottom:8%;width:min(38vw,660px);padding:clamp(9px,.7vw,14px) clamp(11px,.9vw,17px)}
+.overlay-mode .stats-home .stats-heading{gap:.75vw;padding-bottom:.55vw}
+.overlay-mode .stats-home .stats-heading img{width:clamp(42px,4vw,76px);height:clamp(42px,4vw,76px);padding:4px}
+.overlay-mode .stats-home .stats-heading b{font-size:clamp(20px,1.7vw,32px)}
+.overlay-mode .watched-player-stats{gap:.5vw;padding-top:.55vw}
+.overlay-mode .watched-player-stats>span{gap:2px;padding:.35vw .4vw}
+.overlay-mode .watched-player-stats small{font-size:clamp(9px,.7vw,13px)}
+.overlay-mode .watched-player-stats b{font-size:clamp(17px,1.3vw,24px)}
+.series-ribbon{bottom:2%}
+.bar-center .series-ribbon{position:static;left:auto;bottom:auto;width:auto;height:auto;min-height:0;display:flex;align-items:center;justify-content:center;gap:.55cqw;margin:.2cqw 0 0;padding:0;background:none;border:0;border-radius:0;box-shadow:none;clip-path:none;font-size:0}
+.bar-center .series-ribbon>b,.bar-center .series-ribbon>strong,.bar-center .series-ribbon>i{display:none}
+.bar-center .series-ribbon>span{display:flex;align-items:center;gap:.28cqw}
+.bar-center .series-ribbon>span i{width:clamp(5px,.48cqw,9px);height:clamp(5px,.48cqw,9px);min-width:0;min-height:0;border:1px solid #ffffff55;border-radius:50%;background:transparent}
+.bar-center .series-ribbon>span i.won{background:var(--dot-color);border-color:var(--dot-color);box-shadow:0 0 5px color-mix(in srgb,var(--dot-color),transparent 40%)}
+.bar-center .series-ribbon{margin:.42cqw 0 .12cqw}
+.bar-center .series-ribbon>span{gap:.38cqw}
+.bar-center .series-ribbon>span i{width:clamp(8px,.68cqw,13px);height:clamp(8px,.68cqw,13px);border:2px solid #ffffffa8;box-shadow:0 0 4px #ffffff30}
+.bar-center .series-ribbon>span i.won{border-color:var(--dot-color);box-shadow:0 0 7px color-mix(in srgb,var(--dot-color),transparent 25%)}
+.overlay-mode .bar-center>strong{font-size:clamp(36px,4vw,76px)}
+.overlay-mode .bar-meta{margin-top:.35vw;font-size:clamp(10px,1vw,19px)}
