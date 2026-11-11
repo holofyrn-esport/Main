@@ -117,6 +117,10 @@ body{font-family:Manrope,Inter,Arial,sans-serif}
 .overlay-mode .watched-player-stats>span{gap:2px;padding:.35vw .4vw}
 .overlay-mode .watched-player-stats small{font-size:clamp(9px,.7vw,13px)}
 .overlay-mode .watched-player-stats b{font-size:clamp(17px,1.3vw,24px)}
+.team-stats.is-hidden{display:none!important}
+.boost{background:conic-gradient(var(--boost-color,var(--hf-cyan)) 0 var(--boost-value,0%),#ffffff24 var(--boost-value,0%) 100%);box-shadow:0 4px 18px color-mix(in srgb,var(--boost-color,var(--hf-cyan)),transparent 68%)}
+.boost>div{background:radial-gradient(#16171a,#08090c 72%);border:2px solid color-mix(in srgb,var(--boost-color,var(--hf-cyan)),transparent 42%)}
+.boost small{color:var(--boost-color,var(--hf-cyan))}
 .series-ribbon{bottom:2%}
 .bar-center .series-ribbon{position:static;left:auto;bottom:auto;width:auto;height:auto;min-height:0;display:flex;align-items:center;justify-content:center;gap:.55cqw;margin:.2cqw 0 0;padding:0;background:none;border:0;border-radius:0;box-shadow:none;clip-path:none;font-size:0}
 .bar-center .series-ribbon>b,.bar-center .series-ribbon>strong,.bar-center .series-ribbon>i{display:none}
@@ -127,5 +131,12 @@ body{font-family:Manrope,Inter,Arial,sans-serif}
 .bar-center .series-ribbon>span{gap:.38cqw}
 .bar-center .series-ribbon>span i{width:clamp(8px,.68cqw,13px);height:clamp(8px,.68cqw,13px);border:2px solid #ffffffa8;box-shadow:0 0 4px #ffffff30}
 .bar-center .series-ribbon>span i.won{border-color:var(--dot-color);box-shadow:0 0 7px color-mix(in srgb,var(--dot-color),transparent 25%)}
+
+/* Keep OBS browser sources lighter on older streamer PCs. */
+.overlay-mode .team-stats{backdrop-filter:none;-webkit-backdrop-filter:none}
+.overlay-mode .scorebar,.overlay-mode .team-stats,.overlay-mode .boost,.overlay-mode .series-ribbon{filter:none;box-shadow:0 3px 10px #0006}
+.overlay-mode .team-emblem img{filter:none}
+.overlay-mode .bar-meta>i,.overlay-mode .bar-center .series-ribbon>span i,.overlay-mode .bar-center .series-ribbon>span i.won{box-shadow:none}
+.overlay-mode .scene-card{animation:none}
 .overlay-mode .bar-center>strong{font-size:clamp(36px,4vw,76px)}
 .overlay-mode .bar-meta{margin-top:.35vw;font-size:clamp(10px,1vw,19px)}

@@ -19,9 +19,13 @@
     for(const stageId of ['overlay-stage','obs-output']){
       const stage=$(stageId),center=stage?.querySelector('.bar-center');
       if(!stage||!center)continue;
-      stage.querySelector('.boost')?.remove();
+      stage.querySelector('.hud-boost-meter')?.remove();
       const ribbon=stage.querySelector('.series-ribbon'),meta=center.querySelector('.bar-meta');
       if(ribbon&&meta)meta.after(ribbon);
+      const prefix=stageId==='obs-output'?'out-':'';
+      const widget=document.createElement('div');widget.className='boost is-hidden';widget.id=prefix+'boost-widget';widget.setAttribute('role','meter');widget.setAttribute('aria-label','Player boost');widget.setAttribute('aria-valuemin','0');widget.setAttribute('aria-valuemax','100');widget.setAttribute('aria-valuenow','0');
+      const inner=document.createElement('div'),value=document.createElement('strong'),label=document.createElement('small');
+      value.id=prefix+'boost-value';value.textContent='0';label.textContent='BOOST';inner.append(value,label);widget.append(inner);stage.append(widget);
     }
   }
   setupHudWidgets();
@@ -58,10 +62,16 @@
     Object.entries(vals).forEach(([id,value])=>{const el=$(id);if(el)el.textContent=value});
     const watched=match.watchedPlayer,watchedSide=Number(watched?.TeamNum)===1?'away':'home',playerLanguage=new URLSearchParams(location.search).get('lang')||settings.language;
     const watchedName=watched?.Name||(playerLanguage==='en'?'WAITING FOR PLAYER':'VÁRAKOZÁS A JÁTÉKOSRA');
+    const rawBoost=watched?.Boost,boostValue=Number(rawBoost),hasBoost=!!watched&&rawBoost!==undefined&&rawBoost!==null&&Number.isFinite(boostValue);
+    const playerBoost=hasBoost?Math.max(0,Math.min(100,boostValue)):0;
     for(const prefix of ['','out-']){
       const name=$(prefix+'stats-home-name');if(name)name.textContent=watchedName;
       safeImage($(prefix+'stats-home-logo'),settings[watchedSide+'Logo']);
       const card=$(prefix+'stats-home-name')?.closest('.team-stats');if(card)card.style.setProperty('--player-color',settings[watchedSide+'Color']);
+      if(card)card.classList.toggle('is-hidden',!watched);
+      const boostWidget=$(prefix+'boost-widget'),boostLabel=$(prefix+'boost-value');
+      if(boostWidget){boostWidget.classList.toggle('is-hidden',!hasBoost);boostWidget.style.setProperty('--boost-color',settings[watchedSide+'Color']||defaults[watchedSide+'Color']);boostWidget.style.setProperty('--boost-value',`${playerBoost}%`);boostWidget.setAttribute('aria-valuenow',String(playerBoost))}
+      if(boostLabel)boostLabel.textContent=String(playerBoost);
       const target=$(prefix+'home-players');
       if(target){const labels=playerLanguage==='en'?['SCORE','GOALS','ASSISTS','SAVES','SHOTS']:['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS'];const keys=['Score','Goals','Assists','Saves','Shots'];target.innerHTML=`<div class="watched-player-stats">${keys.map((key,index)=>`<span><small>${labels[index]}</small><b>${Number(watched?.[key])||0}</b></span>`).join('')}</div>`}
     }
@@ -80,6 +90,39 @@
     document.querySelectorAll('[data-bestof]').forEach(button=>{const selected=Number(button.dataset.bestof)===Number(settings.bestOf);button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected))});
     const stateLabel=$('preview-data-state');if(stateLabel){stateLabel.textContent=hasGameData?'LIVE':'VÁRAKOZÁS';stateLabel.classList.toggle('is-live',hasGameData)}
     renderScene();
+  }
+  // Stats API sends UpdateState continuously. Keep that hot path to text/style
+  // updates; rebuilding the full HUD and scene on every packet causes layout churn.
+  let lastSceneTick=0,livePlayerKey='';
+  function setTextIfChanged(id,value){const el=$(id),text=String(value);if(el&&el.textContent!==text)el.textContent=text}
+  function renderLiveHud(){
+    for(const [id,value] of Object.entries({'hud-home-score':match.homeScore,'out-home-score':match.homeScore,'hud-away-score':match.awayScore,'out-away-score':match.awayScore,'hud-clock':match.clock,'out-clock':match.clock}))setTextIfChanged(id,value);
+    const watched=match.watchedPlayer,side=Number(watched?.TeamNum)===1?'away':'home';
+    const language=new URLSearchParams(location.search).get('lang')||settings.language;
+    const name=watched?.Name||(language==='en'?'WAITING FOR PLAYER':'VÁRAKOZÁS A JÁTÉKOSRA');
+    const playerKey=`${side}:${name}:${Boolean(watched)}`;
+    for(const prefix of ['','out-']){
+      const card=$(prefix+'stats-home-name')?.closest('.team-stats');
+      if(card)card.classList.toggle('is-hidden',!watched);
+      if(playerKey!==livePlayerKey){
+        setTextIfChanged(prefix+'stats-home-name',name);
+        safeImage($(prefix+'stats-home-logo'),settings[side+'Logo']);
+        if(card)card.style.setProperty('--player-color',settings[side+'Color']);
+      }
+      const boost=Number(watched?.Boost),hasBoost=!!watched&&watched.Boost!==undefined&&watched.Boost!==null&&Number.isFinite(boost),value=hasBoost?Math.max(0,Math.min(100,boost)):0;
+      const widget=$(prefix+'boost-widget');if(widget){widget.classList.toggle('is-hidden',!hasBoost);const color=settings[side+'Color']||defaults[side+'Color'],fill=`${value}%`;if(widget.style.getPropertyValue('--boost-color')!==color)widget.style.setProperty('--boost-color',color);if(widget.style.getPropertyValue('--boost-value')!==fill)widget.style.setProperty('--boost-value',fill);if(widget.getAttribute('aria-valuenow')!==String(value))widget.setAttribute('aria-valuenow',String(value))}
+      setTextIfChanged(prefix+'boost-value',value);
+      const target=$(prefix+'home-players');
+      if(target){
+        if(!target.querySelector('.watched-player-stats')){const labels=language==='en'?['SCORE','GOALS','ASSISTS','SAVES','SHOTS']:['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS'];target.innerHTML=`<div class="watched-player-stats">${labels.map(label=>`<span><small>${label}</small><b>0</b></span>`).join('')}</div>`}
+        const values=['Score','Goals','Assists','Saves','Shots'].map(key=>Number(watched?.[key])||0),nodes=target.querySelectorAll('.watched-player-stats b');
+        values.forEach((v,i)=>{if(nodes[i]&&nodes[i].textContent!==String(v))nodes[i].textContent=String(v)});
+      }
+    }
+    livePlayerKey=playerKey;
+    const state=$('preview-data-state');if(state){const label=hasGameData?'LIVE':'VÁRAKOZÁS';setTextIfChanged('preview-data-state',label);state.classList.toggle('is-live',hasGameData)}
+    // Game HUD does not need scene rendering. Other scene layouts refresh at 4 Hz.
+    if(screenMode!=='game'&&Date.now()-lastSceneTick>=250){lastSceneTick=Date.now();renderScene()}
   }
   const screenMode=new URLSearchParams(location.search).get('screen')||'game';
   function renderScene(){
@@ -130,8 +173,10 @@
       if(blue)match.homeScore=Number(blue.Score)||0;if(orange)match.awayScore=Number(orange.Score)||0;
       if(Number.isFinite(Number(game.TimeSeconds))){const sec=Math.max(0,Math.floor(Number(game.TimeSeconds)));match.clock=`${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}${game.bOvertime?' · OT':''}`}
       const players=data.Players||[];match.players=[players.filter(p=>Number(p.TeamNum)===0),players.filter(p=>Number(p.TeamNum)===1)];
-      const target=players.find(p=>p.Name===game.Target?.Name)||null;match.watchedPlayer=target;
-      render();
+      const targetInfo=game.bHasTarget===true?game.Target:null;
+      const target=targetInfo?.Name?players.find(p=>p.Name===targetInfo.Name&&Number(p.TeamNum)===Number(targetInfo.TeamNum)&&Number(p.Shortcut)===Number(targetInfo.Shortcut))||players.find(p=>p.Name===targetInfo.Name&&Number(p.TeamNum)===Number(targetInfo.TeamNum))||players.find(p=>p.Name===targetInfo.Name)||null:null;
+      match.watchedPlayer=target;
+      renderLiveHud();
     }else if(message.Event==='GoalScored'){const team=Number(data.Scorer?.TeamNum);if(team===0)match.homeScore++;else if(team===1)match.awayScore++;render();showGoal(data)}
     else if(message.Event==='MatchEnded')recordSeriesWinner(data);
     else if(message.Event==='MatchCreated'){if(settings.seriesWins.some(wins=>wins>=Math.ceil(Number(settings.bestOf)/2))){settings.seriesWins=[0,0];settings.endedMatches=[];settings.seriesPlayerStats={};saveSettings();render();window.hubCloud?.publish({...settings})}}
