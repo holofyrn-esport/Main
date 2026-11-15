@@ -14,46 +14,47 @@ window.HUB_ROOM_ID = roomId;
 const emit = (name, detail = {}) => window.dispatchEvent(new CustomEvent(name, { detail }));
 const setStatus = (text, state = 'offline', extra = {}) => emit('hub-cloud-status', { text, state, ...extra });
 const explainFirebaseError = error => {
-  if (error?.code === 'auth/operation-not-allowed') return 'A Firebase Console-ban engedélyezd az Anonymous bejelentkezést.';
-  if (error?.code === 'auth/unauthorized-domain') return `A(z) ${location.hostname} címet add hozzá a Firebase Authentication → Settings → Authorized domains listához.`;
-  if (error?.code === 'permission-denied') return 'A Firestore elutasította a mentést. Ellenőrizd, hogy a broadcastHubs Firestore-szabályok élesek-e.';
+  if (error?.code === 'auth/operation-not-allowed') return 'Engedélyezd a Firebase Console-ban az Anonymous és az Email/Password bejelentkezést.';
+  if (error?.code === 'auth/unauthorized-domain') return `Add hozzá a(z) ${location.hostname} címet a Firebase Authentication engedélyezett domainjeihez.`;
+  if (error?.code === 'permission-denied') return 'A Firestore elutasította a mentést. Ellenőrizd, hogy az új Broadcast Firestore-szabályok élesek-e, és a fiók jogosult szerkeszteni.';
+  if (error?.code === 'auth/invalid-credential' || error?.code === 'auth/wrong-password' || error?.code === 'auth/user-not-found') return 'Hibás felhasználónév/e-mail vagy jelszó.';
   return error?.message || String(error);
 };
+
 let pendingSettings = null;
-let authReady;
-window.hubCloud = {
-  publish() {}
-};
+let authApi, auth, firestoreApi, settingsRef;
+let canEdit = false;
+let isOwner = false;
+let cloudHasSettings = false;
+let writeTimer;
+let snapshotStarted = false;
+window.hubCloud = { publish() {} };
 emit('hub-room-ready', { roomId, overlayMode });
 
-const appConfigured = ['apiKey', 'authDomain', 'projectId', 'appId']
-  .every(key => Boolean(firebaseConfig[key]));
-
+const appConfigured = ['apiKey', 'authDomain', 'projectId', 'appId'].every(key => Boolean(firebaseConfig[key]));
 if (!appConfigured) {
   setStatus('A Firebase beállítása hiányzik.', 'offline');
 } else if (!roomId || !/^[a-zA-Z0-9_-]{1,100}$/.test(roomId)) {
   setStatus('Hiányzik vagy érvénytelen az overlay szobaazonosítója.', 'offline');
 } else {
   try {
-    const [{ initializeApp }, authApi, firestoreApi] = await Promise.all([
+    const [{ initializeApp }, loadedAuthApi, loadedFirestoreApi] = await Promise.all([
       import('https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js'),
       import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js'),
       import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js')
     ]);
+    authApi = loadedAuthApi;
+    firestoreApi = loadedFirestoreApi;
     const app = initializeApp(firebaseConfig);
-    const auth = authApi.getAuth(app);
+    auth = authApi.getAuth(app);
     const db = firestoreApi.getFirestore(app);
-    authReady = authApi.signInAnonymously(auth).then(credential => credential.user);
-    const settingsRef = firestoreApi.doc(db, 'broadcastHubs', roomId);
-    let isOwner = false;
-    let cloudHasSettings = false;
-    let writeTimer;
+    settingsRef = firestoreApi.doc(db, 'broadcastHubs', roomId);
 
     window.hubCloud.publish = settings => {
       if (!settings) return;
       pendingSettings = settings;
-      if (!isOwner) {
-        setStatus('A beállítások ehhez a szobához csak olvashatók ebben a böngészőben. A mentéshez a szobát létrehozó böngészőt használd.', 'error');
+      if (!canEdit) {
+        setStatus('A szoba megtekinthető, de szerkesztéshez jelentkezz be egy jóváhagyott HoloFyrn Manager-fiókkal.', 'error');
         return;
       }
       clearTimeout(writeTimer);
@@ -65,39 +66,67 @@ if (!appConfigured) {
     };
 
     setStatus('Kapcsolódás a Broadcast Firestore-szinkronhoz…', 'pending');
-    authReady.then(async user => {
-      const ownerKey = `broadcastHubOwner:${roomId}`;
-      const knownOwner = localStorage.getItem(ownerKey);
+    const refreshAccess = async user => {
+      if (!user) return;
       const snapshot = await firestoreApi.getDoc(settingsRef);
-      if (snapshot.exists()) {
+      if (!snapshot.exists()) {
+        await firestoreApi.setDoc(settingsRef, { ownerUid: user.uid });
+        isOwner = true;
+        cloudHasSettings = false;
+      } else {
         isOwner = snapshot.data().ownerUid === user.uid;
         cloudHasSettings = Boolean(snapshot.data().settings);
-      } else if (!knownOwner || knownOwner === user.uid) {
-        await firestoreApi.setDoc(settingsRef, { ownerUid: user.uid });
-        localStorage.setItem(ownerKey, user.uid);
-        isOwner = true;
-      } else {
-        isOwner = knownOwner === user.uid;
       }
-      firestoreApi.onSnapshot(settingsRef, docSnapshot => {
-        cloudHasSettings = docSnapshot.exists() && Boolean(docSnapshot.data().settings);
-        if (cloudHasSettings) {
-          pendingSettings = docSnapshot.data().settings;
-          emit('hub-cloud-settings', { settings: pendingSettings });
-          setStatus(isOwner
-            ? 'A csapatbeállítások élőben szinkronizálva.'
-            : 'A csapatbeállítások szinkronizálva, de ez a böngésző csak olvasni tud. A szerkesztéshez használd a szobát létrehozó böngészőt.', isOwner ? 'online' : 'error');
-        } else if (overlayMode) {
-          setStatus('Nincs még elmentett csapatbeállítás ehhez az overlay-linkhez.', 'error');
-        }
-      }, error => setStatus(`A felhőadatbázis nem érhető el: ${error.message}`, 'error'));
+      canEdit = isOwner || user.isAnonymous === false;
 
-      if (!isOwner) setStatus('A csapatbeállítások szinkronizálva, de ez a böngésző csak olvasni tud. A szerkesztéshez használd a szobát létrehozó böngészőt.', 'error');
-      emit('hub-cloud-ready', { roomId, isOwner, hasSettings: cloudHasSettings });
-      if (isOwner && pendingSettings && !cloudHasSettings) window.hubCloud.publish(pendingSettings);
-    }).catch(error => {
-      emit('hub-cloud-ready', { roomId, isOwner: false, hasSettings: cloudHasSettings });
-      setStatus(`Firebase bejelentkezés sikertelen: ${explainFirebaseError(error)}`, 'error');
+      if (!snapshotStarted) {
+        snapshotStarted = true;
+        firestoreApi.onSnapshot(settingsRef, docSnapshot => {
+          cloudHasSettings = docSnapshot.exists() && Boolean(docSnapshot.data().settings);
+          if (cloudHasSettings) {
+            pendingSettings = docSnapshot.data().settings;
+            emit('hub-cloud-settings', { settings: pendingSettings });
+            setStatus(canEdit
+              ? 'A csapatbeállítások élőben szinkronizálva.'
+              : 'A csapatbeállítások szinkronizálva. Szerkesztéshez jelentkezz be egy jóváhagyott Manager-fiókkal.', canEdit ? 'online' : 'error');
+          } else if (overlayMode) {
+            setStatus('Nincs még elmentett csapatbeállítás ehhez az overlay-linkhez.', 'error');
+          }
+        }, error => setStatus(`A felhőadatbázis nem érhető el: ${error.message}`, 'error'));
+      }
+
+      if (!canEdit) setStatus('A szoba megtekinthető, de szerkesztéshez jelentkezz be egy jóváhagyott HoloFyrn Manager-fiókkal.', 'error');
+      emit('hub-cloud-ready', { roomId, isOwner: canEdit, hasSettings: cloudHasSettings });
+      if (canEdit && pendingSettings && !cloudHasSettings) window.hubCloud.publish(pendingSettings);
+      const loginStatus = document.getElementById('broadcast-login-status');
+      if (loginStatus && !overlayMode) {
+        loginStatus.textContent = user.isAnonymous ? 'Nincs bejelentkezve. A szoba létrehozója ezen a gépen továbbra is szerkeszthet.' : `Bejelentkezve: ${user.email || user.uid}`;
+        loginStatus.dataset.state = user.isAnonymous ? '' : 'success';
+      }
+    };
+
+    const initialUser = auth.currentUser || (await authApi.signInAnonymously(auth)).user;
+    await refreshAccess(initialUser);
+
+    const loginForm = document.getElementById('broadcast-login');
+    loginForm?.addEventListener('submit', async event => {
+      event.preventDefault();
+      const status = document.getElementById('broadcast-login-status');
+      const submit = loginForm.querySelector('[type="submit"]');
+      const data = new FormData(loginForm);
+      const entered = String(data.get('username') || '').trim().toLowerCase();
+      const username = entered.includes('@') ? entered : entered.replace(/[^a-z0-9._-]/g, '');
+      const email = entered.includes('@') ? username : `${username}@noctiq.local`;
+      if (status) { status.textContent = 'Bejelentkezés…'; status.dataset.state = ''; }
+      if (submit) submit.disabled = true;
+      try {
+        const credential = await authApi.signInWithEmailAndPassword(auth, email, String(data.get('password') || ''));
+        await refreshAccess(credential.user);
+      } catch (error) {
+        if (status) { status.textContent = explainFirebaseError(error); status.dataset.state = 'error'; }
+      } finally {
+        if (submit) submit.disabled = false;
+      }
     });
   } catch (error) {
     setStatus(`A Firebase kapcsolat nem indult el: ${error.message}`, 'error');
