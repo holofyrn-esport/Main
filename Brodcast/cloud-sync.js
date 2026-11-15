@@ -52,7 +52,10 @@ if (!appConfigured) {
     window.hubCloud.publish = settings => {
       if (!settings) return;
       pendingSettings = settings;
-      if (!isOwner) return;
+      if (!isOwner) {
+        setStatus('A beállítások ehhez a szobához csak olvashatók ebben a böngészőben. A mentéshez a szobát létrehozó böngészőt használd.', 'error');
+        return;
+      }
       clearTimeout(writeTimer);
       writeTimer = setTimeout(() => {
         firestoreApi.setDoc(settingsRef, { settings: pendingSettings }, { merge: true })
@@ -81,13 +84,15 @@ if (!appConfigured) {
         if (cloudHasSettings) {
           pendingSettings = docSnapshot.data().settings;
           emit('hub-cloud-settings', { settings: pendingSettings });
-          setStatus('A csapatbeállítások élőben szinkronizálva.', 'online');
+          setStatus(isOwner
+            ? 'A csapatbeállítások élőben szinkronizálva.'
+            : 'A csapatbeállítások szinkronizálva, de ez a böngésző csak olvasni tud. A szerkesztéshez használd a szobát létrehozó böngészőt.', isOwner ? 'online' : 'error');
         } else if (overlayMode) {
           setStatus('Nincs még elmentett csapatbeállítás ehhez az overlay-linkhez.', 'error');
         }
       }, error => setStatus(`A felhőadatbázis nem érhető el: ${error.message}`, 'error'));
 
-      if (!isOwner) setStatus('Ez a böngésző csak megtekintheti a beállításokat; a szerkesztés a létrehozó böngészőből érhető el.', 'error');
+      if (!isOwner) setStatus('A csapatbeállítások szinkronizálva, de ez a böngésző csak olvasni tud. A szerkesztéshez használd a szobát létrehozó böngészőt.', 'error');
       emit('hub-cloud-ready', { roomId, isOwner, hasSettings: cloudHasSettings });
       if (isOwner && pendingSettings && !cloudHasSettings) window.hubCloud.publish(pendingSettings);
     }).catch(error => {
