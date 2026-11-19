@@ -34,6 +34,9 @@ emit('hub-room-ready', { roomId, overlayMode });
 const appConfigured = ['apiKey', 'authDomain', 'projectId', 'appId'].every(key => Boolean(firebaseConfig[key]));
 if (!appConfigured) {
   setStatus('A Firebase beállítása hiányzik.', 'offline');
+  const loginStatus = document.getElementById('broadcast-login-status');
+  if (loginStatus) { loginStatus.textContent = 'A bejelentkezés nem érhető el: hiányzik a Firebase beállítása.'; loginStatus.dataset.state = 'error'; }
+  emit('hub-auth-state', { loading: false, authenticated: false });
 } else if (!roomId || !/^[a-zA-Z0-9_-]{1,100}$/.test(roomId)) {
   setStatus('Hiányzik vagy érvénytelen az overlay szobaazonosítója.', 'offline');
 } else {
@@ -105,8 +108,25 @@ if (!appConfigured) {
       }
     };
 
-    const initialUser = auth.currentUser || (await authApi.signInAnonymously(auth)).user;
-    await refreshAccess(initialUser);
+    if (overlayMode) {
+      const initialUser = auth.currentUser || (await authApi.signInAnonymously(auth)).user;
+      await refreshAccess(initialUser);
+      authApi.onAuthStateChanged(auth, user => { if (user) refreshAccess(user).catch(error => setStatus(`A Broadcast szoba nem tölthető be: ${explainFirebaseError(error)}`, 'error')); });
+    } else {
+      authApi.onAuthStateChanged(auth, user => {
+        const authenticated = Boolean(user && !user.isAnonymous);
+        document.body.classList.toggle('broadcast-authenticated', authenticated);
+        document.documentElement.classList.toggle('broadcast-auth-page', !authenticated);
+        const userLabel = document.getElementById('broadcast-user-label');
+        if (userLabel) userLabel.textContent = authenticated ? (user.email || user.uid) : '';
+        emit('hub-auth-state', { loading: false, authenticated, email: authenticated ? user.email || '' : '' });
+        if (authenticated) refreshAccess(user).catch(error => setStatus(`A Broadcast szoba nem tölthető be: ${explainFirebaseError(error)}`, 'error'));
+      });
+      document.getElementById('broadcast-logout')?.addEventListener('click', async () => {
+        try { await authApi.signOut(auth); }
+        catch (error) { setStatus(`A kijelentkezés nem sikerült: ${explainFirebaseError(error)}`, 'error'); }
+      });
+    }
 
     const loginForm = document.getElementById('broadcast-login');
     loginForm?.addEventListener('submit', async event => {
@@ -130,5 +150,8 @@ if (!appConfigured) {
     });
   } catch (error) {
     setStatus(`A Firebase kapcsolat nem indult el: ${error.message}`, 'error');
+    const loginStatus = document.getElementById('broadcast-login-status');
+    if (loginStatus) { loginStatus.textContent = `A bejelentkezés nem érhető el: ${error.message}`; loginStatus.dataset.state = 'error'; }
+    if (!overlayMode) emit('hub-auth-state', { loading: false, authenticated: false });
   }
 }

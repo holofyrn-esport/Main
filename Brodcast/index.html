@@ -7,12 +7,37 @@
   <title>Broadcast HUB · Rocket League HUD</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .broadcast-login{display:grid;gap:10px;margin-top:10px;padding:12px;background:#101318;border:1px solid #292d35;border-radius:5px}.broadcast-login strong{font-size:10px}.broadcast-login p{margin:4px 0 0;color:#9296a0;font-size:9px;line-height:1.5}.broadcast-login-fields{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:9px}.broadcast-login-fields label span{display:block;margin-bottom:5px;color:#a1a4ad;font-size:8px}.broadcast-login-fields .button{height:34px}.broadcast-login #broadcast-login-status:empty{display:none}.broadcast-login #broadcast-login-status[data-state=error]{color:#ff8290}.broadcast-login #broadcast-login-status[data-state=success]{color:#7ddaa0}@media(max-width:700px){.broadcast-login-fields{grid-template-columns:1fr}.broadcast-login-fields .button{width:100%}}
+    html.broadcast-auth-page #setup{display:none!important}
+    .broadcast-auth-gate{display:none;min-height:100vh;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 30%,#151820,#090a0c 68%)}
+    html.broadcast-auth-page .broadcast-auth-gate{display:flex}
+    .broadcast-auth-panel{width:min(100%,430px);padding:30px;background:linear-gradient(145deg,#15171d,#0f1014);border:1px solid #30333b;border-top:3px solid var(--home-color);border-radius:8px;box-shadow:0 24px 70px #0009}
+    .broadcast-auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:25px}.broadcast-auth-mark{display:grid;place-items:center;width:42px;height:42px;border:2px solid var(--home-color);color:var(--home-color);font:900 27px 'Barlow Condensed';transform:skew(-8deg)}
+    .broadcast-auth-brand b{display:block;color:#fff;font-size:13px;letter-spacing:.13em}.broadcast-auth-brand small{display:block;margin-top:4px;color:#969aa4;font-size:9px;letter-spacing:.1em}
+    .broadcast-auth-panel h1{margin:0;font:800 28px 'Barlow Condensed';letter-spacing:.02em}.broadcast-auth-panel>p{margin:7px 0 20px;color:#999da7;font-size:11px;line-height:1.6}
+    .broadcast-auth-fields{display:grid;gap:13px}.broadcast-auth-fields label span{display:block;margin-bottom:6px;color:#adb0b8;font-size:10px}.broadcast-auth-fields input{height:40px;font-size:12px}.broadcast-auth-fields .button{height:40px;margin-top:3px}
+    #broadcast-login-status{min-height:16px;margin:2px 0 0;color:#aeb2bb;font-size:10px;line-height:1.5}#broadcast-login-status[data-state=error]{color:#ff8290}#broadcast-login-status[data-state=success]{color:#7ddaa0}
+    .broadcast-auth-user{display:none;align-items:center;gap:9px;margin-left:auto}.broadcast-auth-user span{max-width:180px;overflow:hidden;color:#9ea2ac;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.broadcast-auth-user button{padding:7px 9px;background:#17191f;border:1px solid #343740;border-radius:4px;color:#d3d5db;font-size:8px}
+    .broadcast-authenticated .broadcast-auth-user{display:flex}
+    @media(max-width:560px){.broadcast-auth-panel{padding:23px}.broadcast-auth-user span{display:none}}
   </style>
+  <script>if(!new URLSearchParams(location.search).has('overlay'))document.documentElement.classList.add('broadcast-auth-page')</script>
 </head>
 <body>
+  <section class="broadcast-auth-gate" aria-labelledby="broadcast-auth-title">
+    <div class="broadcast-auth-panel">
+      <div class="broadcast-auth-brand"><span class="broadcast-auth-mark">H</span><div><b>BROADCAST HUB</b><small>HOLOFYRN ESPORTS</small></div></div>
+      <h1 id="broadcast-auth-title">Bejelentkezés</h1>
+      <p>A Broadcast Hub használatához jelentkezz be a HoloFyrn Manager-fiókoddal.</p>
+      <form id="broadcast-login" class="broadcast-auth-fields">
+        <label><span>Felhasználónév</span><input class="text-input" name="username" autocomplete="username" required></label>
+        <label><span>Jelszó</span><input class="text-input" name="password" type="password" autocomplete="current-password" required></label>
+        <button class="button button-primary" type="submit">BEJELENTKEZÉS</button>
+        <p id="broadcast-login-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
   <main class="setup" id="setup">
-    <header class="header"><a class="brand" href="#"><span class="brand-icon">H</span><span>BROADCAST <b>HUB</b></span></a><div class="connection"><i id="connection-dot"></i><span id="connection-label">ROCKET LEAGUE · LEVÁLASZTVA</span></div></header>
+    <header class="header"><a class="brand" href="#"><span class="brand-icon">H</span><span>BROADCAST <b>HUB</b></span></a><div class="connection"><i id="connection-dot"></i><span id="connection-label">ROCKET LEAGUE · LEVÁLASZTVA</span></div><div class="broadcast-auth-user"><span id="broadcast-user-label"></span><button id="broadcast-logout" type="button">KIJELENTKEZÉS</button></div></header>
     <section class="intro"><div><p class="eyebrow">ROCKET LEAGUE · BROADCAST HUD</p><h1>Készen áll az adásra.</h1><p>Állítsd be a csapatokat. Az eredmény, az óra és a játékosadatok élőben érkeznek a játékból.</p></div><button class="button button-primary" id="obs-copy">OBS-LINK MÁSOLÁSA ↗</button></section>
     <div class="columns"><section class="config-card"><div class="card-title"><span>01</span><div><h2>Csapatok megjelenése</h2><p>Logó, név és csapatszín</p></div><span class="autosave">AUTOMATIKUS MENTÉS</span></div>
       <article class="team-config"><div class="team-label"><i id="home-swatch"></i><h3>Bal oldali csapat</h3><span>ROCKET LEAGUE · BLUE</span></div><label for="home-name">Csapat neve</label><input class="text-input" id="home-name" maxlength="24" value="HOLOFYRN" placeholder="Csapat neve"><label class="tag-label" for="home-tag">Opcionális szervezeti felirat <span>A NÉV VÉGÉRŐL · PL. ESPORTS · ÜRESEN ELREJTVE</span></label><input class="text-input tag-input" id="home-tag" maxlength="20" value="ESPORTS" placeholder="Hagyd üresen, ha nem kell"><div class="field-row"><div class="logo-field"><label for="home-file">Logó</label><div class="file-picker"><img id="home-thumb" alt=""><label for="home-file">LOGÓ FELTÖLTÉSE</label><input id="home-file" type="file" accept="image/*"><button id="home-remove" type="button" title="Logó eltávolítása">×</button></div><p id="home-upload-status" class="logo-upload-status" data-state="idle" role="status" aria-live="polite">Válassz képet a feltöltéshez.</p></div><div class="color-field"><label for="home-color">Csapatszín</label><div class="color-picker"><input type="color" id="home-color" value="#f31830"><code id="home-color-value">#F31830</code></div></div></div></article>
@@ -22,11 +47,6 @@
       <div class="screen-picker"><h3>Adásképernyők</h3><div class="language-picker"><b>Overlay nyelve / Overlay language</b><button type="button" data-language="hu">Magyar</button><button type="button" data-language="en">English</button></div><p>A külön OBS linkek ugyanazt az élő Stats API adatfolyamot használják.</p><div><button data-screen="game">Meccs HUD</button><button data-screen="goal">Gól</button><button data-screen="win">Győztes</button><button data-screen="postgame">Meccs statisztika</button><button data-screen="series">Sorozat statisztika</button><button data-screen="mvp">MVP</button><button data-screen="caster">Caster</button><button data-screen="intermission">Szünet</button></div><code id="screen-url">Válassz képernyőt a link másolásához.</code></div>
       <div class="connection-box"><div class="connection-icon">⌁</div><div><h3>Rocket League élő kapcsolat</h3><p id="api-status">A játék helyi Stats API-jára várunk.</p></div><button id="api-retry" class="button button-secondary">ÚJRACSATLAKOZÁS</button></div>
       <div class="cloud-box"><div class="cloud-mark">☁</div><div><h3>OBS beállítás-szinkron</h3><p id="cloud-status">Felhőkapcsolat előkészítése…</p></div><span id="room-badge" class="room-badge">SZOBÁKÓD …</span></div>
-      <form id="broadcast-login" class="broadcast-login">
-        <div><strong>Megosztott szerkesztés</strong><p>Jelentkezz be a HoloFyrn Manager-fiókoddal, hogy másik gépről is szerkeszthesd ezt a szobát.</p></div>
-        <div class="broadcast-login-fields"><label><span>Felhasználónév vagy e-mail</span><input class="text-input" name="username" autocomplete="username" required></label><label><span>Jelszó</span><input class="text-input" name="password" type="password" autocomplete="current-password" required></label><button class="button button-primary" type="submit">BEJELENTKEZÉS</button></div>
-        <p id="broadcast-login-status" role="status" aria-live="polite"></p>
-      </form>
       <details class="cloud-help"><summary>Firebase- és OBS-szinkron beállítása</summary><p>A Broadcast a logókat WebP adatként, a csapatbeállításokat pedig külön Firestore <code>broadcastHubs</code> útvonalon tárolja. Kapcsold be az Anonymous és az Email/Password bejelentkezést. A többgépes szerkesztéshez jóváhagyott HoloFyrn Manager Admin, Coach, Manager vagy Captain fiók szükséges. Az új szabályokat a projekt meglévő Firestore-szabályainak megtartásával telepítsd, majd add hozzá a domaint az engedélyezett domainekhez.</p></details>
       <details class="setup-help"><summary>Első csatlakozás beállítása</summary><p>A Rocket League telepítési mappájában nyisd meg a <code>TAGame/Config/TAStatsAPI.ini</code> fájlt (ha ez nincs, a <code>DefaultStatsAPI.ini</code>-t), és a <code>[TAGame.MatchStatsExporter_TA]</code> szakaszban állítsd be az alábbi értékeket. Ezután indítsd újra a játékot.</p><pre>PacketSendRate=60
 Port=0
@@ -38,8 +58,10 @@ WebPort=49124</pre><p>Az API a helyben futó Rocket League aktuális meccsét k�
         <div class="team-stats stats-home"><div class="stats-heading"><img id="stats-home-logo" alt=""><b id="stats-home-name">HOLOFYRN</b></div><div id="home-players" class="players"></div></div>
         <div class="team-stats stats-away"><div class="stats-heading"><img id="stats-away-logo" alt=""><b id="stats-away-name">KARMINE CORP</b></div><div id="away-players" class="players"></div></div>
         <div class="series-ribbon" id="series-ribbon"><b id="series-home-name">HOLOFYRN</b><span id="series-home-dots"></span><i></i><strong id="series-game">GAME 1 · BO5</strong><i></i><span id="series-away-dots"></span><b id="series-away-name">KARMINE CORP</b></div>
+        <div class="replay-hud is-hidden" id="replay-hud" aria-live="polite"><b class="replay-side">REPLAY<i></i></b><div class="replay-info"><span><i class="replay-ball-icon">✹</i><b id="replay-scorer">GOAL</b></span><small>SPEED <b id="replay-speed">0 KM/H</b></small></div><b class="replay-side">REPLAY<i></i></b></div>
 
-      </div><div class="preview-caption"><span><i></i> OBS OVERLAY</span><span>JÁTÉKADAT: <b id="preview-data-state">VÁRAKOZÁS</b></span></div></div>
+        <section class="broadcast-scene preview-broadcast-scene" id="preview-broadcast-scene" aria-live="polite"></section>
+      </div><div class="preview-caption"><span><i></i> OBS OVERLAY · <b id="preview-screen-name">MECCS HUD</b></span><span>JÁTÉKADAT: <b id="preview-data-state">VÁRAKOZÁS</b></span></div></div>
       <div class="obs-footer"><div class="obs-instructions"><b>Használat OBS-ben</b><p>Forrás hozzáadása → Böngésző → másold be a HUB-linket · 1920 × 1080</p><code id="obs-url"></code></div><button id="obs-copy-bottom" class="button button-primary">LINK MÁSOLÁSA ↗</button></div>
     </section></div>
     <footer>Állítsd be egyszer a csapatok megjelenését. A HUD a Rocket League meccsadatait automatikusan követi.</footer>
@@ -50,6 +72,7 @@ WebPort=49124</pre><p>Az API a helyben futó Rocket League aktuális meccsét k�
     <div class="team-stats stats-home"><div class="stats-heading"><img id="out-stats-home-logo" alt=""><b id="out-stats-home-name">HOLOFYRN</b></div><div id="out-home-players" class="players"></div></div>
     <div class="team-stats stats-away"><div class="stats-heading"><img id="out-stats-away-logo" alt=""><b id="out-stats-away-name">KARMINE CORP</b></div><div id="out-away-players" class="players"></div></div>
     <div class="series-ribbon" id="out-series-ribbon"><b id="out-series-home-name">HOLOFYRN</b><span id="out-series-home-dots"></span><i></i><strong id="out-series-game">GAME 1 · BO5</strong><i></i><span id="out-series-away-dots"></span><b id="out-series-away-name">KARMINE CORP</b></div>
+    <div class="replay-hud is-hidden" id="out-replay-hud" aria-live="polite"><b class="replay-side">REPLAY<i></i></b><div class="replay-info"><span><i class="replay-ball-icon">✹</i><b id="out-replay-scorer">GOAL</b></span><small>SPEED <b id="out-replay-speed">0 KM/H</b></small></div><b class="replay-side">REPLAY<i></i></b></div>
 
     <section class="broadcast-scene" id="broadcast-scene" aria-live="polite"></section>
   </section>

@@ -12,23 +12,30 @@
   if(!Array.isArray(settings.seriesWins))settings.seriesWins=[0,0];
   settings.seriesWins=settings.seriesWins.slice(0,2).map(value=>Math.max(0,Number(value)||0));while(settings.seriesWins.length<2)settings.seriesWins.push(0);
   if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];
-  let socket, retryTimer, connected=false, hasGameData=false, goalTimer;
-  const match = {homeScore:0,awayScore:0,clock:'--:--',players:[[],[]],watchedPlayer:null,lastScorer:'',winner:null};
+  let socket, retryTimer, connected=false, hasGameData=false, goalTimer,lastGoalKey='',lastGoalAt=0;
+  const match = {homeScore:0,awayScore:0,clock:'--:--',players:[[],[]],watchedPlayer:null,lastScorer:'',winner:null,replaying:false,replayGoal:null};
   const safeImage=(img,src)=>{if(!img)return;img.src=src||'';img.style.visibility=src?'visible':'hidden'};
-  function setupHudWidgets(){
-    for(const stageId of ['overlay-stage','obs-output']){
-      const stage=$(stageId),center=stage?.querySelector('.bar-center');
-      if(!stage||!center)continue;
-      stage.querySelector('.hud-boost-meter')?.remove();
-      const ribbon=stage.querySelector('.series-ribbon'),meta=center.querySelector('.bar-meta');
-      if(ribbon&&meta)meta.after(ribbon);
-      const prefix=stageId==='obs-output'?'out-':'';
-      const widget=document.createElement('div');widget.className='boost is-hidden';widget.id=prefix+'boost-widget';widget.setAttribute('role','meter');widget.setAttribute('aria-label','Player boost');widget.setAttribute('aria-valuemin','0');widget.setAttribute('aria-valuemax','100');widget.setAttribute('aria-valuenow','0');
-      const inner=document.createElement('div'),value=document.createElement('strong'),label=document.createElement('small');
-      value.id=prefix+'boost-value';value.textContent='0';label.textContent='BOOST';inner.append(value,label);widget.append(inner);stage.append(widget);
+  function renderPlayerLists(){
+    const safe=value=>escapeHtml(value??'');
+    const demo=!hasGameData&&!new URLSearchParams(location.search).has('overlay');
+    const previewPlayers=[[
+      {Name:'ATOW',Boost:22},{Name:'JUICY',Boost:45},{Name:'VATIRA',Boost:6}
+    ],[
+      {Name:'APPARENTLYJACK',Boost:0},{Name:'JOYO',Boost:58},{Name:'SEIKOO',Boost:89}
+    ]];
+    for(const prefix of ['','out-']) for(let team=0;team<2;team++){
+      const side=team===0?'home':'away',target=$(prefix+(team===0?'home':'away')+'-players'),card=target?.closest('.team-stats');
+      const players=demo&&prefix===''?previewPlayers[team]:(match.players[team]||[]);
+      if(card)card.classList.toggle('is-hidden',players.length===0);
+      if(!target)continue;
+      const rows=players.map(player=>{
+        const boost=Math.max(0,Math.min(100,Number(player.Boost)||0));
+        return `<div class="player-boost-row"><b title="${safe(player.Name)}">${safe(player.Name||'PLAYER')}</b><span class="player-boost-track" role="meter" aria-label="${safe(player.Name)} boost" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${boost}"><i style="width:${boost}%"></i></span><small>${boost}</small></div>`;
+      }).join('');
+      if(target.innerHTML!==rows)target.innerHTML=rows;
+      if(card)card.style.setProperty('--player-color',settings[side+'Color']||defaults[side+'Color']);
     }
   }
-  setupHudWidgets();
   function updateSettings({publishCloud=true}={}){
     document.documentElement.style.setProperty('--home-color',settings.homeColor);
     document.documentElement.style.setProperty('--away-color',settings.awayColor);
@@ -58,24 +65,11 @@
     ['hud-home-name','out-home-name'].forEach(id=>{if($(id))$(id).textContent=names.home});
     ['hud-away-name','out-away-name'].forEach(id=>{if($(id))$(id).textContent=names.away});
     for(const side of ['home','away']){for(const id of [`hud-${side}-tag`,`out-${side}-tag`]){const el=$(id);if(el){el.textContent=settings[side+'Tag']||'';el.classList.toggle('is-hidden',!settings[side+'Tag']?.trim())}}}
-    const vals={'hud-home-score':match.homeScore,'out-home-score':match.homeScore,'hud-away-score':match.awayScore,'out-away-score':match.awayScore,'hud-clock':match.clock,'out-clock':match.clock};
+    const previewDemo=!hasGameData&&!new URLSearchParams(location.search).has('overlay');
+    const vals={'hud-home-score':previewDemo?2:match.homeScore,'out-home-score':match.homeScore,'hud-away-score':previewDemo?1:match.awayScore,'out-away-score':match.awayScore,'hud-clock':previewDemo?'2:52':match.clock,'out-clock':match.clock};
     Object.entries(vals).forEach(([id,value])=>{const el=$(id);if(el)el.textContent=value});
-    const watched=match.watchedPlayer,watchedSide=Number(watched?.TeamNum)===1?'away':'home',playerLanguage=new URLSearchParams(location.search).get('lang')||settings.language;
-    const watchedName=watched?.Name||(playerLanguage==='en'?'WAITING FOR PLAYER':'VÁRAKOZÁS A JÁTÉKOSRA');
-    const rawBoost=watched?.Boost,boostValue=Number(rawBoost),hasBoost=!!watched&&rawBoost!==undefined&&rawBoost!==null&&Number.isFinite(boostValue);
-    const playerBoost=hasBoost?Math.max(0,Math.min(100,boostValue)):0;
-    for(const prefix of ['','out-']){
-      const name=$(prefix+'stats-home-name');if(name)name.textContent=watchedName;
-      safeImage($(prefix+'stats-home-logo'),settings[watchedSide+'Logo']);
-      const card=$(prefix+'stats-home-name')?.closest('.team-stats');if(card)card.style.setProperty('--player-color',settings[watchedSide+'Color']);
-      if(card)card.classList.toggle('is-hidden',!watched);
-      const boostWidget=$(prefix+'boost-widget'),boostLabel=$(prefix+'boost-value');
-      if(boostWidget){boostWidget.classList.toggle('is-hidden',!hasBoost);boostWidget.style.setProperty('--boost-color',settings[watchedSide+'Color']||defaults[watchedSide+'Color']);boostWidget.style.setProperty('--boost-value',`${playerBoost}%`);boostWidget.setAttribute('aria-valuenow',String(playerBoost))}
-      if(boostLabel)boostLabel.textContent=String(playerBoost);
-      const target=$(prefix+'home-players');
-      if(target){const labels=playerLanguage==='en'?['SCORE','GOALS','ASSISTS','SAVES','SHOTS']:['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS'];const keys=['Score','Goals','Assists','Saves','Shots'];target.innerHTML=`<div class="watched-player-stats">${keys.map((key,index)=>`<span><small>${labels[index]}</small><b>${Number(watched?.[key])||0}</b></span>`).join('')}</div>`}
-    }
-    const language=playerLanguage;
+    renderPlayerLists();
+    const language=new URLSearchParams(location.search).get('lang')||settings.language;
     const targetWins=Math.ceil(Number(settings.bestOf)/2),gameNumber=settings.seriesWins[0]+settings.seriesWins[1]+1;
     const gameWord=language==='en'?'GAME':'MECCS';
     const seriesLabel=settings.seriesWins[0]>=targetWins?(language==='en'?`${names.home} WINS SERIES`:`${names.home} NYERI A SOROZATOT`):settings.seriesWins[1]>=targetWins?(language==='en'?`${names.away} WINS SERIES`:`${names.away} NYERI A SOROZATOT`):`${gameWord} ${gameNumber} · BO${settings.bestOf}`;
@@ -97,52 +91,73 @@
   function setTextIfChanged(id,value){const el=$(id),text=String(value);if(el&&el.textContent!==text)el.textContent=text}
   function renderLiveHud(){
     for(const [id,value] of Object.entries({'hud-home-score':match.homeScore,'out-home-score':match.homeScore,'hud-away-score':match.awayScore,'out-away-score':match.awayScore,'hud-clock':match.clock,'out-clock':match.clock}))setTextIfChanged(id,value);
-    const watched=match.watchedPlayer,side=Number(watched?.TeamNum)===1?'away':'home';
-    const language=new URLSearchParams(location.search).get('lang')||settings.language;
-    const name=watched?.Name||(language==='en'?'WAITING FOR PLAYER':'VÁRAKOZÁS A JÁTÉKOSRA');
-    const playerKey=`${side}:${name}:${Boolean(watched)}`;
-    for(const prefix of ['','out-']){
-      const card=$(prefix+'stats-home-name')?.closest('.team-stats');
-      if(card)card.classList.toggle('is-hidden',!watched);
-      if(playerKey!==livePlayerKey){
-        setTextIfChanged(prefix+'stats-home-name',name);
-        safeImage($(prefix+'stats-home-logo'),settings[side+'Logo']);
-        if(card)card.style.setProperty('--player-color',settings[side+'Color']);
-      }
-      const boost=Number(watched?.Boost),hasBoost=!!watched&&watched.Boost!==undefined&&watched.Boost!==null&&Number.isFinite(boost),value=hasBoost?Math.max(0,Math.min(100,boost)):0;
-      const widget=$(prefix+'boost-widget');if(widget){widget.classList.toggle('is-hidden',!hasBoost);const color=settings[side+'Color']||defaults[side+'Color'],fill=`${value}%`;if(widget.style.getPropertyValue('--boost-color')!==color)widget.style.setProperty('--boost-color',color);if(widget.style.getPropertyValue('--boost-value')!==fill)widget.style.setProperty('--boost-value',fill);if(widget.getAttribute('aria-valuenow')!==String(value))widget.setAttribute('aria-valuenow',String(value))}
-      setTextIfChanged(prefix+'boost-value',value);
-      const target=$(prefix+'home-players');
-      if(target){
-        if(!target.querySelector('.watched-player-stats')){const labels=language==='en'?['SCORE','GOALS','ASSISTS','SAVES','SHOTS']:['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS'];target.innerHTML=`<div class="watched-player-stats">${labels.map(label=>`<span><small>${label}</small><b>0</b></span>`).join('')}</div>`}
-        const values=['Score','Goals','Assists','Saves','Shots'].map(key=>Number(watched?.[key])||0),nodes=target.querySelectorAll('.watched-player-stats b');
-        values.forEach((v,i)=>{if(nodes[i]&&nodes[i].textContent!==String(v))nodes[i].textContent=String(v)});
-      }
-    }
-    livePlayerKey=playerKey;
+    renderPlayerLists();
     const state=$('preview-data-state');if(state){const label=hasGameData?'LIVE':'VÁRAKOZÁS';setTextIfChanged('preview-data-state',label);state.classList.toggle('is-live',hasGameData)}
     // Game HUD does not need scene rendering. Other scene layouts refresh at 4 Hz.
     if(screenMode!=='game'&&Date.now()-lastSceneTick>=250){lastSceneTick=Date.now();renderScene()}
   }
-  const screenMode=new URLSearchParams(location.search).get('screen')||'game';
+  let screenMode=new URLSearchParams(location.search).get('screen')||'game';
   function renderScene(){
-    const scene=$('broadcast-scene');if(!scene)return;
+    const sceneTargets=[$('broadcast-scene'),$('preview-broadcast-scene')].filter(Boolean);if(!sceneTargets.length)return;
     const queryLanguage=new URLSearchParams(location.search).get('lang');
     const language=queryLanguage==='en'||queryLanguage==='hu'?queryLanguage:(settings.language==='en'?'en':'hu');
     const names=[settings.homeName||'HOME',settings.awayName||'AWAY'],colors=[settings.homeColor,settings.awayColor];
+    const previewDemo=!hasGameData&&!new URLSearchParams(location.search).has('overlay');
+    const demoPlayers=[
+      {Name:'JUICY',Score:482,Goals:2,Assists:1,Saves:2,Shots:4,Demolitions:1,TeamNum:0},
+      {Name:'ATOW',Score:365,Goals:1,Assists:1,Saves:1,Shots:3,Demolitions:0,TeamNum:0},
+      {Name:'VATIRA',Score:297,Goals:0,Assists:0,Saves:3,Shots:2,Demolitions:1,TeamNum:0},
+      {Name:'JOYO',Score:428,Goals:2,Assists:0,Saves:1,Shots:5,Demolitions:0,TeamNum:1},
+      {Name:'SEIKOO',Score:344,Goals:1,Assists:1,Saves:2,Shots:3,Demolitions:1,TeamNum:1},
+      {Name:'APPARENTLYJACK',Score:251,Goals:0,Assists:1,Saves:2,Shots:2,Demolitions:0,TeamNum:1}
+    ];
+    const displayPlayers=previewDemo?demoPlayers:match.players.flat(),displayClock=previewDemo?'2:52':match.clock;
+    const displayScores=previewDemo?[2,1]:[match.homeScore,match.awayScore],displayWinner=previewDemo?0:match.winner;
     const safe=value=>escapeHtml(value??'');
-    const all=match.players.flat(),players=all.slice().sort((a,b)=>(Number(b.Score)||0)-(Number(a.Score)||0));
-    const seriesPlayers=Object.values(settings.seriesPlayerStats||{}).sort((a,b)=>(Number(b.Score)||0)-(Number(a.Score)||0));
+    const all=displayPlayers,players=all.slice().sort((a,b)=>(Number(b.Score)||0)-(Number(a.Score)||0));
+    const seriesPlayers=(previewDemo?demoPlayers:Object.values(settings.seriesPlayerStats||{})).slice().sort((a,b)=>(Number(b.Score)||0)-(Number(a.Score)||0));
     const seriesTable=seriesPlayers.map(p=>`<tr><td>${safe(p.Name)}</td><td>${p.Score||0}</td><td>${p.Goals||0}</td><td>${p.Assists||0}</td><td>${p.Saves||0}</td><td>${p.Shots||0}</td></tr>`).join('');
     const statsTable=players.map(p=>`<tr><td>${safe(p.Name)}</td><td>${Number(p.Score)||0}</td><td>${Number(p.Goals)||0}</td><td>${Number(p.Assists)||0}</td><td>${Number(p.Saves)||0}</td><td>${Number(p.Shots)||0}</td></tr>`).join('');
-    const teamBlock=i=>`<article class="scene-team" style="--team:${colors[i]}"><img src="${safe(settings[i?'awayLogo':'homeLogo'])}" alt=""><h2>${safe(names[i])}</h2><strong>${i?match.awayScore:match.homeScore}</strong></article>`;
-    const scenes={game:'',goal:`<div class="scene-card goal-card"><small>ROCKET LEAGUE · GOAL</small><h1>GÓL!</h1><p>${safe(match.lastScorer||'Várakozás a gólra')}</p><b>${safe(match.clock)}</b></div>`,win:`<div class="scene-card winner-card"><small>MECCS VÉGE</small><h1>GYŐZTES</h1>${match.winner===null?'<p>A győztes a meccs végén jelenik meg.</p>':teamBlock(match.winner)}<p>${safe(match.winner===null?'':names[match.winner])}</p></div>`,postgame:`<div class="scene-card"><small>POST GAME · ${safe(match.clock)}</small><h1>MECCS STATISZTIKÁK</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><table><thead><tr><th>JÁTÉKOS</th><th>PONT</th><th>GÓL</th><th>GÓLP.</th><th>VÉDÉS</th><th>LÖVÉS</th></tr></thead><tbody>${statsTable||'<tr><td colspan="6">A játékosadatok a Stats API-ból érkeznek.</td></tr>'}</tbody></table></div>`,series:`<div class="scene-card"><small>POST SERIES · BO${settings.bestOf}</small><h1>SOROZAT STATISZTIKÁK</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><div class="series-count">${settings.seriesWins[0]} <i>—</i> ${settings.seriesWins[1]}</div><table><thead><tr><th>JÁTÉKOS</th><th>PONT</th><th>GÓL</th><th>GÓLP.</th><th>VÉDÉS</th><th>LÖVÉS</th></tr></thead><tbody>${seriesTable||'<tr><td colspan="6">Az első meccs után jelennek meg.</td></tr>'}</tbody></table></div>`,mvp:`<div class="scene-card mvp-card"><small>SOROZAT MVP</small><h1>${safe(seriesPlayers[0]?.Name||players[0]?.Name||'MVP')}</h1><p>${seriesPlayers.length?'A sorozat összesített Stats API adatai alapján':'A játékosadatok a Stats API-ból érkeznek.'}</p><div class="mvp-stats">${['Score','Goals','Assists','Saves','Shots','Demolitions'].map((key,i)=>`<span><b>${Number((seriesPlayers[0]||players[0])?.[key])||0}</b>${['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS','DEMÓ'][i]}</span>`).join('')}</div></div>`,caster:`<div class="scene-card caster-card"><small>HOLOFYRN BROADCAST</small><h1>CASTER KÉPERNYŐ</h1><div class="scene-teams">${teamBlock(0)}<b class="versus-mark">VS</b>${teamBlock(1)}</div><p>${safe(match.clock)} · GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} · BO${settings.bestOf}</p><footer>A játékállás és az óra a Rocket League Stats API-ból érkezik.</footer></div>`,intermission:`<div class="scene-card intermission-card"><small>HOLOFYRN ESPORTS</small><h1>SZÜNET</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><p>FOLYTATÁS HAMAROSAN</p><footer>GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} · BO${settings.bestOf}</footer></div>`};
+    const teams=[0,1].map(team=>players.filter(player=>Number(player.TeamNum)===team).sort((a,b)=>(Number(b.Score)||0)-(Number(a.Score)||0)));
+    const playerCount=Math.max(1,...teams.map(team=>team.length));
+    const statRows=[['Score','Score'],['Goals','Goals'],['Assists','Assists'],['Shots','Shots'],['Saves','Saves'],['Demos','Demos']];
+    const metricValue=(player,key)=>Number(key==='Demos'?(player?.Demos??player?.Demolitions):player?.[key])||0;
+    const postgameMarkup=`<div class="scene-card postgame-card" style="--player-count:${playerCount}">
+      <header class="postgame-header">
+        <div class="postgame-team postgame-home" style="--team:${colors[0]}"><img src="${safe(settings.homeLogo)}" alt=""><h2>${safe(names[0])}</h2><strong>${displayScores[0]}</strong></div>
+        <div class="postgame-versus"><b>VS</b><small>GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} | BO${settings.bestOf}</small></div>
+        <div class="postgame-team postgame-away" style="--team:${colors[1]}"><strong>${displayScores[1]}</strong><h2>${safe(names[1])}</h2><img src="${safe(settings.awayLogo)}" alt=""></div>
+      </header>
+      <div class="postgame-grid">
+        <div class="postgame-player-head postgame-home-names">${Array.from({length:playerCount},(_,i)=>`<b>${safe(teams[0][i]?.Name||'—')}</b>`).join('')}</div>
+        <b class="postgame-section-title">STATISTICS</b>
+        <div class="postgame-player-head postgame-away-names">${Array.from({length:playerCount},(_,i)=>`<b>${safe(teams[1][i]?.Name||'—')}</b>`).join('')}</div>
+        ${statRows.map(([key,label])=>`<div class="postgame-stat-row"><div class="postgame-values">${Array.from({length:playerCount},(_,i)=>`<b>${metricValue(teams[0][i],key)}</b>`).join('')}</div><b class="postgame-stat-label">${label}</b><div class="postgame-values">${Array.from({length:playerCount},(_,i)=>`<b>${metricValue(teams[1][i],key)}</b>`).join('')}</div></div>`).join('')}
+      </div>
+    </div>`;
+    const teamBlock=i=>`<article class="scene-team" style="--team:${colors[i]}"><img src="${safe(settings[i?'awayLogo':'homeLogo'])}" alt=""><h2>${safe(names[i])}</h2><strong>${displayScores[i]}</strong></article>`;
+    const scenes={game:'',goal:`<div class="scene-card goal-card"><small>ROCKET LEAGUE · GOAL</small><h1>GÓL!</h1><p>${safe(previewDemo?'JUICY':match.lastScorer||'Várakozás a gólra')}</p><b>${safe(displayClock)}</b></div>`,win:`<div class="scene-card winner-card"><small>MECCS VÉGE</small><h1>GYŐZTES</h1>${displayWinner===null?'<p>A győztes a meccs végén jelenik meg.</p>':teamBlock(displayWinner)}<p>${safe(displayWinner===null?'':names[displayWinner])}</p></div>`,postgame:`<div class="scene-card"><small>POST GAME · ${safe(displayClock)}</small><h1>MECCS STATISZTIKÁK</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><table><thead><tr><th>JÁTÉKOS</th><th>PONT</th><th>GÓL</th><th>GÓLP.</th><th>VÉDÉS</th><th>LÖVÉS</th></tr></thead><tbody>${statsTable||'<tr><td colspan="6">A játékosadatok a Stats API-ból érkeznek.</td></tr>'}</tbody></table></div>`,series:`<div class="scene-card"><small>POST SERIES · BO${settings.bestOf}</small><h1>SOROZAT STATISZTIKÁK</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><div class="series-count">${previewDemo?'2':settings.seriesWins[0]} <i>—</i> ${previewDemo?'1':settings.seriesWins[1]}</div><table><thead><tr><th>JÁTÉKOS</th><th>PONT</th><th>GÓL</th><th>GÓLP.</th><th>VÉDÉS</th><th>LÖVÉS</th></tr></thead><tbody>${seriesTable||'<tr><td colspan="6">Az első meccs után jelennek meg.</td></tr>'}</tbody></table></div>`,mvp:`<div class="scene-card mvp-card"><small>SOROZAT MVP</small><h1>${safe(seriesPlayers[0]?.Name||players[0]?.Name||'MVP')}</h1><p>${seriesPlayers.length?'A sorozat összesített Stats API adatai alapján':'A játékosadatok a Stats API-ból érkeznek.'}</p><div class="mvp-stats">${['Score','Goals','Assists','Saves','Shots','Demolitions'].map((key,i)=>`<span><b>${Number((seriesPlayers[0]||players[0])?.[key])||0}</b>${['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS','DEMÓ'][i]}</span>`).join('')}</div></div>`,caster:`<div class="scene-card caster-card"><small>HOLOFYRN BROADCAST</small><h1>CASTER KÉPERNYŐ</h1><div class="scene-teams">${teamBlock(0)}<b class="versus-mark">VS</b>${teamBlock(1)}</div><p>${safe(displayClock)} · GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} · BO${settings.bestOf}</p><footer>A játékállás és az óra a Rocket League Stats API-ból érkezik.</footer></div>`,intermission:`<div class="scene-card intermission-card"><small>HOLOFYRN ESPORTS</small><h1>SZÜNET</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><p>FOLYTATÁS HAMAROSAN</p><footer>GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} · BO${settings.bestOf}</footer></div>`};
     let markup=scenes[screenMode]??scenes.game;
+    if(screenMode==='postgame')markup=postgameMarkup;
+    if(screenMode==='win'){
+      const winner=displayWinner===null?0:displayWinner,loser=1-winner;
+      const winnerSide=winner===0?'home':'away',loserSide=loser===0?'home':'away';
+      const winnerColor=colors[winner],winnerName=names[winner];
+      markup=`<div class="scene-card winner-victory-card" style="--winner-color:${winnerColor}">
+        <div class="winner-watermark">${language==='en'?'VICTORY':'GYŐZELEM'}</div><i class="winner-corner winner-corner-top"></i><i class="winner-corner winner-corner-bottom"></i>
+        <main class="winner-main"><img class="winner-main-logo" src="${safe(settings[winnerSide+'Logo'])}" alt="${safe(winnerName)} logo"><small class="winner-overline">${language==='en'?'MATCH WINNER':'MECCSGYŐZTES'}</small><h1>${language==='en'?'VICTORY':'GYŐZELEM'}</h1><b class="winner-team-label">${language==='en'?'TEAM':'CSAPAT'} ${safe(winnerName)}</b></main>
+        <aside class="winner-score-rail"><div class="winner-rail-matchup"><img src="${safe(settings[winnerSide+'Logo'])}" alt=""><b>VS</b><img src="${safe(settings[loserSide+'Logo'])}" alt=""></div><div class="winner-final-score"><strong>${displayScores[winner]}</strong><i>:</i><strong>${displayScores[loser]}</strong></div><small>${language==='en'?'FINAL SCORE':'VÉGEREDMÉNY'}</small><span>GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} · BO${settings.bestOf}</span></aside>
+      </div>`;
+    }
     if(language==='en'){
       const translations={'GÓL!</h1>':'GOAL!</h1>','Várakozás a gólra':'Waiting for a goal','MECCS VÉGE':'GAME OVER','GYŐZTES':'WINNER','A győztes a meccs végén jelenik meg.':'Winner will appear when the match ends.','MECCS STATISZTIKÁK':'POST GAME STATS','SOROZAT STATISZTIKÁK':'SERIES STATS','JÁTÉKOS':'PLAYER','PONT':'SCORE','GÓL':'GOALS','GÓLP.':'ASSISTS','VÉDÉS':'SAVES','LÖVÉS':'SHOTS','A játékosadatok a Stats API-ból érkeznek.':'Player stats will appear when data arrives from the Stats API.','Az első meccs után jelennek meg.':'Stats will appear after the first game.','SOROZAT MVP':'SERIES MVP','A sorozat összesített Stats API adatai alapján':'Based on aggregated Stats API data for the series','DEMÓ':'DEMOS','CASTER KÉPERNYŐ':'CASTER SCREEN','A játékállás és az óra a Rocket League Stats API-ból érkezik.':'Score and clock are provided by the Rocket League Stats API.','SZÜNET':'INTERMISSION','FOLYTATÁS HAMAROSAN':'COMING UP NEXT'};
       for(const [hu,en] of Object.entries(translations))markup=markup.split(hu).join(en);
     }
-    scene.innerHTML=markup;document.body.dataset.screen=screenMode;document.body.dataset.language=language;document.documentElement.lang=language;
+    sceneTargets.forEach(scene=>{if(scene.innerHTML!==markup)scene.innerHTML=markup});
+    const canvas=document.querySelector('.preview-canvas');if(canvas)canvas.dataset.screen=screenMode;
+    document.querySelectorAll('.screen-picker [data-screen]').forEach(button=>button.classList.toggle('selected',button.dataset.screen===screenMode));
+    const screenName=$('preview-screen-name');if(screenName)screenName.textContent=({game:language==='en'?'MATCH HUD':'MECCS HUD',goal:language==='en'?'GOAL':'GÓL',win:language==='en'?'WINNER':'GYŐZTES',postgame:language==='en'?'POST GAME':'MECCS STATISZTIKA',series:language==='en'?'SERIES STATS':'SOROZAT STATISZTIKA',mvp:'MVP',caster:'CASTER',intermission:language==='en'?'INTERMISSION':'SZÜNET'})[screenMode]||'MECCS HUD';
+    document.body.dataset.screen=screenMode;document.body.dataset.language=language;document.documentElement.lang=language;
   }
   function drawSeriesDots(container,wins,count,color){if(!container)return;container.replaceChildren(...Array.from({length:count},(_,i)=>{const dot=document.createElement('i');dot.style.setProperty('--dot-color',color);if(i<wins)dot.classList.add('won');return dot}))}
   function saveSettings(){localStorage.setItem('holofyrnHubTeams',JSON.stringify(settings))}
@@ -156,10 +171,24 @@
     const scorer=data.Scorer?.Name||'GOAL';
     match.lastScorer=scorer;renderScene();
     if(screenMode==='goal')document.body.dataset.goalActive='true';
-    const speed=Math.round((Number(data.GoalSpeed)||0)*0.036);
+    // GoalScored.GoalSpeed is already reported on the HUD's km/h scale here;
+    // converting it again was shrinking normal goal speeds to 2–3 km/h.
+    const speed=Math.round(Number(data.GoalSpeed)||0);
+    match.replayGoal={scorer,speed,team:Number(data.Scorer?.TeamNum)};
     const goalColor=Number(data.Scorer?.TeamNum)===1?settings.awayColor:settings.homeColor;
     for(const prefix of ['','out-']){const scorerNode=$(`${prefix}goal-scorer`),speedNode=$(`${prefix}goal-speed`),toast=$(`${prefix}goal-toast`);if(scorerNode)scorerNode.textContent=scorer;if(speedNode)speedNode.textContent=`${speed} KM/H`;if(toast){toast.style.setProperty('--goal-color',goalColor);toast.classList.remove('visible');void toast.offsetWidth;toast.classList.add('visible')}}
+    updateReplayHud();
     clearTimeout(goalTimer);goalTimer=setTimeout(()=>{document.querySelectorAll('.goal-toast').forEach(e=>e.classList.remove('visible'));if(screenMode==='goal')document.body.dataset.goalActive='false'},4200);
+  }
+  function updateReplayHud(){
+    const goal=match.replayGoal;
+    for(const prefix of ['','out-']){
+      const hud=$(prefix+'replay-hud');if(hud)hud.classList.toggle('is-hidden',!match.replaying);
+      const scorer=$(prefix+'replay-scorer'),speed=$(prefix+'replay-speed');
+      if(scorer)scorer.textContent=goal?.scorer||'GOAL';
+      if(speed)speed.textContent=`${goal?.speed||0} KM/H`;
+      if(hud)hud.style.setProperty('--replay-color',goal?.team===1?settings.awayColor:settings.homeColor);
+    }
   }
   function onMessage(raw){
     let message;try{message=JSON.parse(raw)}catch{return}
@@ -177,11 +206,22 @@
       const target=targetInfo?.Name?players.find(p=>p.Name===targetInfo.Name&&Number(p.TeamNum)===Number(targetInfo.TeamNum)&&Number(p.Shortcut)===Number(targetInfo.Shortcut))||players.find(p=>p.Name===targetInfo.Name&&Number(p.TeamNum)===Number(targetInfo.TeamNum))||players.find(p=>p.Name===targetInfo.Name)||null:null;
       match.watchedPlayer=target;
       renderLiveHud();
-    }else if(message.Event==='GoalScored'){const team=Number(data.Scorer?.TeamNum);if(team===0)match.homeScore++;else if(team===1)match.awayScore++;render();showGoal(data)}
+    }else if(message.Event==='GoalScored'){
+      const location=data.ImpactLocation||{};
+      const goalKey=[data.MatchGuid||'',data.GoalTime??'',data.Scorer?.Name||'',data.Scorer?.TeamNum??'',data.GoalSpeed??'',location.X??'',location.Y??'',location.Z??''].join(':');
+      const now=Date.now();
+      // Some Stats API streams repeat the goal event after the replay. Treat that as
+      // the same goal so it cannot increment the score or restart the goal overlay.
+      if(goalKey===lastGoalKey&&now-lastGoalAt<15000)return;
+      lastGoalKey=goalKey;lastGoalAt=now;
+      const team=Number(data.Scorer?.TeamNum);if(team===0)match.homeScore++;else if(team===1)match.awayScore++;render();showGoal(data);
+    }
+    else if(message.Event==='GoalReplayStart'){match.replaying=true;document.querySelectorAll('.goal-toast').forEach(toast=>toast.classList.remove('visible'));updateReplayHud()}
+    else if(message.Event==='GoalReplayEnd'){match.replaying=false;updateReplayHud()}
     else if(message.Event==='MatchEnded')recordSeriesWinner(data);
     else if(message.Event==='MatchCreated'){if(settings.seriesWins.some(wins=>wins>=Math.ceil(Number(settings.bestOf)/2))){settings.seriesWins=[0,0];settings.endedMatches=[];settings.seriesPlayerStats={};saveSettings();render();window.hubCloud?.publish({...settings})}}
-    else if(message.Event==='MatchInitialized'){match.homeScore=0;match.awayScore=0;match.clock='5:00';match.players=[[],[]];match.watchedPlayer=null;match.winner=null;render()}
-    else if(message.Event==='MatchDestroyed'){hasGameData=false;match.clock='--:--';match.players=[[],[]];match.watchedPlayer=null;setConnection(connected);render()}
+    else if(message.Event==='MatchInitialized'){match.homeScore=0;match.awayScore=0;match.clock='5:00';match.players=[[],[]];match.watchedPlayer=null;match.winner=null;match.replaying=false;match.replayGoal=null;lastGoalKey='';lastGoalAt=0;updateReplayHud();render()}
+    else if(message.Event==='MatchDestroyed'){hasGameData=false;match.clock='--:--';match.players=[[],[]];match.watchedPlayer=null;match.replaying=false;updateReplayHud();setConnection(connected);render()}
   }
   function recordSeriesWinner(data){
     const winner=Number(data.WinnerTeamNum);if(winner!==0&&winner!==1)return;
@@ -240,7 +280,7 @@
   window.addEventListener('hub-cloud-ready',event=>{if(event.detail?.isOwner&&!event.detail.hasSettings)window.hubCloud?.publish({...settings})});
   function getOverlayUrl(screen='game',language=settings.language){const url=new URL(location.href);url.search='';url.searchParams.set('overlay','');url.searchParams.set('screen',screen);url.searchParams.set('lang',language==='en'?'en':'hu');if(window.HUB_ROOM_ID)url.searchParams.set('room',window.HUB_ROOM_ID);url.hash='';return url}
   function updateRoomLink(){const room=window.HUB_ROOM_ID;if(room){$('room-badge').textContent=`SZOBAKÓD ${room.slice(0,8).toUpperCase()}`;$('obs-url').textContent=getOverlayUrl().href}}
-  document.querySelectorAll('[data-screen]').forEach(button=>{button.dataset.label=button.textContent;button.addEventListener('click',()=>{const url=getOverlayUrl(button.dataset.screen);$('screen-url').textContent=url.href;navigator.clipboard?.writeText(url.href).then(()=>{button.textContent='Link másolva ✓';setTimeout(()=>button.textContent=button.dataset.label,1400)}).catch(()=>{})})});
+  document.querySelectorAll('.screen-picker [data-screen]').forEach(button=>{button.dataset.label=button.textContent;button.addEventListener('click',()=>{screenMode=button.dataset.screen;document.querySelectorAll('.screen-picker [data-screen]').forEach(item=>item.classList.toggle('selected',item===button));render();const url=getOverlayUrl(screenMode);$('screen-url').textContent=url.href;navigator.clipboard?.writeText(url.href).then(()=>{button.textContent='Link másolva ✓';setTimeout(()=>button.textContent=button.dataset.label,1400)}).catch(()=>{})})});
   document.querySelectorAll('[data-language]').forEach(button=>button.addEventListener('click',()=>{settings.language=button.dataset.language;updateSettings()}));
   function updateLanguageButtons(){document.querySelectorAll('[data-language]').forEach(button=>button.classList.toggle('selected',button.dataset.language===settings.language))}
   window.addEventListener('hub-room-ready',updateRoomLink);
