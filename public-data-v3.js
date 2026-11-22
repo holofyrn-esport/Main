@@ -374,8 +374,9 @@ function renderPublicTeams() {
     let card = route ? grid.querySelector(`.team-card[href="#${route}"]`) : null;
     if (!card) {
       if (route) continue;
-      card = document.createElement('article');
+      card = document.createElement('a');
       card.className = 'team-card manager-team-card';
+      card.href = `#/teams/${encodeURIComponent(item.id)}/`;
       card.dataset.managerTeamId = item.id;
       grid.append(card);
       const background = document.createElement('img');
@@ -406,7 +407,24 @@ function render() {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
   renderPublicTeams();
   if(route!=='/'&&matchCountdownTimer){clearInterval(matchCountdownTimer);matchCountdownTimer=null;}
-  const team = teamRoutes[route];
+  const publishedTeamId = route.match(/^\/teams\/([^/]+)\/$/)?.[1];
+  const dynamicTeam = publishedTeamId && (publicData?.teams || []).find(item => item.id === publishedTeamId && !Object.values(teamRoutes).includes(item.id));
+  const team = teamRoutes[route] || dynamicTeam?.id;
+  if (dynamicTeam) {
+    const main = document.getElementById('main');
+    if (main && !main.querySelector('[data-dynamic-team-page]')) {
+      const intro = document.createElement('div'); intro.className = 'page-intro container'; intro.dataset.dynamicTeamPage = 'true';
+      const crumb = document.createElement('div'); crumb.className = 'breadcrumbs'; const back = document.createElement('a'); back.href = '#/teams/'; back.append(translated('Teams','Csapatok')); crumb.append(back, document.createTextNode(' / '), document.createTextNode(dynamicTeam.name));
+      const title = document.createElement('h1'); title.textContent = dynamicTeam.name; intro.append(crumb,title);
+      const section = document.createElement('section'); section.className = 'section container page-section';
+      const heading = document.createElement('h2'); heading.textContent = document.documentElement.lang === 'hu' ? 'Játékoskeret' : 'Roster';
+      const playersGrid = document.createElement('div'); playersGrid.className = 'players-grid';
+      const columns = document.createElement('div'); columns.className = 'two-column';
+      const resultPanel = document.createElement('section'); resultPanel.className = 'info-panel'; const resultTitle = document.createElement('h2'); resultTitle.textContent = document.documentElement.lang === 'hu' ? 'Eredmények' : 'Results'; const resultText = document.createElement('p'); resultPanel.append(resultTitle,resultText);
+      const tournamentPanel = document.createElement('section'); tournamentPanel.className = 'info-panel'; const tournamentTitle = document.createElement('h2'); tournamentTitle.textContent = document.documentElement.lang === 'hu' ? 'Versenyeredmények' : 'Tournament results'; const tournamentText = document.createElement('p'); tournamentPanel.append(tournamentTitle,tournamentText);
+      columns.append(resultPanel,tournamentPanel); section.append(heading,playersGrid,columns); main.replaceChildren(intro,section); document.title = `${dynamicTeam.name} | HoloFyrn Esport`;
+    }
+  }
   if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
   if (!publicData && !loadError) {
     const grid = document.querySelector('#main .players-grid');
