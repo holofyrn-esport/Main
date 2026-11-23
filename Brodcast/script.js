@@ -14,7 +14,7 @@
   if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];
   let socket, retryTimer, connected=false, hasGameData=false, goalTimer,lastGoalKey='',lastGoalAt=0;
   const match = {homeScore:0,awayScore:0,clock:'--:--',players:[[],[]],watchedPlayer:null,lastScorer:'',winner:null,replaying:false,replayGoal:null};
-  const safeImage=(img,src)=>{if(!img)return;img.src=src||'';img.style.visibility=src?'visible':'hidden'};
+  const safeImage=(img,src)=>{if(!img)return;const next=src||'';if(img.getAttribute('src')!==next)img.src=next;const visibility=next?'visible':'hidden';if(img.style.visibility!==visibility)img.style.visibility=visibility};
   function renderPlayerLists(){
     const safe=value=>escapeHtml(value??'');
     const demo=!hasGameData&&!new URLSearchParams(location.search).has('overlay');
@@ -295,7 +295,24 @@
   document.querySelectorAll('[data-bestof]').forEach(button=>button.addEventListener('click',()=>{const value=Number(button.dataset.bestof);if(value===Number(settings.bestOf))return;settings.bestOf=value;settings.seriesWins=[0,0];settings.endedMatches=[];settings.seriesPlayerStats={};updateSettings()}));
   $('reset-series').addEventListener('click',()=>{settings.seriesWins=[0,0];settings.endedMatches=[];updateSettings()});
   window.addEventListener('storage',event=>{if(event.key==='holofyrnHubTeams'){try{settings={...defaults,...JSON.parse(event.newValue||'{}')};updateSettings({publishCloud:false})}catch{}}});
-  window.addEventListener('hub-cloud-settings',event=>{if(!event.detail?.settings)return;settings={...settings,...event.detail.settings};if(!Array.isArray(settings.seriesWins))settings.seriesWins=[0,0];if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];updateSettings({publishCloud:false})});
+  let lastCloudSettings='';
+  window.addEventListener('hub-cloud-settings',event=>{
+    const remote=event.detail?.settings;if(!remote||typeof remote!=='object')return;
+    let signature;try{signature=JSON.stringify(remote)}catch{return}
+    if(signature===lastCloudSettings)return;lastCloudSettings=signature;
+    settings={...defaults,...remote};
+    if(!['hu','en'].includes(settings.language))settings.language='hu';
+    if(![3,5,7].includes(Number(settings.bestOf)))settings.bestOf=5;else settings.bestOf=Number(settings.bestOf);
+    if(!/^#[0-9a-f]{6}$/i.test(settings.homeColor||''))settings.homeColor=defaults.homeColor;
+    if(!/^#[0-9a-f]{6}$/i.test(settings.awayColor||''))settings.awayColor=defaults.awayColor;
+    if(settings.awayColor.toLowerCase()==='#10b9e9')settings.awayColor=defaults.awayColor;
+    if(settings.awayLogo?.includes(encodeURIComponent('#10b9e9')))settings.awayLogo=defaults.awayLogo;
+    if(!Array.isArray(settings.seriesWins))settings.seriesWins=[0,0];
+    settings.seriesWins=settings.seriesWins.slice(0,2).map(value=>Math.max(0,Number(value)||0));while(settings.seriesWins.length<2)settings.seriesWins.push(0);
+    if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];
+    if(!settings.seriesPlayerStats||typeof settings.seriesPlayerStats!=='object'||Array.isArray(settings.seriesPlayerStats))settings.seriesPlayerStats={};
+    updateSettings({publishCloud:false});
+  });
   window.addEventListener('hub-cloud-status',event=>{const status=$('cloud-status');if(status){status.textContent=event.detail.text;status.dataset.state=event.detail.state||'offline'}for(const side of ['home','away']){const localStatus=$(`${side}-upload-status`);if(!localStatus)continue;if(event.detail.state==='error'&&(localStatus.dataset.state==='idle'||localStatus.dataset.state==='pending')){localStatus.textContent=event.detail.text;localStatus.dataset.state='error'}else if(event.detail.saved&&event.detail.state==='online'&&localStatus.dataset.state==='pending'){localStatus.textContent='A logó Firestore-ba mentve, OBS-szel szinkronizálva.';localStatus.dataset.state='success'}}});
   window.addEventListener('hub-cloud-ready',event=>{if(event.detail?.isOwner&&!event.detail.hasSettings)window.hubCloud?.publish({...settings})});
   function getOverlayUrl(screen='game',language=settings.language){const url=new URL(location.href);url.search='';url.searchParams.set('overlay','');url.searchParams.set('screen',screen);url.searchParams.set('lang',language==='en'?'en':'hu');if(window.HUB_ROOM_ID)url.searchParams.set('room',window.HUB_ROOM_ID);url.hash='';return url}
