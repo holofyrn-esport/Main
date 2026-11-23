@@ -191,3 +191,37 @@ body{font-family:Manrope,Inter,Arial,sans-serif}
 .winner-final-score{display:flex;align-items:center;justify-content:center;gap:9%;width:100%;font:900 clamp(27px,4.3cqw,80px)/1 'Barlow Condensed',sans-serif}.winner-final-score strong:first-child{color:var(--winner-color,var(--home-color))}.winner-final-score i{color:#7d8794;font-style:normal}.winner-score-rail>small{color:#8997a5;font:800 clamp(7px,.72cqw,14px)/1 Inter,sans-serif;letter-spacing:.15em}.winner-score-rail>span{color:#e0e6ec;font:800 clamp(9px,.95cqw,18px)/1 'Barlow Condensed',sans-serif;letter-spacing:.05em}
 .winner-corner{position:absolute!important;z-index:1!important;width:10%;height:33%;background:var(--winner-color,var(--home-color));pointer-events:none}.winner-corner-top{top:0;right:17%;clip-path:polygon(0 0,100% 0,100% 100%)}.winner-corner-bottom{bottom:0;left:0;clip-path:polygon(0 0,100% 100%,0 100%)}
 .overlay-mode .winner-victory-card{inset:4% 3%}.overlay-mode .winner-watermark{font-size:18vw}.overlay-mode .winner-main-logo{width:clamp(90px,9vw,174px);height:clamp(90px,9vw,174px)}.overlay-mode .winner-main h1{font-size:clamp(72px,7vw,132px)}
+
+/* Make the live match header easier to read while leaving room around the player panels. */
+.scorebar,.overlay-mode .scorebar{left:23%;width:54%;height:14%;min-height:0;grid-template-columns:minmax(0,1fr) 20% minmax(0,1fr)}
+.bar-team{gap:.8cqw;padding:0 1.3cqw}
+.team-plaque b,.bar-away .team-plaque b{font-size:clamp(14px,1.6cqw,30px)}
+.bar-team>strong{font-size:clamp(22px,4.2cqw,64px)}
+.bar-center>strong{font-size:clamp(24px,3.2cqw,60px)}
+.bar-center>span{font-size:clamp(8px,.9cqw,14px)}
+.overlay-mode .scorebar{top:1.2%;height:14%;overflow:visible}
+.overlay-mode .bar-team{gap:clamp(6px,.8vw,15px);padding:0 clamp(8px,1.3vw,24px)}
+.overlay-mode .team-plaque b,.overlay-mode .bar-away .team-plaque b{font-size:clamp(15px,1.6vw,30px)}
+.overlay-mode .bar-team>strong{font-size:clamp(24px,4.2vw,64px)}
+.overlay-mode .bar-center>strong{font-size:clamp(28px,3.2vw,60px)}
+.team-stats.stats-home,.team-stats.stats-away{top:31%;bottom:auto}
+.overlay-mode .team-stats.stats-home,.overlay-mode .team-stats.stats-away{top:31%;width:min(17vw,325px)}
+.player-pov-panel.is-hidden,.player-pov-boost.is-hidden{display:none!important}
+.player-pov-panel{position:absolute;z-index:8;left:3.2%;bottom:8%;width:25%;padding:.75cqw .9cqw;border:1px solid #ffffff2b;border-left:3px solid var(--pov-color,var(--home-color));border-radius:3px;background:linear-gradient(110deg,#111318ed,#08090bf2);box-shadow:0 5px 16px #0008;font-family:'Barlow Condensed',sans-serif}
+.player-pov-panel>small{display:block;margin-bottom:.25cqw;color:var(--pov-color,var(--home-color));font:800 .75cqw Inter,sans-serif;letter-spacing:.14em}
+.player-pov-panel>strong{display:block;overflow:hidden;margin-bottom:.55cqw;font-size:1.8cqw;line-height:1;text-overflow:ellipsis;white-space:nowrap}
+.player-pov-panel>div{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.35cqw}
+.player-pov-panel>div>span{display:flex;min-width:0;flex-direction:column;gap:.15cqw;padding:.3cqw .35cqw;background:#ffffff0b;color:#aeb2bc;font:700 .62cqw Inter,sans-serif;letter-spacing:.04em}
+.player-pov-panel>div b{color:#fff;font:800 1.2cqw 'Barlow Condensed',sans-serif}
+.player-pov-boost{position:absolute;z-index:8;right:4%;bottom:8%;width:10cqw;aspect-ratio:1;padding:.65cqw;border-radius:50%;background:conic-gradient(var(--pov-color,var(--home-color)) 0 var(--pov-boost,0%),#ffffff2b var(--pov-boost,0%) 100%);box-shadow:0 0 16px color-mix(in srgb,var(--pov-color,var(--home-color)),transparent 55%)}
+.player-pov-boost>div{display:flex;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;border:2px solid #ffffff55;border-radius:50%;background:radial-gradient(#17191d,#07080a 72%)}
+.player-pov-boost strong{font:900 3.2cqw/1 'Barlow Condensed',sans-serif}.player-pov-boost small{margin-top:.35cqw;color:var(--pov-color,var(--home-color));font:800 .72cqw Inter,sans-serif;letter-spacing:.13em}
+.overlay-mode .player-pov-panel{width:min(25vw,480px);padding:clamp(8px,.75vw,14px) clamp(9px,.9vw,17px)}
+.overlay-mode .player-pov-panel>small{margin-bottom:clamp(3px,.25vw,5px);font-size:clamp(9px,.75vw,14px)}
+.overlay-mode .player-pov-panel>strong{margin-bottom:clamp(6px,.55vw,10px);font-size:clamp(22px,1.8vw,35px)}
+.overlay-mode .player-pov-panel>div{gap:clamp(4px,.35vw,7px)}
+.overlay-mode .player-pov-panel>div>span{gap:2px;padding:clamp(4px,.3vw,6px);font-size:clamp(8px,.62vw,12px)}
+.overlay-mode .player-pov-panel>div b{font-size:clamp(16px,1.2vw,23px)}
+.overlay-mode .player-pov-boost{width:clamp(88px,9vw,160px);padding:clamp(5px,.65vw,10px)}
+.overlay-mode .player-pov-boost strong{font-size:clamp(30px,3.2vw,58px)}
+.overlay-mode .player-pov-boost small{margin-top:clamp(3px,.35vw,6px);font-size:clamp(8px,.72vw,13px)}

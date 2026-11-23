@@ -35,6 +35,26 @@
       if(target.innerHTML!==rows)target.innerHTML=rows;
       if(card)card.style.setProperty('--player-color',settings[side+'Color']||defaults[side+'Color']);
     }
+    renderPlayerPov();
+  }
+  function renderPlayerPov(){
+    const player=hasGameData?match.watchedPlayer:null;
+    for(const prefix of ['hud-','out-']){
+      const panel=$(prefix+'player-pov'),boostPanel=$(prefix+'pov-boost');
+      if(!panel||!boostPanel)continue;
+      panel.classList.toggle('is-hidden',!player);
+      boostPanel.classList.toggle('is-hidden',!player);
+      if(!player)continue;
+      const team=Number(player.TeamNum)===1?'away':'home',color=settings[team+'Color']||defaults[team+'Color'];
+      panel.style.setProperty('--pov-color',color);boostPanel.style.setProperty('--pov-color',color);
+      const values={name:player.Name||'PLAYER',score:player.Score,goals:player.Goals,assists:player.Assists,saves:player.Saves,shots:player.Shots};
+      for(const [key,value] of Object.entries(values)){const el=$(prefix+'pov-'+key);if(el)el.textContent=key==='name'?String(value):String(Number(value)||0)}
+      const boost=Math.max(0,Math.min(100,Number(player.Boost)||0));
+      boostPanel.style.setProperty('--pov-boost',`${boost}%`);
+      const boostValue=$(prefix+'pov-boost-value');if(boostValue)boostValue.textContent=String(boost);
+      panel.setAttribute('aria-label',`${player.Name||'Player'} POV statistics`);
+      boostPanel.setAttribute('aria-label',`${player.Name||'Player'} boost ${boost} percent`);
+    }
   }
   function updateSettings({publishCloud=true}={}){
     document.documentElement.style.setProperty('--home-color',settings.homeColor);
