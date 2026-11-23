@@ -12,7 +12,7 @@
   if(!Array.isArray(settings.seriesWins))settings.seriesWins=[0,0];
   settings.seriesWins=settings.seriesWins.slice(0,2).map(value=>Math.max(0,Number(value)||0));while(settings.seriesWins.length<2)settings.seriesWins.push(0);
   if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];
-  let socket, retryTimer, connected=false, hasGameData=false, goalTimer,lastGoalKey='',lastGoalAt=0;
+  let socket, retryTimer, connected=false, hasGameData=false, goalTimer,lastGoalKey='',lastGoalAt=0,lastGoalIdentity=null,replayGoalIdentity=null;
   const match = {homeScore:0,awayScore:0,clock:'--:--',players:[[],[]],watchedPlayer:null,lastScorer:'',winner:null,replaying:false,replayGoal:null};
   const safeImage=(img,src)=>{if(!img)return;const next=src||'';if(img.getAttribute('src')!==next)img.src=next;const visibility=next?'visible':'hidden';if(img.style.visibility!==visibility)img.style.visibility=visibility};
   function renderPlayerLists(){
@@ -230,17 +230,31 @@
       const location=data.ImpactLocation||{};
       const goalKey=[data.MatchGuid||'',data.GoalTime??'',data.Scorer?.Name||'',data.Scorer?.TeamNum??'',data.GoalSpeed??'',location.X??'',location.Y??'',location.Z??''].join(':');
       const now=Date.now();
-      // Some Stats API streams repeat the goal event after the replay. Treat that as
-      // the same goal so it cannot increment the score or restart the goal overlay.
-      if(goalKey===lastGoalKey&&now-lastGoalAt<15000)return;
+      const identity={match:String(data.MatchGuid||''),time:String(data.GoalTime??''),scorer:String(data.Scorer?.Name||''),team:String(data.Scorer?.TeamNum??'')};
+      const sameReplayGoal=replayGoalIdentity&&now<=replayGoalIdentity.until
+        &&identity.scorer&&identity.team
+        &&identity.scorer===replayGoalIdentity.scorer&&identity.team===replayGoalIdentity.team
+        &&(!identity.match||!replayGoalIdentity.match||identity.match===replayGoalIdentity.match)
+        &&(!identity.time||!replayGoalIdentity.time||identity.time===replayGoalIdentity.time);
+      const sameRecentGoal=lastGoalIdentity&&now-lastGoalAt<15000
+        &&identity.scorer&&identity.team
+        &&identity.scorer===lastGoalIdentity.scorer&&identity.team===lastGoalIdentity.team
+        &&(!identity.match||!lastGoalIdentity.match||identity.match===lastGoalIdentity.match)
+        &&(!identity.time||!lastGoalIdentity.time||identity.time===lastGoalIdentity.time)
+        &&((identity.match&&lastGoalIdentity.match&&identity.match===lastGoalIdentity.match)
+          ||(identity.time&&lastGoalIdentity.time&&identity.time===lastGoalIdentity.time));
+      // Replay packets often omit the speed or position data from the original goal.
+      // Match scorer/team around the replay so the duplicate cannot show a 0 KM/H toast.
+      if(sameReplayGoal||((sameRecentGoal||goalKey===lastGoalKey)&&now-lastGoalAt<15000))return;
       lastGoalKey=goalKey;lastGoalAt=now;
+      lastGoalIdentity=identity;replayGoalIdentity=null;
       const team=Number(data.Scorer?.TeamNum);if(team===0)match.homeScore++;else if(team===1)match.awayScore++;render();showGoal(data);
     }
-    else if(message.Event==='GoalReplayStart'){match.replaying=true;document.querySelectorAll('.goal-toast').forEach(toast=>toast.classList.remove('visible'));updateReplayHud()}
+    else if(message.Event==='GoalReplayStart'){match.replaying=true;if(lastGoalIdentity)replayGoalIdentity={...lastGoalIdentity,until:Date.now()+12000};document.querySelectorAll('.goal-toast').forEach(toast=>toast.classList.remove('visible'));updateReplayHud()}
     else if(message.Event==='GoalReplayEnd'){match.replaying=false;updateReplayHud()}
     else if(message.Event==='MatchEnded')recordSeriesWinner(data);
     else if(message.Event==='MatchCreated'){if(settings.seriesWins.some(wins=>wins>=Math.ceil(Number(settings.bestOf)/2))){settings.seriesWins=[0,0];settings.endedMatches=[];settings.seriesPlayerStats={};saveSettings();render();window.hubCloud?.publish({...settings})}}
-    else if(message.Event==='MatchInitialized'){match.homeScore=0;match.awayScore=0;match.clock='5:00';match.players=[[],[]];match.watchedPlayer=null;match.winner=null;match.replaying=false;match.replayGoal=null;lastGoalKey='';lastGoalAt=0;updateReplayHud();render()}
+    else if(message.Event==='MatchInitialized'){match.homeScore=0;match.awayScore=0;match.clock='5:00';match.players=[[],[]];match.watchedPlayer=null;match.winner=null;match.replaying=false;match.replayGoal=null;lastGoalKey='';lastGoalAt=0;lastGoalIdentity=null;replayGoalIdentity=null;updateReplayHud();render()}
     else if(message.Event==='MatchDestroyed'){hasGameData=false;match.clock='--:--';match.players=[[],[]];match.watchedPlayer=null;match.replaying=false;updateReplayHud();setConnection(connected);render()}
   }
   function recordSeriesWinner(data){
