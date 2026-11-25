@@ -151,8 +151,8 @@ const schemas = {
   },
   players: {
     title: "Player profile",
-    empty: { id: "", name: "", rlName: "", discord: "", teamId: "main", position: "Player", peak1s: "", peak2s: "", peak3s: "", profileLink: "", peaksUpdatedAt: "", publicBio: "", notes: "", stats: emptyStats },
-    fields: [["name", "Name"], ["rlName", "Rocket League name"], ["discord", "Discord"], ["teamId", "Team", "team"], ["position", "Role / position", playerRoles], ["peak1s", "Peak 1s MMR", "number"], ["peak2s", "Peak 2s MMR", "number"], ["peak3s", "Peak 3s MMR", "number"], ["profileLink", "RL Tracker link", "url"], ["peaksUpdatedAt", "Peaks last updated", "date"], ["publicBio", "Public bio / training notes", "textarea"], ["notes", "Private coaching notes", "textarea"]],
+    empty: { id: "", name: "", rlName: "", discord: "", teamId: "main", position: "Player", nationality: "", peak1s: "", peak2s: "", peak3s: "", profileLink: "", peaksUpdatedAt: "", publicBio: "", notes: "", stats: emptyStats },
+    fields: [["name", "Name"], ["rlName", "Rocket League name"], ["discord", "Discord"], ["teamId", "Team", "team"], ["position", "Role / position", playerRoles], ["nationality", "Nationality"], ["peak1s", "Peak 1s MMR", "number"], ["peak2s", "Peak 2s MMR", "number"], ["peak3s", "Peak 3s MMR", "number"], ["profileLink", "RL Tracker link", "url"], ["peaksUpdatedAt", "Peaks last updated", "date"], ["publicBio", "Public bio / training notes", "textarea"], ["notes", "Private coaching notes", "textarea"]],
     headers: ["RL", "Discord", "Team", "Role", "Peak MMR", "Tracker", "Notes"],
     cells: (item) => [item.rlName, item.discord, teamName(item.teamId), item.position, peakMmrStack(item), item.profileLink ? `<a href="${escapeAttr(item.profileLink)}" target="_blank" rel="noreferrer">Open</a>` : "-", item.notes],
     search: (item) => `${item.name} ${item.rlName} ${item.discord} ${item.peak1s} ${item.peak2s} ${item.peak3s}`,
@@ -287,7 +287,7 @@ async function setupFirebase() {
   try {
     const [{ firebaseConfig }, publicData, firebaseAppModule, firebaseFirestoreModule, firebaseAuthModule] = await Promise.all([
       import("./firebaseConfig.js"),
-      import("./public-data.mjs?v=20261008-twitch-matches"),
+      import("./public-data.mjs?v=20261125-organization-stats"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"),
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js"),

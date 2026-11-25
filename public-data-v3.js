@@ -24,6 +24,19 @@ let publicTeamArt = {};
 let loadError = false;
 let matchCountdownTimer = null;
 
+function renderOrganizationStats(data = publicData || {}) {
+  const teams = Array.isArray(data.teams) ? data.teams : [];
+  const players = Array.isArray(data.players) ? data.players : [];
+  const results = Array.isArray(data.results) ? data.results : [];
+  const nations = new Set(players.map(player => String(player.nationality || '').trim().toLocaleLowerCase()).filter(Boolean));
+  const competitions = new Set(results.map(result => String(result.event || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase()).filter(Boolean));
+  const values = {teams: teams.length, nations: nations.size, competitions: competitions.size};
+  document.querySelectorAll('[data-organization-stat]').forEach(node => {
+    const value = values[node.dataset.organizationStat];
+    if (Number.isInteger(value)) node.textContent = String(value);
+  });
+}
+
 function playerTeams(player) {
   return Array.isArray(player.teamIds) && player.teamIds.length ? player.teamIds : [player.team];
 }
@@ -265,68 +278,71 @@ function renderPlayers(grid, players, team) {
 function renderUpcomingMatches(matches) {
   const layout = document.querySelector('#main .match-layout');
   if (!layout) return;
-  const block = layout.firstElementChild;
-  if(matchCountdownTimer){clearInterval(matchCountdownTimer);matchCountdownTimer=null;}
-  const now=Date.now(),today=todayInBudapest();
-  const future=(Array.isArray(matches)?matches:[]).filter(match=>match?.date>=today&&(!match.time||budapestTimestamp(match.date,match.time)>=now));
+  const block = layout.querySelector('.upcoming-match-block');
+  if (!block) return;
+  if (matchCountdownTimer) { clearInterval(matchCountdownTimer); matchCountdownTimer = null; }
+  const now = Date.now(), today = todayInBudapest();
+  const future = (Array.isArray(matches) ? matches : []).filter(match => match?.date >= today && (!match.time || budapestTimestamp(match.date, match.time) >= now));
   const selected = matchesForNextDay(future);
-  const label = document.createElement('span');
-  label.className = 'small-label';
-  label.append(translated('UPCOMING MATCHES', 'KÖVETKEZŐ MÉRKŐZÉSEK'));
-  const heading = document.createElement('strong');
-  if (selected.length) {
-    const date = new Date(`${selected[0].date}T12:00:00Z`);
-    const locale = document.documentElement.lang === 'hu' ? 'hu-HU' : 'en-GB';
-    heading.textContent = selected[0].date === todayInBudapest()
-      ? (locale === 'hu-HU' ? 'Ma' : 'Today')
-      : new Intl.DateTimeFormat(locale, {timeZone:'UTC', year:'numeric', month:'short', day:'numeric'}).format(date);
-    const list = document.createElement('div');
-    list.className = 'upcoming-match-list';
-    for (const match of selected) {
-      const row = document.createElement('div');
-      row.className = 'upcoming-match-row';
-      const sides = document.createElement('span');
-      sides.textContent = match.away ? `${match.home} vs ${match.away}` : `${match.home} · ${match.title||'Tournament'}`;
-      row.append(sides);
-      if(match.type&&match.away){const detail=document.createElement('small');detail.className='upcoming-match-detail';detail.textContent=match.title?`${match.type} · ${match.title}`:match.type;row.append(detail);}
-      if (match.time) {
-        const time = document.createElement('time');
-        time.dateTime = `${match.date}T${match.time}`;
-        time.textContent = match.time;
-        row.append(time);
-      }
-      if (match.twitchUrl) {
-        const twitch = document.createElement('a');
-        twitch.className = 'upcoming-twitch-link';
-        twitch.href = match.twitchUrl;
-        twitch.target = '_blank';
-        twitch.rel = 'noopener noreferrer';
-        twitch.setAttribute('aria-label', document.documentElement.lang === 'hu' ? 'Meccs élő közvetítése Twitch-en' : 'Watch the match live on Twitch');
-        twitch.title = 'Twitch';
-        twitch.innerHTML = '<svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4.5 0 1.2 3.3v12.1h4v3.3l3.3-3.3h2.6l5.3-5.3V0H4.5zm10.3 9.2-2.7 2.7H9.5l-2.3 2.3v-2.3H4.5V1.6h10.3v7.6zM12.1 3.3h1.6v4.1h-1.6zm-4.3 0h1.6v4.1H7.8z"/></svg>';
-        row.append(twitch);
-      }
-      list.append(row);
-    }
-    const countdown=document.createElement('span');countdown.className='match-countdown';countdown.setAttribute('aria-live','off');
-    const updateCountdown=()=>{
-      const next=selected.find(match=>match.time);
-      if(!next){countdown.textContent='';countdown.hidden=true;return;}
-      const left=budapestTimestamp(next.date,next.time)-Date.now();
-      countdown.hidden=false;
-      countdown.textContent=left<=0?(document.documentElement.lang==='hu'?'Hamarosan kezdődik':'Starting soon'):`${document.documentElement.lang==='hu'?'Kezdés: ':'Starts in '}${formatCountdown(left)}`;
-    };
-    updateCountdown();if(selected.some(match=>match.time))matchCountdownTimer=setInterval(updateCountdown,1000);
-    block.replaceChildren(label, heading, list, countdown);
-  } else {
-    heading.append(translated(loadError ? 'Matches temporarily unavailable' : !publicData ? 'Loading matches…' : 'Schedule to be announced',
+  const label = block.querySelector('.small-label');
+  label?.replaceChildren(translated('UPCOMING MATCHES', 'KÖVETKEZŐ MÉRKŐZÉSEK'));
+  const heading = block.querySelector('.match-day-heading');
+  const list = block.querySelector('.upcoming-match-list');
+  const countdown = block.querySelector('.match-countdown');
+  if (!heading || !list || !countdown) return;
+  list.replaceChildren();
+  if (!selected.length) {
+    heading.replaceChildren(translated(loadError ? 'Matches temporarily unavailable' : !publicData ? 'Loading matches…' : 'Schedule to be announced',
       loadError ? 'A mérkőzések átmenetileg nem érhetők el' : !publicData ? 'Mérkőzések betöltése…' : 'Időpont hamarosan'));
-    block.replaceChildren(label, heading);
+    countdown.hidden = true;
+    return;
   }
-  block.classList.add('upcoming-match-block');
-  layout.querySelector('.match-symbols')?.remove();
+  const firstDate = selected[0].date;
+  const date = new Date(`${firstDate}T12:00:00Z`);
+  const locale = document.documentElement.lang === 'hu' ? 'hu-HU' : 'en-GB';
+  heading.textContent = firstDate === todayInBudapest() ? (locale === 'hu-HU' ? 'Ma' : 'Today') : new Intl.DateTimeFormat(locale, {timeZone:'UTC', year:'numeric', month:'short', day:'numeric'}).format(date);
+  for (const match of selected) {
+    const row = document.createElement('div');
+    row.className = 'upcoming-match-row';
+    const details = document.createElement('div');
+    details.className = 'upcoming-match-copy';
+    const sides = document.createElement('strong');
+    sides.textContent = match.away ? `${match.home} vs ${match.away}` : `${match.home} · ${match.title || 'Tournament'}`;
+    details.append(sides);
+    const subline = document.createElement('span');
+    subline.className = 'upcoming-match-detail';
+    subline.textContent = match.title ? `${match.type || 'Tournament'} · ${match.title}` : (match.type || 'Tournament');
+    details.append(subline);
+    row.append(details);
+    if (match.time) {
+      const time = document.createElement('time');
+      time.dateTime = `${match.date}T${match.time}`;
+      time.textContent = match.time;
+      row.append(time);
+    }
+    if (match.twitchUrl) {
+      const twitch = document.createElement('a');
+      twitch.className = 'upcoming-twitch-link';
+      twitch.href = match.twitchUrl;
+      twitch.target = '_blank';
+      twitch.rel = 'noopener noreferrer';
+      twitch.setAttribute('aria-label', document.documentElement.lang === 'hu' ? 'Meccs élő közvetítése Twitch-en' : 'Watch the match live on Twitch');
+      twitch.title = 'Twitch';
+      twitch.innerHTML = '<svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4.5 0 1.2 3.3v12.1h4v3.3l3.3-3.3h2.6l5.3-5.3V0H4.5zm10.3 9.2-2.7 2.7H9.5l-2.3 2.3v-2.3H4.5V1.6h10.3v7.6zM12.1 3.3h1.6v4.1h-1.6zm-4.3 0h1.6v4.1H7.8z"/></svg>';
+      row.append(twitch);
+    }
+    list.append(row);
+  }
+  const updateCountdown = () => {
+    const next = selected.find(match => match.time);
+    if (!next) { countdown.textContent = ''; countdown.hidden = true; return; }
+    const left = budapestTimestamp(next.date, next.time) - Date.now();
+    countdown.hidden = false;
+    countdown.textContent = left <= 0 ? (document.documentElement.lang === 'hu' ? 'Hamarosan kezdődik' : 'Starting soon') : `${document.documentElement.lang === 'hu' ? 'Kezdés: ' : 'Starts in '}${formatCountdown(left)}`;
+  };
+  updateCountdown();
+  if (selected.some(match => match.time)) matchCountdownTimer = setInterval(updateCountdown, 1000);
 }
-
 function budapestTimestamp(date,time){
   const [year,month,day]=date.split('-').map(Number),[hour,minute]=time.split(':').map(Number),utcNoon=Date.UTC(year,month-1,day,12);
   const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date(utcNoon)).map(part=>[part.type,part.value]));
@@ -860,6 +876,7 @@ try {
     if (!snapshot.exists() || !Array.isArray(data.players) || !Array.isArray(data.results)) {
       publicData = {players:[],results:[]};
     } else publicData = data;
+    renderOrganizationStats(publicData);
     loadError = false;
     render();
   }, error => {

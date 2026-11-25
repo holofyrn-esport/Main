@@ -2604,14 +2604,15 @@
     </section>
     <section class="match-strip">
       <div class="container match-layout">
-        <div><span class="small-label"><span data-en="UPCOMING MATCH" data-hu="KÖVETKEZŐ MÉRKŐZÉS">UPCOMING
-              MATCH</span></span><strong><span data-en="Schedule to be announced" data-hu="Időpont hamarosan">Schedule
-              to be announced</span></strong></div>
-        <div class="match-symbols"><span class="match-badge">HF</span><span>VS</span><span
-            class="match-badge muted">?</span></div>
-        <div class="match-end"><span class="small-label"><span data-en="LATEST RESULT"
-              data-hu="LEGUTÓBBI EREDMÉNY">LATEST RESULT</span></span><strong><span data-en="Results coming soon"
-              data-hu="Eredmények hamarosan">Results coming soon</span></strong></div>
+        <article class="match-panel upcoming-match-block">
+          <span class="small-label"><span data-en="UPCOMING MATCHES" data-hu="KÖVETKEZŐ MÉRKŐZÉSEK">UPCOMING MATCHES</span></span>
+          <strong class="match-day-heading"><span data-en="Schedule to be announced" data-hu="Időpont hamarosan">Schedule to be announced</span></strong>
+          <div class="upcoming-match-list"></div><span class="match-countdown" hidden></span>
+        </article>
+        <article class="match-panel latest-result-panel">
+          <span class="small-label"><span data-en="LATEST RESULT" data-hu="LEGUTÓBBI EREDMÉNY">LATEST RESULT</span></span>
+          <strong><span data-en="Results coming soon" data-hu="Eredmények hamarosan">Results coming soon</span></strong>
+        </article>
       </div>
     </section>
     <section class="section container" id="news">
@@ -2739,10 +2740,10 @@
               HoloFyrn</span> <span aria-hidden="true">↗</span></a>
         </div>
         <div class="stats">
-          <div><b>7</b><span><span data-en="TEAMS" data-hu="CSAPAT">TEAMS</span></span></div>
-          <div><b>5</b><span><span data-en="NATIONS REPRESENTING OUR ORG"
+          <div><b data-organization-stat="teams">7</b><span><span data-en="TEAMS" data-hu="CSAPAT">TEAMS</span></span></div>
+          <div><b data-organization-stat="nations">5</b><span><span data-en="NATIONS REPRESENTING OUR ORG"
                 data-hu="AZ EGYESÜLETBEN KÉPVISELT NEMZETEK">NATIONS REPRESENTING OUR ORG</span></span></div>
-          <div><b>4</b><span><span data-en="TOURNAMENTS AND LEAGUES PARTICIPATED IN"
+          <div><b data-organization-stat="competitions">4</b><span><span data-en="TOURNAMENTS AND LEAGUES PARTICIPATED IN"
                 data-hu="VERSENYEK ÉS LIGÁK, AMELYEKBEN RÉSZT VETTÜNK">TOURNAMENTS AND LEAGUES PARTICIPATED
                 IN</span></span></div>
         </div>
@@ -3091,14 +3092,15 @@
     </section>
     <section class="match-strip">
       <div class="container match-layout">
-        <div><span class="small-label"><span data-en="UPCOMING MATCH" data-hu="KÖVETKEZŐ MÉRKŐZÉS">UPCOMING
-              MATCH</span></span><strong><span data-en="Schedule to be announced" data-hu="Időpont hamarosan">Schedule
-              to be announced</span></strong></div>
-        <div class="match-symbols"><span class="match-badge">HF</span><span>VS</span><span
-            class="match-badge muted">?</span></div>
-        <div class="match-end"><span class="small-label"><span data-en="LATEST RESULT"
-              data-hu="LEGUTÓBBI EREDMÉNY">LATEST RESULT</span></span><strong><span data-en="Results coming soon"
-              data-hu="Eredmények hamarosan">Results coming soon</span></strong></div>
+        <article class="match-panel upcoming-match-block">
+          <span class="small-label"><span data-en="UPCOMING MATCHES" data-hu="KÖVETKEZŐ MÉRKŐZÉSEK">UPCOMING MATCHES</span></span>
+          <strong class="match-day-heading"><span data-en="Schedule to be announced" data-hu="Időpont hamarosan">Schedule to be announced</span></strong>
+          <div class="upcoming-match-list"></div><span class="match-countdown" hidden></span>
+        </article>
+        <article class="match-panel latest-result-panel">
+          <span class="small-label"><span data-en="LATEST RESULT" data-hu="LEGUTÓBBI EREDMÉNY">LATEST RESULT</span></span>
+          <strong><span data-en="Results coming soon" data-hu="Eredmények hamarosan">Results coming soon</span></strong>
+        </article>
       </div>
     </section>
     <section class="section container" id="news">
@@ -3226,10 +3228,10 @@
               HoloFyrn</span> <span aria-hidden="true">↗</span></a>
         </div>
         <div class="stats">
-          <div><b>7</b><span><span data-en="TEAMS" data-hu="CSAPAT">TEAMS</span></span></div>
-          <div><b>5</b><span><span data-en="NATIONS REPRESENTING OUR ORG"
+          <div><b data-organization-stat="teams">7</b><span><span data-en="TEAMS" data-hu="CSAPAT">TEAMS</span></span></div>
+          <div><b data-organization-stat="nations">5</b><span><span data-en="NATIONS REPRESENTING OUR ORG"
                 data-hu="AZ EGYESÜLETBEN KÉPVISELT NEMZETEK">NATIONS REPRESENTING OUR ORG</span></span></div>
-          <div><b>4</b><span><span data-en="TOURNAMENTS AND LEAGUES PARTICIPATED IN"
+          <div><b data-organization-stat="competitions">4</b><span><span data-en="TOURNAMENTS AND LEAGUES PARTICIPATED IN"
                 data-hu="VERSENYEK ÉS LIGÁK, AMELYEKBEN RÉSZT VETTÜNK">TOURNAMENTS AND LEAGUES PARTICIPATED
                 IN</span></span></div>
         </div>
@@ -5638,7 +5640,199 @@
     .staff-profile .profile-grid > * {
       width: 100%
     }
-  </style>
+
+    /* Homepage match feature panels */
+    .match-strip {
+      min-height: clamp(470px, 32vw, 690px);
+      display: flex;
+      align-items: center;
+      border: 0;
+      background: #050303;
+      position: relative;
+      isolation: isolate;
+    }
+    .match-strip::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: transparent;
+    }
+    .match-layout {
+      width: min(calc(100% - 8vw), 2020px);
+      display: grid;
+      grid-template-columns: minmax(0, 2.12fr) minmax(310px, .88fr);
+      align-items: stretch;
+      gap: 28px;
+      padding: 0;
+    }
+    .match-panel {
+      min-width: 0;
+      min-height: clamp(270px, 16.4vw, 360px);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(28px, 3.5vw, 66px) clamp(28px, 3.5vw, 76px);
+      border: 1px solid rgba(230, 218, 218, .75);
+      border-radius: 24px;
+      background-color: #070405;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 16px 50px rgba(0,0,0,.28);
+    }
+    .upcoming-match-block {
+      background-image: linear-gradient(90deg, rgba(5,3,4,.76), rgba(5,3,4,.36)), url("assets/MatchLayout-BG.png");
+      background-size: cover;
+      background-position: center;
+    }
+    .latest-result-panel {
+      background-image: linear-gradient(90deg, rgba(5,3,4,.5), rgba(5,3,4,.34)), url("assets/MatchLayout-Panel-Design2.png");
+      background-size: cover;
+      background-position: center;
+    }
+    .match-panel::before,
+    .match-panel::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+    .match-panel::before {
+      width: 48px;
+      height: 48px;
+      top: -1px;
+      left: -1px;
+      border-top: 2px solid #ff1727;
+      border-left: 2px solid #ff1727;
+      clip-path: polygon(0 0,100% 0,0 100%);
+    }
+    .match-panel::after {
+      right: 0;
+      bottom: 0;
+      width: 42px;
+      height: 34px;
+      background: linear-gradient(135deg, transparent 48%, rgba(255,20,36,.8) 50%, rgba(255,20,36,.05) 72%);
+    }
+    .match-panel .small-label {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #d2bfc0;
+      font-size: clamp(13px, 1.1vw, 20px);
+      letter-spacing: .18em;
+    }
+    .match-panel .small-label::before {
+      content: "/";
+      color: #ff1425;
+      font-size: 1.55em;
+      font-weight: 900;
+    }
+    .match-panel > strong {
+      margin-top: 28px;
+      color: #f8f6f6;
+      font-size: clamp(25px, 2.5vw, 48px);
+      line-height: 1.08;
+      text-transform: uppercase;
+    }
+    .match-panel .match-day-heading {
+      width: fit-content;
+      margin-top: 26px;
+      padding-right: 100px;
+      position: relative;
+      font-size: clamp(38px, 3.3vw, 68px);
+    }
+    .match-panel .match-day-heading::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: calc(100% - 82px);
+      width: 140px;
+      height: 2px;
+      background: linear-gradient(90deg, #fa1729, transparent);
+    }
+    .upcoming-match-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+      padding-right: min(35%, 320px);
+    }
+    .upcoming-match-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 18px;
+      color: #f5f2f2;
+      font-size: clamp(17px, 1.8vw, 30px);
+    }
+    .upcoming-match-copy { min-width: 0; display: grid; gap: 8px; }
+    .upcoming-match-copy strong { overflow-wrap: anywhere; }
+    .upcoming-match-detail {
+      color: #a99d9e;
+      font-size: clamp(13px, 1.15vw, 21px);
+      font-weight: 600;
+      white-space: normal;
+    }
+    .upcoming-match-row time {
+      color: #f6eeee;
+      font-size: clamp(16px, 1.45vw, 26px);
+      font-weight: 800;
+    }
+    .match-countdown:not([hidden]) {
+      position: absolute;
+      right: clamp(24px, 2.2vw, 44px);
+      bottom: clamp(24px, 2.2vw, 44px);
+      display: flex;
+      align-items: center;
+      min-height: 68px;
+      padding: 14px 28px;
+      border: 1px solid #ff2332;
+      color: #fff;
+      background: linear-gradient(110deg, rgba(112,0,10,.92), rgba(190,0,15,.76));
+      box-shadow: 0 0 22px rgba(255,0,22,.26), inset 0 0 18px rgba(255,0,22,.2);
+      clip-path: polygon(12% 0,100% 0,100% 78%,88% 100%,0 100%,0 25%);
+      font-size: clamp(15px, 1.55vw, 28px);
+      font-weight: 800;
+    }
+    .latest-result-panel { justify-content: flex-start; }
+    .latest-result-panel > strong { margin-top: 54px; }
+    @media (max-width: 900px) {
+      .match-strip { min-height: 0; padding: 55px 0; }
+      .match-layout { grid-template-columns: minmax(0, 1.55fr) minmax(240px, .85fr); gap: 16px; }
+      .match-panel { min-height: 270px; padding: 28px; border-radius: 19px; }
+      .upcoming-match-list { padding-right: 0; }
+      .match-countdown:not([hidden]) { position: static; width: fit-content; margin-top: 16px; min-height: 0; padding: 10px 18px; }
+      .latest-result-panel > strong { margin-top: 38px; }
+    }
+    @media (max-width: 640px) {
+      .match-strip { padding: 38px 0; background-position: center; }
+      .match-layout { width: calc(100% - 32px); grid-template-columns: minmax(0, 1fr); gap: 14px; }
+      .match-panel { min-height: 245px; padding: 25px 22px; }
+      .match-panel .match-day-heading { padding-right: 50px; }
+      .match-panel .match-day-heading::after { left: calc(100% - 40px); width: 60px; }
+      .upcoming-match-row { align-items: flex-start; }
+      .latest-result-panel { min-height: 190px; }
+      .latest-result-panel > strong { margin-top: 30px; }
+    }
+    /* Team results and achievements panels */
+    #main .two-column .info-panel {
+      position: relative; isolation: isolate; display: flex; min-height: 285px; flex-direction: column; align-items: flex-start;
+      padding: clamp(25px, 3vw, 52px); overflow: hidden; color: #f7f3f3; background-color: #070405;
+      background-image: linear-gradient(90deg, rgba(4,3,4,.82), rgba(4,3,4,.52)), url("assets/info-panel-BG.png");
+      background-position: center; background-size: cover; border: 1px solid rgba(255,98,108,.72); border-radius: 20px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.07), 0 14px 38px rgba(0,0,0,.28);
+    }
+    #main .two-column .info-panel::before, #main .two-column .info-panel::after { content: ""; position: absolute; z-index: 0; pointer-events: none; }
+    #main .two-column .info-panel::before { top: 0; left: 0; width: 64px; height: 54px; background: linear-gradient(135deg, rgba(255,32,48,.94), rgba(255,32,48,.12) 44%, transparent 45%); clip-path: polygon(0 0,100% 0,0 100%); }
+    #main .two-column .info-panel::after { right: 0; bottom: 0; width: 54px; height: 46px; background: linear-gradient(315deg, rgba(255,32,48,.8), transparent 58%); }
+    #main .two-column .info-panel > * { position: relative; z-index: 1; }
+    #main .two-column .info-panel .eyebrow { color: #d3c4c5; letter-spacing: .18em; }
+    #main .two-column .info-panel .eyebrow i { width: 4px; height: 23px; margin: 0 12px 0 0; border-radius: 0; transform: skew(-22deg); background: #ff2435; }
+    #main .two-column .info-panel h2 { width: 100%; margin: 20px 0 18px; padding-bottom: 20px; border-bottom: 1px solid rgba(204,151,154,.35); color: #fff; font-size: clamp(27px,2.5vw,42px); line-height: 1.12; }
+    #main .two-column .info-panel p { max-width: 92%; margin: auto 0 0 auto; color: #c5b8b9; text-align: right; line-height: 1.55; }
+    @media (max-width: 700px) {
+      #main .two-column .info-panel { min-height: 245px; border-radius: 16px; }
+      #main .two-column .info-panel h2 { font-size: clamp(25px,7vw,34px); }
+      #main .two-column .info-panel p { max-width: 100%; }
+    }  </style>
   <template data-route="/players/" data-title="Player | HoloFyrn Esport">
     <section class="player-profile container" id="public-player-profile">
       <p role="status"><span data-en="Loading player…" data-hu="Játékos betöltése…">Loading player…</span></p>
@@ -5920,7 +6114,7 @@
       restoreDiscordSession();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261031-player-bios"></script>
+  <script type="module" src="public-data-v3.js?v=20261125-match-layout"></script>
 </body>
 
 </html>
