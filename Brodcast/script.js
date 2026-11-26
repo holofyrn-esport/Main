@@ -14,6 +14,65 @@
   if(!Array.isArray(settings.endedMatches))settings.endedMatches=[];
   let socket, retryTimer, connected=false, hasGameData=false, goalTimer,lastGoalKey='',lastGoalAt=0,lastGoalIdentity=null,replayGoalIdentity=null;
   const match = {homeScore:0,awayScore:0,clock:'--:--',players:[[],[]],watchedPlayer:null,lastScorer:'',winner:null,replaying:false,replayGoal:null};
+  const boostAnimations = new Map();
+  let boostAnimationFrame = 0;
+  function boostKey(team, player) { return `${team}:${String(player?.Name || '').toLocaleLowerCase()}`; }
+  function displayedBoost(key, target) {
+    const now = performance.now(), value = Math.max(0, Math.min(100, Number(target) || 0));
+    let state = boostAnimations.get(key);
+    if (!state) {
+      state = {value, from:value, to:value, started:now, duration:0, lastSample:now};
+      boostAnimations.set(key, state);
+    } else if (value !== state.to) {
+      const progress = state.duration ? Math.min(1, (now - state.started) / state.duration) : 1;
+      state.value = state.from + (state.to - state.from) * progress;
+      state.from = state.value;
+      state.to = value;
+      state.started = now;
+      state.duration = Math.max(120, Math.min(1100, now - state.lastSample));
+      state.lastSample = now;
+    }
+    if (state.duration) {
+      const progress = Math.min(1, Math.max(0, (now - state.started) / state.duration));
+      state.value = state.from + (state.to - state.from) * progress;
+      if (progress >= 1) state.duration = 0;
+      else scheduleBoostAnimation();
+    } else state.value = state.to;
+    return state.value;
+  }
+  function scheduleBoostAnimation() {
+    if (boostAnimationFrame) return;
+    boostAnimationFrame = requestAnimationFrame(tickBoostAnimations);
+  }
+  function tickBoostAnimations() {
+    boostAnimationFrame = 0;
+    let active = false;
+    const now = performance.now();
+    const rows = document.querySelectorAll('.player-boost-row');
+    const povPanels = document.querySelectorAll('.player-pov-boost');
+    for (const [key, state] of boostAnimations) {
+      if (!state.duration) continue;
+      const progress = Math.min(1, Math.max(0, (now - state.started) / state.duration));
+      state.value = state.from + (state.to - state.from) * progress;
+      if (progress >= 1) state.duration = 0;
+      else active = true;
+      const value = Math.round(state.value);
+      rows.forEach(row => {
+        if (row.dataset.boostKey !== key) return;
+        const number = row.querySelector('small'), track = row.querySelector('.player-boost-track');
+        if (number && number.textContent !== String(value)) number.textContent = String(value);
+        if (track) { track.setAttribute('aria-valuenow', String(value)); const fill = track.querySelector('i'); if (fill) fill.style.width = `${state.value}%`; }
+      });
+      povPanels.forEach(panel => {
+        if (panel.dataset.boostKey !== key) return;
+        panel.style.setProperty('--pov-boost', `${state.value}%`);
+        const number = panel.querySelector('strong');
+        if (number && number.textContent !== String(value)) number.textContent = String(value);
+        panel.setAttribute('aria-label', `${panel.dataset.playerName || 'Player'} boost ${value} percent`);
+      });
+    }
+    if (active) scheduleBoostAnimation();
+  }
   const safeImage=(img,src)=>{if(!img)return;const next=src||'';if(img.getAttribute('src')!==next)img.src=next;const visibility=next?'visible':'hidden';if(img.style.visibility!==visibility)img.style.visibility=visibility};
   function renderPlayerLists(){
     const safe=value=>escapeHtml(value??'');
@@ -28,11 +87,20 @@
       const players=demo&&prefix===''?previewPlayers[team]:(match.players[team]||[]);
       if(card)card.classList.toggle('is-hidden',players.length===0);
       if(!target)continue;
-      const rows=players.map(player=>{
-        const boost=Math.max(0,Math.min(100,Number(player.Boost)||0));
-        return `<div class="player-boost-row"><b title="${safe(player.Name)}">${safe(player.Name||'PLAYER')}</b><span class="player-boost-track" role="meter" aria-label="${safe(player.Name)} boost" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${boost}"><i style="width:${boost}%"></i></span><small>${boost}</small></div>`;
-      }).join('');
-      if(target.innerHTML!==rows)target.innerHTML=rows;
+      const signature=players.map(player=>String(player.Name||'PLAYER')).join('|');
+      if(target.dataset.playerSignature!==signature){
+        target.dataset.playerSignature=signature;
+        target.innerHTML=players.map(player=>`<div class="player-boost-row" data-boost-key="${safe(boostKey(team,player))}"><b title="${safe(player.Name)}">${safe(player.Name||'PLAYER')}</b><span class="player-boost-track" role="meter" aria-label="${safe(player.Name)} boost" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i style="width:0%"></i></span><small>0</small></div>`).join('');
+      }
+      players.forEach(player=>{
+        const key=boostKey(team,player),boost=displayedBoost(key,player.Boost),value=Math.round(boost);
+        const row=[...target.querySelectorAll('.player-boost-row')].find(item=>item.dataset.boostKey===key);
+        if(!row)return;
+        const number=row.querySelector('small'),track=row.querySelector('.player-boost-track'),fill=track?.querySelector('i');
+        if(number)number.textContent=String(value);
+        if(track)track.setAttribute('aria-valuenow',String(value));
+        if(fill)fill.style.width=`${boost}%`;
+      });
       if(card)card.style.setProperty('--player-color',settings[side+'Color']||defaults[side+'Color']);
     }
     renderPlayerPov();
@@ -49,11 +117,12 @@
       panel.style.setProperty('--pov-color',color);boostPanel.style.setProperty('--pov-color',color);
       const values={name:player.Name||'PLAYER',score:player.Score,goals:player.Goals,assists:player.Assists,saves:player.Saves,shots:player.Shots};
       for(const [key,value] of Object.entries(values)){const el=$(prefix+'pov-'+key);if(el)el.textContent=key==='name'?String(value):String(Number(value)||0)}
-      const boost=Math.max(0,Math.min(100,Number(player.Boost)||0));
+      const key=boostKey(Number(player.TeamNum)===1?1:0,player),boost=displayedBoost(key,player.Boost),boostNumber=Math.round(boost);
+      boostPanel.dataset.boostKey=key;boostPanel.dataset.playerName=player.Name||'Player';
       boostPanel.style.setProperty('--pov-boost',`${boost}%`);
-      const boostValue=$(prefix+'pov-boost-value');if(boostValue)boostValue.textContent=String(boost);
+      const boostValue=$(prefix+'pov-boost-value');if(boostValue)boostValue.textContent=String(boostNumber);
       panel.setAttribute('aria-label',`${player.Name||'Player'} POV statistics`);
-      boostPanel.setAttribute('aria-label',`${player.Name||'Player'} boost ${boost} percent`);
+      boostPanel.setAttribute('aria-label',`${player.Name||'Player'} boost ${boostNumber} percent`);
     }
   }
   function updateSettings({publishCloud=true}={}){
@@ -158,6 +227,22 @@
     const teamBlock=i=>`<article class="scene-team" style="--team:${colors[i]}"><img src="${safe(settings[i?'awayLogo':'homeLogo'])}" alt=""><h2>${safe(names[i])}</h2><strong>${displayScores[i]}</strong></article>`;
     const scenes={game:'',goal:`<div class="scene-card goal-card"><small>ROCKET LEAGUE · GOAL</small><h1>GÓL!</h1><p>${safe(previewDemo?'JUICY':match.lastScorer||'Várakozás a gólra')}</p><b>${safe(displayClock)}</b></div>`,win:`<div class="scene-card winner-card"><small>MECCS VÉGE</small><h1>GYŐZTES</h1>${displayWinner===null?'<p>A győztes a meccs végén jelenik meg.</p>':teamBlock(displayWinner)}<p>${safe(displayWinner===null?'':names[displayWinner])}</p></div>`,postgame:`<div class="scene-card"><small>POST GAME · ${safe(displayClock)}</small><h1>MECCS STATISZTIKÁK</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><table><thead><tr><th>JÁTÉKOS</th><th>PONT</th><th>GÓL</th><th>GÓLP.</th><th>VÉDÉS</th><th>LÖVÉS</th></tr></thead><tbody>${statsTable||'<tr><td colspan="6">A játékosadatok a Stats API-ból érkeznek.</td></tr>'}</tbody></table></div>`,series:`<div class="scene-card"><small>POST SERIES · BO${settings.bestOf}</small><h1>SOROZAT STATISZTIKÁK</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><div class="series-count">${previewDemo?'2':settings.seriesWins[0]} <i>—</i> ${previewDemo?'1':settings.seriesWins[1]}</div><table><thead><tr><th>JÁTÉKOS</th><th>PONT</th><th>GÓL</th><th>GÓLP.</th><th>VÉDÉS</th><th>LÖVÉS</th></tr></thead><tbody>${seriesTable||'<tr><td colspan="6">Az első meccs után jelennek meg.</td></tr>'}</tbody></table></div>`,mvp:`<div class="scene-card mvp-card"><small>SOROZAT MVP</small><h1>${safe(seriesPlayers[0]?.Name||players[0]?.Name||'MVP')}</h1><p>${seriesPlayers.length?'A sorozat összesített Stats API adatai alapján':'A játékosadatok a Stats API-ból érkeznek.'}</p><div class="mvp-stats">${['Score','Goals','Assists','Saves','Shots','Demolitions'].map((key,i)=>`<span><b>${Number((seriesPlayers[0]||players[0])?.[key])||0}</b>${['PONT','GÓL','GÓLP.','VÉDÉS','LÖVÉS','DEMÓ'][i]}</span>`).join('')}</div></div>`,caster:`<div class="scene-card caster-card"><small>HOLOFYRN BROADCAST</small><h1>CASTER KÉPERNYŐ</h1><div class="scene-teams">${teamBlock(0)}<b class="versus-mark">VS</b>${teamBlock(1)}</div><p>${safe(displayClock)} · GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} · BO${settings.bestOf}</p><footer>A játékállás és az óra a Rocket League Stats API-ból érkezik.</footer></div>`,intermission:`<div class="scene-card intermission-card"><small>HOLOFYRN ESPORTS</small><h1>SZÜNET</h1><div class="scene-teams">${teamBlock(0)}${teamBlock(1)}</div><p>FOLYTATÁS HAMAROSAN</p><footer>GAME ${settings.seriesWins[0]+settings.seriesWins[1]+1} · BO${settings.bestOf}</footer></div>`};
     let markup=scenes[screenMode]??scenes.game;
+    if(screenMode==='interview-home'||screenMode==='interview-away'){
+      const team=screenMode==='interview-away'?1:0,side=team===0?'home':'away';
+      const teamName=settings[side+'Name']||names[team],teamLogo=settings[side+'Logo']||'',teamColor=colors[team];
+      markup=`<div class="scene-card interview-card interview-${side}" style="--team:${teamColor}">
+        <div class="interview-layout">
+          <div class="interview-video-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <section class="interview-branding">
+            <small>${language==='en'?'HOLOFYRN ESPORTS · INTERVIEW':'HOLOFYRN ESPORTS · INTERJÚ'}</small>
+            <div class="interview-team"><img src="${safe(teamLogo)}" alt=""><b>${safe(teamName)}</b></div>
+            <h1>${language==='en'?'INTERVIEW':'INTERJÚ'}</h1>
+            <div class="interview-name-slot" aria-label="Empty name field for an OBS text source"></div>
+            <span class="interview-label">${language==='en'?'POST MATCH':'MÉRKŐZÉS UTÁN'}</span>
+          </section>
+        </div>
+      </div>`;
+    }
     if(screenMode==='postgame')markup=postgameMarkup;
     if(screenMode==='win'){
       const winner=displayWinner===null?0:displayWinner,loser=1-winner;
@@ -177,6 +262,7 @@
     const canvas=document.querySelector('.preview-canvas');if(canvas)canvas.dataset.screen=screenMode;
     document.querySelectorAll('.screen-picker [data-screen]').forEach(button=>button.classList.toggle('selected',button.dataset.screen===screenMode));
     const screenName=$('preview-screen-name');if(screenName)screenName.textContent=({game:language==='en'?'MATCH HUD':'MECCS HUD',goal:language==='en'?'GOAL':'GÓL',win:language==='en'?'WINNER':'GYŐZTES',postgame:language==='en'?'POST GAME':'MECCS STATISZTIKA',series:language==='en'?'SERIES STATS':'SOROZAT STATISZTIKA',mvp:'MVP',caster:'CASTER',intermission:language==='en'?'INTERMISSION':'SZÜNET'})[screenMode]||'MECCS HUD';
+    if($('preview-screen-name')&&screenMode==='interview-home')$('preview-screen-name').textContent=language==='en'?'HOME INTERVIEW':'HAZAI INTERJÚ';if($('preview-screen-name')&&screenMode==='interview-away')$('preview-screen-name').textContent=language==='en'?'AWAY INTERVIEW':'VENDÉG INTERJÚ';
     document.body.dataset.screen=screenMode;document.body.dataset.language=language;document.documentElement.lang=language;
   }
   function drawSeriesDots(container,wins,count,color){if(!container)return;container.replaceChildren(...Array.from({length:count},(_,i)=>{const dot=document.createElement('i');dot.style.setProperty('--dot-color',color);if(i<wins)dot.classList.add('won');return dot}))}
@@ -227,10 +313,14 @@
       match.watchedPlayer=target;
       renderLiveHud();
     }else if(message.Event==='GoalScored'){
+      const scorerName=String(data.Scorer?.Name||'').trim(),scorerTeam=Number(data.Scorer?.TeamNum);
+      // Rocket League emits a placeholder GoalScored with an empty scorer when a goal replay ends.
+      // It is a replay notification, not a new goal; counting it also briefly corrupts the HUD score.
+      if(!scorerName||(scorerTeam!==0&&scorerTeam!==1))return;
       const location=data.ImpactLocation||{};
       const goalKey=[data.MatchGuid||'',data.GoalTime??'',data.Scorer?.Name||'',data.Scorer?.TeamNum??'',data.GoalSpeed??'',location.X??'',location.Y??'',location.Z??''].join(':');
       const now=Date.now();
-      const identity={match:String(data.MatchGuid||''),time:String(data.GoalTime??''),scorer:String(data.Scorer?.Name||''),team:String(data.Scorer?.TeamNum??'')};
+      const identity={match:String(data.MatchGuid||''),time:String(data.GoalTime??''),scorer:scorerName,team:String(scorerTeam)};
       const sameReplayGoal=replayGoalIdentity&&now<=replayGoalIdentity.until
         &&identity.scorer&&identity.team
         &&identity.scorer===replayGoalIdentity.scorer&&identity.team===replayGoalIdentity.team
@@ -248,7 +338,7 @@
       if(sameReplayGoal||((sameRecentGoal||goalKey===lastGoalKey)&&now-lastGoalAt<15000))return;
       lastGoalKey=goalKey;lastGoalAt=now;
       lastGoalIdentity=identity;replayGoalIdentity=null;
-      const team=Number(data.Scorer?.TeamNum);if(team===0)match.homeScore++;else if(team===1)match.awayScore++;render();showGoal(data);
+      if(scorerTeam===0)match.homeScore++;else match.awayScore++;render();showGoal(data);
     }
     else if(message.Event==='GoalReplayStart'){match.replaying=true;if(lastGoalIdentity)replayGoalIdentity={...lastGoalIdentity,until:Date.now()+12000};document.querySelectorAll('.goal-toast').forEach(toast=>toast.classList.remove('visible'));updateReplayHud()}
     else if(message.Event==='GoalReplayEnd'){match.replaying=false;updateReplayHud()}
