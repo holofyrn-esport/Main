@@ -275,6 +275,37 @@ function renderPlayers(grid, players, team) {
   grid.replaceChildren(...sortedRoster(players, team).map((player,index)=>playerCard({...player,role:teamRole(player,team)},index)));
 }
 
+function renderLatestResult() {
+  const panels = document.querySelectorAll('#main .latest-result-panel');
+  if (!panels.length) return;
+  const rows = (publicData?.results || []).filter(row => row?.type === 'league' && ['win','loss','draw'].includes(row.outcome) && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date || '')));
+  rows.sort((a,b) => String(b.date).localeCompare(String(a.date)) || String(b.time || '').localeCompare(String(a.time || '')));
+  const latest = rows[0], hu = document.documentElement.lang === 'hu', chr = String.fromCharCode;
+  const latestLabel = 'LEGUT' + chr(211) + 'BBI EREDM' + chr(201) + 'NY';
+  for (const panel of panels) {
+    panel.querySelector('.small-label')?.replaceChildren(translated('LATEST RESULT', latestLabel));
+    let heading = panel.querySelector(':scope > strong');
+    if (!heading) { heading = document.createElement('strong'); panel.append(heading); }
+    let detail = panel.querySelector('.latest-result-detail');
+    if (!detail) { detail = document.createElement('small'); detail.className = 'latest-result-detail'; panel.append(detail); }
+    if (!latest) {
+      const loading = 'Eredm' + chr(233) + 'nyek bet' + chr(246) + 'lt' + chr(233) + 'se...';
+      const coming = 'Eredm' + chr(233) + 'nyek hamarosan';
+      const unavailable = 'Eredm' + chr(233) + 'nyek ideiglenesen nem ' + chr(233) + 'rhet' + chr(337) + 'k el';
+      heading.textContent = loadError ? (hu ? unavailable : 'Results temporarily unavailable') : !publicData ? (hu ? loading : 'Loading results...') : (hu ? coming : 'Results coming soon');
+      heading.className = ''; detail.textContent = ''; detail.hidden = true; continue;
+    }
+    const team = String(latest.teamName || publicData?.teams?.find(item => item.id === latest.team)?.name || latest.team || 'HoloFyrn');
+    const outcome = latest.outcome === 'win' ? (hu ? 'GY' + chr(336) + 'ZELEM' : 'WIN') : latest.outcome === 'loss' ? (hu ? 'VERES' + chr(201) + 'G' : 'LOSS') : (hu ? 'D' + chr(214) + 'NTETLEN' : 'DRAW');
+    heading.replaceChildren();
+    const teamName = document.createElement('span'); teamName.textContent = team;
+    const outcomeLabel = document.createElement('span'); outcomeLabel.className = 'latest-result-outcome is-' + latest.outcome; outcomeLabel.textContent = outcome;
+    heading.append(teamName, outcomeLabel); heading.className = 'latest-result-heading';
+    detail.textContent = [latest.opponent ? 'vs ' + latest.opponent : '', latest.score || '', latest.date || ''].filter(Boolean).join(' ' + chr(183) + ' ');
+    detail.hidden = !detail.textContent;
+  }
+}
+
 function renderUpcomingMatches(matches) {
   const layout = document.querySelector('#main .match-layout');
   if (!layout) return;
@@ -441,7 +472,7 @@ function render() {
       columns.append(resultPanel,tournamentPanel); section.append(heading,playersGrid,columns); main.replaceChildren(intro,section); document.title = `${dynamicTeam.name} | HoloFyrn Esport`;
     }
   }
-  if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
+  if (route === '/') { renderUpcomingMatches(publicData?.upcomingMatches || []); renderLatestResult(); }
   if (!publicData && !loadError) {
     const grid = document.querySelector('#main .players-grid');
     if ((team || route === '/') && grid) grid.replaceChildren(emptyMessage('Loading players…', 'Játékosok betöltése…'));
@@ -845,13 +876,14 @@ function renderPublicNewsArticle(route) {
 document.addEventListener('holofyrn:route', render);
 document.querySelector('.language-toggle')?.addEventListener('click', () => {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
-  if (route === '/') renderUpcomingMatches(publicData?.upcomingMatches || []);
+  if (route === '/') { renderUpcomingMatches(publicData?.upcomingMatches || []); renderLatestResult(); }
   renderPublicStaff(route);
   renderPublishedNews(route);
   renderPublicCompetitions(route);
 });
 document.addEventListener('holofyrn:language', () => {
   const route = decodeURIComponent(location.hash.slice(1)) || '/';
+  if (route === '/') renderLatestResult();
   renderPublicStaff(route);
   renderPublishedNews(route);
   renderPublicCompetitions(route);

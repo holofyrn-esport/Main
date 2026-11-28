@@ -71,7 +71,9 @@ export function publicHoloFyrnData(data = {}) {
     const home = Number(game.homeSeries), away = Number(game.awaySeries);
     if (!Number.isFinite(home) || !Number.isFinite(away)) continue;
     for (const team of knownTeams.filter(item => item.name === game.home || item.name === game.away)) {
-      results.push({team:team.id,type:'league',date:str(game.date).slice(0,10),event:`${game.home} vs ${game.away}`.slice(0,150),stage:'',placement:`${home}–${away}`});
+      const isHome = team.name === game.home;
+      const teamScore = isHome ? home : away, opponentScore = isHome ? away : home;
+      results.push({team:team.id,teamName:publicTeamName(team.name).slice(0,100),type:'league',date:str(game.date).slice(0,10),time:/^\d{2}:\d{2}$/.test(str(game.time))?str(game.time):'',event:(game.home+' vs '+game.away).slice(0,150),opponent:publicTeamName(isHome?game.away:game.home).slice(0,100),score:String(teamScore)+'\u2013'+String(opponentScore),outcome:teamScore>opponentScore?'win':teamScore<opponentScore?'loss':'draw',stage:'',placement:String(home)+'\u2013'+String(away)});
     }
   }
   const teamName = id => publicTeamName(knownTeams.find(team => team.id === id)?.name);

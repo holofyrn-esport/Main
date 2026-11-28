@@ -2560,7 +2560,13 @@
     .staff-preview .staff-preview-zemsta { overflow: hidden; background: #000 }
 
     .staff-preview .staff-preview-qex { overflow: hidden }
-  </style>
+  
+    .latest-result-heading { display:flex; align-items:center; flex-wrap:wrap; gap:14px; }
+    .latest-result-outcome { color:#f4f2f2; font-size:.68em; letter-spacing:.08em; }
+    .latest-result-outcome.is-win { color:#76e6a0; }
+    .latest-result-outcome.is-loss { color:#ff6372; }
+    .latest-result-detail { display:block; margin-top:9px; color:#d0c7c9; font-size:clamp(12px,1vw,18px); letter-spacing:.04em; }
+</style>
 </head>
 
 <body>
@@ -2802,10 +2808,9 @@
             rel="noopener noreferrer"><strong>Instagram</strong><span aria-hidden="true">↗</span></a>
           <a class="social-card" href="https://www.tiktok.com/@holofyrn.esports" target="_blank"
             rel="noopener noreferrer"><strong>TikTok</strong><span aria-hidden="true">↗</span></a>
-          <div class="social-card social-card-pending"><strong>Twitch</strong><span data-en="Soon"
-              data-hu="Hamarosan">Soon</span></div>
-          <div class="social-card social-card-pending"><strong>YouTube</strong><span data-en="Soon"
-              data-hu="Hamarosan">Soon</span></div>
+          <a class="social-card" href="https://www.twitch.tv/holofyrn" target="_blank" rel="noopener noreferrer"><strong data-en="Twitch ? Main" data-hu="Twitch ? F? csatorna">Twitch ? Main</strong><span aria-hidden="true">?</span></a>
+          <a class="social-card" href="https://www.twitch.tv/holofyrn_2" target="_blank" rel="noopener noreferrer"><strong data-en="Twitch ? Second channel" data-hu="Twitch ? M?sodik csatorna">Twitch ? Second channel</strong><span aria-hidden="true">?</span></a>
+          <a class="social-card" href="https://www.youtube.com/@HoloFyrnEsports" target="_blank" rel="noopener noreferrer"><strong>YouTube</strong><span aria-hidden="true">?</span></a>
         </div>
       </div>
     </section>
@@ -3290,10 +3295,9 @@
             rel="noopener noreferrer"><strong>Instagram</strong><span aria-hidden="true">↗</span></a>
           <a class="social-card" href="https://www.tiktok.com/@holofyrn.esports" target="_blank"
             rel="noopener noreferrer"><strong>TikTok</strong><span aria-hidden="true">↗</span></a>
-          <div class="social-card social-card-pending"><strong>Twitch</strong><span data-en="Soon"
-              data-hu="Hamarosan">Soon</span></div>
-          <div class="social-card social-card-pending"><strong>YouTube</strong><span data-en="Soon"
-              data-hu="Hamarosan">Soon</span></div>
+          <a class="social-card" href="https://www.twitch.tv/holofyrn" target="_blank" rel="noopener noreferrer"><strong data-en="Twitch ? Main" data-hu="Twitch ? F? csatorna">Twitch ? Main</strong><span aria-hidden="true">?</span></a>
+          <a class="social-card" href="https://www.twitch.tv/holofyrn_2" target="_blank" rel="noopener noreferrer"><strong data-en="Twitch ? Second channel" data-hu="Twitch ? M?sodik csatorna">Twitch ? Second channel</strong><span aria-hidden="true">?</span></a>
+          <a class="social-card" href="https://www.youtube.com/@HoloFyrnEsports" target="_blank" rel="noopener noreferrer"><strong>YouTube</strong><span aria-hidden="true">?</span></a>
         </div>
       </div>
     </section>
@@ -6114,7 +6118,7 @@
       restoreDiscordSession();
     })();
   </script>
-  <script type="module" src="public-data-v3.js?v=20261125-match-layout"></script>
+  <script type="module" src="public-data-v3.js?v=20261128-latest-result"></script>
 </body>
 
 </html>
